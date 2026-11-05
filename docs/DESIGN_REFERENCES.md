@@ -1,77 +1,58 @@
 # CampaignEcho Design Reference Inventory
 
-**Date**: November 2026  
+**Date**: November 2026 (Updated for "The Campaign Desk" Overhaul)  
 **Research Lead**: Antigravity UI & Design Architecture  
-**Methodology**: Refero Design Research, SaaS Architecture Analysis, Anti-AI-Slop Governance
+**Methodology**: Anti-Slop Governance, Linear Design Refresh Analysis, Attio Workspace Architecture
 
 ---
 
-## 1. Product & SaaS Visual References
+## 1. Primary Product References
 
-### Reference A: Linear (Product Architecture & Visual Restraint)
-- **Source**: [https://linear.app](https://linear.app) / Refero SaaS Architecture
+### Reference A: Attio (Data-Dense Workspace & Warm Elegance)
+- **Source**: [https://attio.com](https://attio.com)
 - **Observed Design Patterns**:
-  - High-density information display without cognitive clutter.
-  - Deep dark surfaces (`#0A0D14`, `#10141E`, `#161B26`) with crisp 1px borders (`rgba(255, 255, 255, 0.08)`).
-  - Monospaced metadata tags paired with clean neo-grotesque sans-serif body typography.
-  - Keyboard-navigable controls, compact row-level actions, and zero superfluous decorative gradients.
+  - Warm, paper-like neutral surfaces paired with high-contrast ink typography.
+  - Multi-attribute workspace tables with subtle pill status badges and fine hairline dividers.
+  - Asymmetric layout with primary brand context prominently anchored on the left.
 - **What is Adapted**:
-  - Global navigation layout (collapsible sidebar with active brand switcher).
-  - Compact table rows, status chips, and metadata badge styling.
-- **Where it Appears in CampaignEcho**:
-  - Main App Shell, Sidebar, Campaign History table, and Brand Switcher dropdown.
+  - The warm ivory (`#F5F3EE`) canvas and white paper surfaces.
+  - Fine border system (`#D9D7CF`) instead of floating dark drop shadows.
+  - Clean brand switcher in the navigation sidebar.
 
-### Reference B: Perplexity AI / Notion AI (AI Workspace & Grounded Citations)
-- **Source**: [https://perplexity.ai](https://perplexity.ai), [https://notion.so](https://notion.so) / Refero AI Flows
+### Reference B: Linear (The Latest Design Refresh)
+- **Source**: [https://linear.app/now/behind-the-latest-design-refresh](https://linear.app/now/behind-the-latest-design-refresh)
 - **Observed Design Patterns**:
-  - Distinct visual separation between raw AI-generated prose and the underlying evidence/citations.
-  - Expandable "Sources & Memory Footnotes" cards displaying exact source items.
-  - Clean two-pane workflow: inputs/context on the left, structured generated output with provenance chips on the right.
+  - Deliberate reduction of visual noise; not every element deserves equal weight.
+  - Elimination of competing border lines and unnecessary card containers.
+  - Unified typographic hierarchy prioritizing content clarity over decorative flair.
 - **What is Adapted**:
-  - The Memory Footnote & Provenance Card pattern: every strategy recommendation has an explicit "Memory Citation" chip referencing the specific past campaign or brand rule.
-- **Where it Appears in CampaignEcho**:
-  - Campaign Studio (`/campaign-studio`) and Memory Explorer (`/memory-explorer`).
+  - Removal of the generic four-card dashboard grid.
+  - Restrained use of accent colors (terracotta used only for primary focus).
+  - Clean whitespace and dividers instead of nested boxes.
 
-### Reference C: PostHog / Mixpanel (Marketing Intelligence & Memory Timelines)
-- **Source**: [https://posthog.com](https://posthog.com), [https://mixpanel.com](https://mixpanel.com) / Refero Analytics Patterns
+### Reference C: ANODA Marketing Analytics Case Study
+- **Source**: [https://www.anoda.mobi/cases/marketing-analytics-saas-dashboard-redesign](https://www.anoda.mobi/cases/marketing-analytics-saas-dashboard-redesign)
 - **Observed Design Patterns**:
-  - Metric sparklines with muted secondary indicators (delta vs. prior period).
-  - Horizontal and vertical activity streams showing chronological events with icon-coded event types.
-  - Clean data visualization using restrained dual-accent colorways rather than rainbow charts.
+  - Organisation of marketing interfaces around actual business decisions (e.g. audience targeting, creative fatigue, ROI).
+  - Explicit differentiation between unknown/missing metrics and true zero values.
 - **What is Adapted**:
-  - Memory Activity Timeline: visual differentiation between **Retain** (green/emerald tag), **Recall** (blue/indigo tag), and **Reflect** (violet/purple tag).
-  - Metric performance cards with explicit units and reporting periods.
-- **Where it Appears in CampaignEcho**:
-  - Overview Dashboard (`/`), Brand Performance cards, and Memory Explorer timeline.
+  - Structuring the overview around brand posture and campaign lessons rather than server diagnostics.
+  - Proper data provenance display.
 
-### Reference D: Raycast / Craft Docs (Editorial Polish & Typography Hierarchy)
-- **Source**: [https://raycast.com](https://raycast.com), [https://craft.do](https://craft.do)
+### Reference D: Nicelydone & SaaSUI
+- **Sources**: [https://nicelydone.club/examples/tags/marketing-analytics](https://nicelydone.club/examples/tags/marketing-analytics), [https://www.saasui.design/analytics-dashboard-design-examples](https://www.saasui.design/analytics-dashboard-design-examples)
 - **Observed Design Patterns**:
-  - Distinct editorial typographic hierarchy with crisp letter-spacing (`tracking-tight` on headings, generous line-height on copy).
-  - High-contrast typography on dark charcoal surfaces with electric-blue active focal points.
-  - Subtle interactive micro-interactions: border glow on active input focus, 150ms ease-out transitions.
+  - Meaningful, high-context empty states that guide the user on what will happen once data flows in.
+  - Compact horizontal readiness indicators.
 - **What is Adapted**:
-  - Typographic scale, heading weights, and subtle focus rings.
-- **Where it Appears in CampaignEcho**:
-  - Campaign Studio Brief input, Memory Evolution side-by-side comparison screen.
+  - The Campaign Learning Ledger empty state and horizontal workspace readiness strip.
 
 ---
 
-## 2. Component & Interaction References
+## 2. Component & Interaction Resources (Canonical Links)
 
-| Source Library | Pattern / Component | Purpose in CampaignEcho | Adaptation Details |
-| :--- | :--- | :--- | :--- |
-| **shadcn/ui** | Dialog, Sheet, Tabs, Command, Badge, Card, Tooltip, Select | Core UI primitives | Styled with custom Tailwind design tokens, deep navy background and 1px border styling. |
-| **Lucide Icons** | Unified iconography suite | Visual cues across all views | Consistent 16px/18px stroke width (1.5px), zero random emojis used as navigational elements. |
-| **Recharts** | LineChart, BarChart, ResponsiveContainer | Campaign analytics & KPI visualization | Minimalist grid lines, custom dark-mode tooltips, single-accent data fills. |
-| **Radix Primitives**| Accessible dropdowns, switches, popovers | Reliable keyboard navigation & ARIA compliance | Enforces full accessibility standards across interactive controls. |
-
----
-
-## 3. Motion & Animation Standards
-
-| Technology | Implementation Scope | Rules & Constraints |
-| :--- | :--- | :--- |
-| **Tailwind CSS Transitions** | Hover states, tab switches, dialog appearance | `150ms-200ms` cubic-bezier easing, zero sluggish 500ms+ animations. |
-| **GSAP Core** | Memory Evolution comparison transitions, side-by-side diff reveal | Smooth, GPU-accelerated reveal between "Without Memory" and "With Memory" states. Always honors `prefers-reduced-motion`. |
-
+- **Shadcn UI**: [https://ui.shadcn.com/](https://ui.shadcn.com/)
+- **Componentry Design**: [https://componentry.design/](https://componentry.design/) (verified canonical site)
+- **Uiverse**: [https://uiverse.io/](https://uiverse.io/)
+- **React Bits**: [https://reactbits.dev/](https://reactbits.dev/)
+- **Lucide Icons**: [https://lucide.dev/](https://lucide.dev/)

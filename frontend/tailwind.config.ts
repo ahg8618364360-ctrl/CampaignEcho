@@ -10,36 +10,43 @@ const config: Config = {
     extend: {
       colors: {
         canvas: {
-          DEFAULT: "#090D16",
-          subtle: "#0D121F",
+          DEFAULT: "#F5F3EE",      // Warm ivory page ground
+          subtle: "#EDEAE2",
         },
         surface: {
-          DEFAULT: "#0E1424",
-          raised: "#141C32",
-          hover: "rgba(255, 255, 255, 0.04)",
+          DEFAULT: "#FFFFFF",     // Crisp white paper card surface
+          subtle: "#FAF8F5",      // Inset sections & table headers
+          hover: "#F3F0E8",
+        },
+        ink: {
+          DEFAULT: "#202923",     // Charcoal forest primary text
+          soft: "#3A453E",
+        },
+        muted: {
+          DEFAULT: "#707970",     // Muted olive stone secondary text
+          subtle: "#9BA39B",
+        },
+        terracotta: {
+          DEFAULT: "#B85C38",     // Primary brand accent
+          hover: "#A04E2E",
+          subtle: "rgba(184, 92, 56, 0.08)",
+          border: "rgba(184, 92, 56, 0.25)",
+        },
+        forest: {
+          DEFAULT: "#39745D",     // Positive / Verified status
+          hover: "#2D5C4A",
+          subtle: "rgba(57, 116, 93, 0.08)",
+          border: "rgba(57, 116, 93, 0.25)",
         },
         hairline: {
-          DEFAULT: "rgba(255, 255, 255, 0.08)",
-          subtle: "rgba(255, 255, 255, 0.04)",
-          strong: "rgba(255, 255, 255, 0.14)",
-        },
-        brand: {
-          DEFAULT: "#3B82F6",
-          hover: "#2563EB",
-          muted: "rgba(59, 130, 246, 0.15)",
-        },
-        memory: {
-          retain: "#10B981",       // Emerald for Stored Wisdom / Retain
-          "retain-muted": "rgba(16, 185, 129, 0.15)",
-          recall: "#3B82F6",       // Electric Blue for Recalled Memories
-          "recall-muted": "rgba(59, 130, 246, 0.15)",
-          reflect: "#8B5CF6",      // Violet for Reasoning Synthesis
-          "reflect-muted": "rgba(139, 92, 246, 0.15)",
+          DEFAULT: "#D9D7CF",     // Muted warm border divider
+          subtle: "#E6E4DD",
+          strong: "#C4C2B8",
         },
       },
       fontFamily: {
-        sans: ["var(--font-inter)", "system-ui", "sans-serif"],
-        mono: ["var(--font-jetbrains-mono)", "ui-monospace", "monospace"],
+        serif: ["var(--font-instrument-serif)", "Georgia", "serif"],
+        sans: ["var(--font-dm-sans)", "system-ui", "sans-serif"],
       },
     },
   },
@@ -47,4 +54,3 @@ const config: Config = {
 };
 
 export default config;
-
