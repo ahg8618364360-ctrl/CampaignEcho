@@ -118,9 +118,9 @@ export function Sidebar() {
                 </svg>
               </div>
               <div className="leading-none">
-                <h1 className="font-serif text-xl tracking-tight text-ink font-normal">
+                <span className="font-serif text-xl tracking-tight text-ink font-normal block">
                   CampaignEcho
-                </h1>
+                </span>
                 <p className="text-[11px] text-ink-secondary font-sans mt-0.5">
                   Marketing Intelligence
                 </p>
@@ -195,3 +195,4 @@ export function Sidebar() {
     </>
   );
 }
+

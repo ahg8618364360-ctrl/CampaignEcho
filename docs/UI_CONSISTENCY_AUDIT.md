@@ -99,3 +99,4 @@ Seven shared components were introduced in `frontend/src/components/` to guarant
 5. `FeatureState`: Purposeful coming-soon state explaining workspace capabilities, active brand context, and navigation actions without internal milestone jargon.
 6. `Sidebar`: Client-driven responsive sidebar with active route detection (`usePathname()`), acoustic resonance mark, and mobile slide-out drawer.
 7. `WorkspaceHeader`: Persistent desktop top bar with workspace breadcrumb, local session indicator, and system diagnostics shortcut.
+
