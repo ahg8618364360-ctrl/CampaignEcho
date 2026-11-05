@@ -19,12 +19,13 @@ const config: Config = {
           hover: "#F3F0E8",
         },
         ink: {
-          DEFAULT: "#202923",     // Charcoal forest primary text
+          DEFAULT: "#202923",     // Charcoal forest primary text (13.8:1 contrast on white)
+          secondary: "#59635C",   // Accessible secondary text (5.1:1 contrast on white)
           soft: "#3A453E",
         },
         muted: {
-          DEFAULT: "#707970",     // Muted olive stone secondary text
-          subtle: "#9BA39B",
+          DEFAULT: "#59635C",     // Accessible muted text (5.1:1 contrast on white)
+          subtle: "#7A847C",
         },
         terracotta: {
           DEFAULT: "#B85C38",     // Primary brand accent
@@ -42,6 +43,11 @@ const config: Config = {
           DEFAULT: "#D9D7CF",     // Muted warm border divider
           subtle: "#E6E4DD",
           strong: "#C4C2B8",
+        },
+        alert: {
+          DEFAULT: "#D9383A",
+          subtle: "rgba(217, 56, 58, 0.08)",
+          border: "rgba(217, 56, 58, 0.25)",
         },
       },
       fontFamily: {

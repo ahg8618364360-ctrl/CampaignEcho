@@ -2,6 +2,10 @@
 
 import { useEffect, useState } from "react";
 import { checkReadiness, type HealthReadyResponse } from "@/lib/api";
+import { PageContainer } from "@/components/PageContainer";
+import { PageHeader } from "@/components/PageHeader";
+import { SectionHeading } from "@/components/SectionHeading";
+import { Button } from "@/components/Button";
 import {
   Server,
   Database,
@@ -32,58 +36,54 @@ export default function SettingsPage() {
   const isDbConnected = health?.database === "connected";
 
   return (
-    <div className="max-w-4xl mx-auto space-y-8">
+    <PageContainer>
       {/* Header */}
-      <div className="flex items-center justify-between pb-6 border-b border-hairline">
-        <div>
-          <span className="text-[11px] font-semibold uppercase tracking-wider text-muted">
-            Preferences &amp; Diagnostics
-          </span>
-          <h1 className="font-serif text-3xl text-ink font-normal mt-1">Platform Settings</h1>
-          <p className="text-xs text-muted mt-1">
-            Local developer environment configuration, health probes, and API connectivity.
-          </p>
-        </div>
-
-        <button
-          onClick={refreshHealth}
-          disabled={loading}
-          className="flex items-center gap-1.5 px-3 py-2 rounded-lg bg-surface border border-hairline hover:border-hairline-strong text-xs font-medium text-ink transition-colors shadow-xs disabled:opacity-50"
-        >
-          <RefreshCw className={`w-3.5 h-3.5 ${loading ? "animate-spin" : ""}`} />
-          <span>Test Connections</span>
-        </button>
-      </div>
+      <PageHeader
+        badge="Preferences & Diagnostics"
+        badgeSubtext="Local Runtime Environment"
+        title="Platform Settings"
+        description="Local developer environment configuration, health probes, and service connectivity diagnostics."
+        actions={
+          <Button
+            variant="secondary"
+            onClick={refreshHealth}
+            disabled={loading}
+            icon={<RefreshCw className={`w-3.5 h-3.5 ${loading ? "animate-spin" : ""}`} />}
+          >
+            <span>Test Connections</span>
+          </Button>
+        }
+      />
 
       {/* System Infrastructure Telemetry */}
       <div className="space-y-4">
-        <h2 className="font-serif text-xl text-ink flex items-center gap-2">
-          <SlidersHorizontal className="w-4 h-4 text-terracotta" />
-          <span>System Infrastructure Status</span>
-        </h2>
+        <SectionHeading
+          title="System Infrastructure Status"
+          description="Live connectivity diagnostics across backend services, database persistence, and intelligence engines."
+        />
 
         <div className="divide-y divide-hairline rounded-xl bg-surface border border-hairline shadow-xs">
           {/* Backend API */}
-          <div className="p-4 flex items-center justify-between">
+          <div className="p-4 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
             <div className="flex items-center gap-3">
-              <div className="w-8 h-8 rounded-lg bg-surface-subtle border border-hairline flex items-center justify-center text-ink">
-                <Server className="w-4 h-4" />
+              <div className="w-8 h-8 rounded-lg bg-surface-subtle border border-hairline flex items-center justify-center text-ink shrink-0">
+                <Server className="w-4 h-4 text-ink" />
               </div>
               <div>
-                <p className="text-sm font-medium text-ink">FastAPI Backend Service</p>
-                <p className="text-xs text-muted">
+                <p className="text-sm font-medium text-ink font-sans">FastAPI Backend Service</p>
+                <p className="text-xs text-ink-secondary font-sans">
                   Endpoint: <code className="font-mono text-ink">http://127.0.0.1:8000/api/v1</code>
                 </p>
               </div>
             </div>
-            <div className="flex items-center gap-2">
+            <div className="flex items-center gap-2 self-start sm:self-auto">
               {isBackendAlive ? (
-                <span className="flex items-center gap-1 text-xs font-medium text-forest bg-forest-subtle px-2.5 py-1 rounded-full border border-forest-border">
+                <span className="flex items-center gap-1 text-xs font-medium text-forest bg-forest-subtle px-2.5 py-1 rounded-full border border-forest-border font-sans tabular-nums">
                   <CheckCircle2 className="w-3.5 h-3.5" />
                   <span>Alive ({health?.latencyMs}ms)</span>
                 </span>
               ) : (
-                <span className="flex items-center gap-1 text-xs font-medium text-alert bg-alert/10 px-2.5 py-1 rounded-full border border-alert/30">
+                <span className="flex items-center gap-1 text-xs font-medium text-alert bg-alert/10 px-2.5 py-1 rounded-full border border-alert/30 font-sans">
                   <AlertCircle className="w-3.5 h-3.5" />
                   <span>Unreachable</span>
                 </span>
@@ -92,26 +92,26 @@ export default function SettingsPage() {
           </div>
 
           {/* SQLite Database */}
-          <div className="p-4 flex items-center justify-between">
+          <div className="p-4 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
             <div className="flex items-center gap-3">
-              <div className="w-8 h-8 rounded-lg bg-surface-subtle border border-hairline flex items-center justify-center text-ink">
-                <Database className="w-4 h-4" />
+              <div className="w-8 h-8 rounded-lg bg-surface-subtle border border-hairline flex items-center justify-center text-ink shrink-0">
+                <Database className="w-4 h-4 text-ink" />
               </div>
               <div>
-                <p className="text-sm font-medium text-ink">Application Database</p>
-                <p className="text-xs text-muted">
+                <p className="text-sm font-medium text-ink font-sans">Application Database</p>
+                <p className="text-xs text-ink-secondary font-sans">
                   Driver: SQLite 3 via SQLAlchemy 2.0 ORM · Alembic Migrated
                 </p>
               </div>
             </div>
-            <div className="flex items-center gap-2">
+            <div className="flex items-center gap-2 self-start sm:self-auto">
               {isDbConnected ? (
-                <span className="flex items-center gap-1 text-xs font-medium text-forest bg-forest-subtle px-2.5 py-1 rounded-full border border-forest-border">
+                <span className="flex items-center gap-1 text-xs font-medium text-forest bg-forest-subtle px-2.5 py-1 rounded-full border border-forest-border font-sans">
                   <CheckCircle2 className="w-3.5 h-3.5" />
                   <span>Connected</span>
                 </span>
               ) : (
-                <span className="flex items-center gap-1 text-xs font-medium text-alert bg-alert/10 px-2.5 py-1 rounded-full border border-alert/30">
+                <span className="flex items-center gap-1 text-xs font-medium text-alert bg-alert/10 px-2.5 py-1 rounded-full border border-alert/30 font-sans">
                   <AlertCircle className="w-3.5 h-3.5" />
                   <span>Disconnected</span>
                 </span>
@@ -120,40 +120,40 @@ export default function SettingsPage() {
           </div>
 
           {/* Vectorize Hindsight */}
-          <div className="p-4 flex items-center justify-between">
+          <div className="p-4 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
             <div className="flex items-center gap-3">
-              <div className="w-8 h-8 rounded-lg bg-surface-subtle border border-hairline flex items-center justify-center text-ink">
+              <div className="w-8 h-8 rounded-lg bg-surface-subtle border border-hairline flex items-center justify-center text-ink shrink-0">
                 <Brain className="w-4 h-4 text-terracotta" />
               </div>
               <div>
-                <p className="text-sm font-medium text-ink">Vectorize Hindsight Memory Engine</p>
-                <p className="text-xs text-muted">
+                <p className="text-sm font-medium text-ink font-sans">Vectorize Hindsight Memory Engine</p>
+                <p className="text-xs text-ink-secondary font-sans">
                   SDK: <code className="font-mono text-ink">hindsight-client</code> (Native async: aretain, arecall, areflect)
                 </p>
               </div>
             </div>
-            <span className="text-xs font-medium text-muted bg-surface-subtle px-2.5 py-1 rounded-full border border-hairline">
-              Scheduled for M2
+            <span className="text-xs font-medium text-ink-secondary bg-surface-subtle px-2.5 py-1 rounded-full border border-hairline self-start sm:self-auto font-sans">
+              Configuration Initializing
             </span>
           </div>
 
           {/* Groq Cloud */}
-          <div className="p-4 flex items-center justify-between">
+          <div className="p-4 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
             <div className="flex items-center gap-3">
-              <div className="w-8 h-8 rounded-lg bg-surface-subtle border border-hairline flex items-center justify-center text-ink">
-                <Cpu className="w-4 h-4 text-muted" />
+              <div className="w-8 h-8 rounded-lg bg-surface-subtle border border-hairline flex items-center justify-center text-ink shrink-0">
+                <Cpu className="w-4 h-4 text-ink-secondary" />
               </div>
               <div>
-                <p className="text-sm font-medium text-ink">Groq LLM Inference</p>
-                <p className="text-xs text-muted">Model: Llama 3.3 70B Versatile</p>
+                <p className="text-sm font-medium text-ink font-sans">Groq LLM Inference</p>
+                <p className="text-xs text-ink-secondary font-sans">Model: Llama 3.3 70B Versatile</p>
               </div>
             </div>
-            <span className="text-xs font-medium text-muted bg-surface-subtle px-2.5 py-1 rounded-full border border-hairline">
-              Scheduled for M3
+            <span className="text-xs font-medium text-ink-secondary bg-surface-subtle px-2.5 py-1 rounded-full border border-hairline self-start sm:self-auto font-sans">
+              Integration Queued
             </span>
           </div>
         </div>
       </div>
-    </div>
+    </PageContainer>
   );
 }

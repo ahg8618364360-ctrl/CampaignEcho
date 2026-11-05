@@ -3,13 +3,25 @@
 @tailwind utilities;
 
 :root {
-  --background: #F5F3EE;
-  --foreground: #202923;
+  --canvas: #F5F3EE;
+  --surface: #FFFFFF;
+  --surface-subtle: #FAF8F5;
+
+  --ink: #202923;
+  --ink-secondary: #59635C;
+  --muted: #59635C;
+
+  --terracotta: #B85C38;
+  --forest: #39745D;
+  --hairline: #D9D7CF;
+
+  --background: var(--canvas);
+  --foreground: var(--ink);
 }
 
 body {
-  color: var(--foreground);
-  background-color: var(--background);
+  color: var(--ink);
+  background-color: var(--canvas);
   font-feature-settings: "cv02", "cv03", "cv04", "cv11";
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
@@ -21,12 +33,12 @@ body {
   height: 6px;
 }
 ::-webkit-scrollbar-track {
-  background: #F5F3EE;
+  background: var(--canvas);
 }
 ::-webkit-scrollbar-thumb {
-  background: #D9D7CF;
+  background: var(--hairline);
   border-radius: 9999px;
 }
 ::-webkit-scrollbar-thumb:hover {
-  background: #B85C38;
+  background: var(--terracotta);
 }
