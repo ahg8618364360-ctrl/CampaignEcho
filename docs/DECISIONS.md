@@ -60,3 +60,18 @@
 - **Consequences**:
   - Prevents subtle accounting and calculation bugs.
   - Preserves data provenance and accurate distinction between unrecorded metrics and 0-conversion campaigns.
+
+---
+
+## ADR-007: Native Async Hindsight Client & Operational Telemetry Persistence
+- **Status**: ACCEPTED
+- **Context**: Milestone 2 requires integrating Vectorize Hindsight (`hindsight-client` v1.2.0) into the FastAPI backend. Sync client calls inside async routes block the event loop or cause deadlocks. In addition, operational diagnostics must be tracked without leaking memory text or violating tenant boundaries.
+- **Decision**:
+  1. Use pure native asynchronous methods on the official SDK (`aretain`, `arecall`, `areflect`, `acreate_bank`, `aget_version`).
+  2. Implement `MemoryService` with strict deterministic bank naming (`campaignecho-brand-{brand_id.lower()}`). Client requests cannot inject arbitrary bank identifiers.
+  3. Classify engine status transparently into `CONNECTED`, `UNREACHABLE`, and `AUTH_FAILED`. Never report fake connectivity.
+  4. Persist privacy-safe operational telemetry into the SQLite `memory_logs` table (`brand_id`, `operation_type`, `items_count`, `latency_ms`, `status`).
+- **Consequences**:
+  - Zero event loop starvation in high-throughput campaign generation.
+  - Provable 1:1 tenant isolation across brands.
+  - Safe audit trail for latency and error monitoring without PII or prompt leakage.

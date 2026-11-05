@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { checkReadiness, type HealthReadyResponse } from "@/lib/api";
+import { checkReadiness, fetchMemoryStatus, type HealthReadyResponse, type MemoryStatusResponse } from "@/lib/api";
 import { PageContainer } from "@/components/PageContainer";
 import { PageHeader } from "@/components/PageHeader";
 import { SectionHeading } from "@/components/SectionHeading";
@@ -19,21 +19,27 @@ import {
 
 export default function SettingsPage() {
   const [health, setHealth] = useState<HealthReadyResponse | null>(null);
+  const [memoryStatus, setMemoryStatus] = useState<MemoryStatusResponse | null>(null);
   const [loading, setLoading] = useState(true);
 
-  const refreshHealth = async () => {
+  const refreshAll = async () => {
     setLoading(true);
-    const data = await checkReadiness();
-    setHealth(data);
+    const [hData, mData] = await Promise.all([
+      checkReadiness(),
+      fetchMemoryStatus("9d215d96-2695-41ee-8625-64be3e547504"),
+    ]);
+    setHealth(hData);
+    setMemoryStatus(mData);
     setLoading(false);
   };
 
   useEffect(() => {
-    refreshHealth();
+    refreshAll();
   }, []);
 
   const isBackendAlive = health?.status === "ready" || health?.status === "unready";
   const isDbConnected = health?.database === "connected";
+  const isMemoryConnected = memoryStatus?.service_connected ?? false;
 
   return (
     <PageContainer>
@@ -46,7 +52,7 @@ export default function SettingsPage() {
         actions={
           <Button
             variant="secondary"
-            onClick={refreshHealth}
+            onClick={refreshAll}
             disabled={loading}
             icon={<RefreshCw className={`w-3.5 h-3.5 ${loading ? "animate-spin" : ""}`} />}
           >
@@ -128,13 +134,22 @@ export default function SettingsPage() {
               <div>
                 <p className="text-sm font-medium text-ink font-sans">Vectorize Hindsight Memory Engine</p>
                 <p className="text-xs text-ink-secondary font-sans">
-                  SDK: <code className="font-mono text-ink">hindsight-client</code> (Native async: aretain, arecall, areflect)
+                  SDK: <code className="font-mono text-ink">hindsight-client v1.2.0</code> (Native async: aretain, arecall, areflect)
                 </p>
               </div>
             </div>
-            <span className="text-xs font-medium text-ink-secondary bg-surface-subtle px-2.5 py-1 rounded-full border border-hairline self-start sm:self-auto font-sans">
-              Configuration Initializing
-            </span>
+            <div className="flex items-center gap-2 self-start sm:self-auto">
+              {isMemoryConnected ? (
+                <span className="flex items-center gap-1 text-xs font-medium text-forest bg-forest-subtle px-2.5 py-1 rounded-full border border-forest-border font-sans">
+                  <CheckCircle2 className="w-3.5 h-3.5" />
+                  <span>Connected</span>
+                </span>
+              ) : (
+                <span className="flex items-center gap-1 text-xs font-medium text-ink-secondary bg-surface-subtle px-2.5 py-1 rounded-full border border-hairline font-sans">
+                  <span>Engine: {memoryStatus?.engine_status || "Checking..."}</span>
+                </span>
+              )}
+            </div>
           </div>
 
           {/* Groq Cloud */}
@@ -149,7 +164,7 @@ export default function SettingsPage() {
               </div>
             </div>
             <span className="text-xs font-medium text-ink-secondary bg-surface-subtle px-2.5 py-1 rounded-full border border-hairline self-start sm:self-auto font-sans">
-              Integration Queued
+              Integration Queued (Milestone 3)
             </span>
           </div>
         </div>

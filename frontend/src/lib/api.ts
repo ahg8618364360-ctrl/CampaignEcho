@@ -11,6 +11,35 @@ export interface HealthReadyResponse {
   error?: string;
 }
 
+export interface MemoryStatusResponse {
+  brand_id: string;
+  bank_id: string;
+  is_provisioned: boolean;
+  service_connected: boolean;
+  engine_status: "CONNECTED" | "UNREACHABLE" | "NOT_CONFIGURED" | "AUTH_FAILED";
+  message: string;
+  memories_count?: number;
+  last_verified?: string;
+}
+
+export interface MemoryActivityItem {
+  id: string;
+  brand_id: string;
+  operation_type: string;
+  context_tag?: string;
+  items_count: number;
+  status: string;
+  latency_ms: number;
+  created_at: string;
+}
+
+export interface MemoryActivityResponse {
+  brand_id: string;
+  bank_id: string;
+  activities: MemoryActivityItem[];
+  total_count: number;
+}
+
 const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL || "http://localhost:8000/api/v1";
 
 export async function checkLiveness(): Promise<HealthLiveResponse> {
@@ -77,3 +106,32 @@ export async function checkReadiness(): Promise<HealthReadyResponse> {
   }
 }
 
+export async function fetchMemoryStatus(brandId: string): Promise<MemoryStatusResponse | null> {
+  try {
+    const res = await fetch(`${API_BASE_URL}/brands/${brandId}/memory/status`, {
+      cache: "no-store",
+      headers: { Accept: "application/json" },
+    });
+    if (res.ok) {
+      return await res.json();
+    }
+    return null;
+  } catch {
+    return null;
+  }
+}
+
+export async function fetchMemoryActivity(brandId: string): Promise<MemoryActivityResponse | null> {
+  try {
+    const res = await fetch(`${API_BASE_URL}/brands/${brandId}/memory/activity?limit=20`, {
+      cache: "no-store",
+      headers: { Accept: "application/json" },
+    });
+    if (res.ok) {
+      return await res.json();
+    }
+    return null;
+  } catch {
+    return null;
+  }
+}

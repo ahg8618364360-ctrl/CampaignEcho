@@ -42,9 +42,11 @@ tests/
 │   ├── test_brand_service.py         # Brand CRUD and bank ID determinism
 │   ├── test_campaign_schemas.py      # Pydantic v2 validation for inputs & strategies
 │   ├── test_memory_adapter_mock.py   # Isolated unit tests with mocked Hindsight responses
+│   ├── test_memory_unit.py           # M2 unit suite: Provisioning, retain/recall/reflect, telemetry logging (9 tests)
 │   └── test_metrics_math.py          # CPA, ROAS, and conversion calculation accuracy
 ├── integration/
 │   ├── test_hindsight_live.py        # Real Vectorize Hindsight retain, recall, reflect operations
+│   ├── test_memory_integration.py    # M2 live integration suite with skip guards for cloud credentials (5 tests)
 │   ├── test_groq_live.py             # Real Groq LLM structured JSON output generation
 │   ├── test_persistence_loop.py      # End-to-end Brand -> Retain -> Restart -> Recall -> Generate
 │   └── test_brand_isolation.py       # Cross-brand memory boundary enforcement

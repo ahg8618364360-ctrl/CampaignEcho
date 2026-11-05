@@ -5,6 +5,8 @@ from backend.app.core.config import settings
 from backend.app.core.logging import logger
 from backend.app.core.exceptions import CampaignEchoException, app_exception_handler
 from backend.app.api.v1.health import router as health_router
+from backend.app.api.v1.brands import router as brands_router
+from backend.app.api.v1.memory import router as memory_router
 
 
 @asynccontextmanager
@@ -45,6 +47,8 @@ def create_app() -> FastAPI:
 
     # Route Registration under /api/v1
     app.include_router(health_router, prefix="/api/v1")
+    app.include_router(brands_router, prefix="/api/v1")
+    app.include_router(memory_router, prefix="/api/v1")
 
     @app.get("/", tags=["Root"])
     def root():
