@@ -1,0 +1,33 @@
+# Dependencies
+node_modules/
+venv/
+.venv/
+__pycache__/
+*.pyc
+
+# Next.js build artifacts
+frontend/.next/
+frontend/out/
+
+# Database files
+*.db
+*.sqlite3
+campaignecho.db
+
+# Environment variables
+.env
+.env.local
+.env.*.local
+
+# Playwright & test reports
+.playwright-mcp/
+test-results/
+playwright-report/
+.pytest_cache/
+
+# IDE & OS
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db
+
