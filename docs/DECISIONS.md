@@ -91,9 +91,11 @@
      - `AUTHENTICATED`: API key verified, brand bank not yet checked.
      - `BANK_NOT_PROVISIONED`: Authenticated, but brand bank does not exist in cloud.
      - `BANK_PROVISIONED`: Cloud bank created, no retain/recall operations yet.
-     - `OPERATIONS_VERIFIED`: Cloud bank exists and retain/recall logs verified.
-  2. Enforce strict synthetic data provenance across all frontend views. Demonstration fixtures ("The Taco Syndicate") must be explicitly tagged as synthetic (`is_synthetic = true`, `source_type = SYNTHETIC_FIXTURE`).
-  3. Prohibit claiming empirical multi-tenant bank isolation until live authenticated tests pass. Disclaim isolation boundaries as architectural until verified in production.
+     - `OPERATIONS_VERIFIED`: Correlated verification run containing ALL THREE operations (RETAIN, RECALL, REFLECT) completed successfully against the live Hindsight service.
+  2. Implement an explicit `MemoryVerificationRun` table and enforce single-run correlation via `verification_run_id`. Disallow fragmented, unrelated logs from inferring verified status. Mocked test operations (`is_live=False`) and failed operations strictly never satisfy verification.
+  3. Active authentication revalidation: `get_status` actively validates bank configuration against Hindsight. If credentials are revoked (401), the service immediately transitions to `AUTH_REQUIRED`.
+  4. Enforce strict synthetic data provenance across all frontend views. Demonstration fixtures ("The Taco Syndicate") must be explicitly tagged as synthetic (`is_synthetic = true`, `source_type = SYNTHETIC_FIXTURE`).
+  5. Brand isolation language lock: "Application-level brand isolation is implemented through deterministic bank mapping. Live Hindsight isolation verification is pending." Prohibit claiming empirical multi-tenant bank isolation until live authenticated tests pass.
 - **Consequences**:
   - UI never deceptively indicates functional memory operations when unauthenticated.
   - Full transparency for hackathon evaluators and enterprise users regarding memory provenance and live readiness.

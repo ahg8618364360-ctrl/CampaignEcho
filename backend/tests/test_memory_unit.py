@@ -4,7 +4,7 @@ from fastapi.testclient import TestClient
 
 from backend.app.main import app
 from backend.app.db.session import get_db
-from backend.app.db.models import Brand, MemoryLog
+from backend.app.db.models import Brand, MemoryLog, MemoryVerificationRun
 from backend.app.services.memory_service import MemoryService
 from backend.app.api.v1.memory import get_memory_service
 
@@ -39,7 +39,6 @@ def mock_hindsight_client():
     client.areflect = AsyncMock(return_value=mock_reflect_resp)
 
     client.alist_memories = AsyncMock(return_value=MagicMock(total=1, items=[mock_memory_unit]))
-    client._is_authenticated_mock = True
     return client
 
 
@@ -63,8 +62,30 @@ def test_brand(db_session):
 
 
 @pytest.fixture
+def test_brand_b(db_session):
+    brand = Brand(
+        name="Luxe Parisian Spa",
+        industry="Luxury Wellness",
+        description="High-end skincare atelier",
+        target_audience="HNW Individuals",
+        market_region="Paris, France",
+        brand_voice="Opulent",
+        is_synthetic=True,
+    )
+    db_session.add(brand)
+    db_session.commit()
+    db_session.refresh(brand)
+    return brand
+
+
+@pytest.fixture
 def client_with_mock_memory(db_session, mock_hindsight_client):
-    service = MemoryService(hindsight_client=mock_hindsight_client)
+    # Dependency-injected service with authenticated credentials and live simulation
+    service = MemoryService(
+        hindsight_client=mock_hindsight_client,
+        api_key="sk-test-live-key",
+        is_live=True,
+    )
 
     def override_get_db():
         try:
@@ -83,6 +104,10 @@ def client_with_mock_memory(db_session, mock_hindsight_client):
 
     app.dependency_overrides.clear()
 
+
+# =========================================================================
+# Basic Memory Engine Operations Tests
+# =========================================================================
 
 def test_bank_provisioning_idempotency(client_with_mock_memory, test_brand, mock_hindsight_client):
     test_client, _, _ = client_with_mock_memory
@@ -129,7 +154,6 @@ def test_memory_retain_success(client_with_mock_memory, test_brand, mock_hindsig
     assert data["operation_id"] == "op-12345"
     assert data["duration_ms"] >= 0
 
-    # Verify call to Hindsight client
     mock_hindsight_client.aretain.assert_called_once()
     call_kwargs = mock_hindsight_client.aretain.call_args.kwargs
     assert call_kwargs["bank_id"] == f"campaignecho-brand-{brand_id.lower()}"
@@ -180,73 +204,320 @@ def test_memory_reflect_success(client_with_mock_memory, test_brand, mock_hindsi
     mock_hindsight_client.areflect.assert_called_once()
 
 
-def test_memory_status_connected(client_with_mock_memory, test_brand, mock_hindsight_client):
-    test_client, _, _ = client_with_mock_memory
-    brand_id = test_brand.id
+# =========================================================================
+# Section 3: Regression Suite for OPERATIONS_VERIFIED Logic (Rules A through K)
+# =========================================================================
 
-    resp = test_client.get(f"/api/v1/brands/{brand_id}/memory/status")
+def test_regression_a_no_operations_is_bank_provisioned(client_with_mock_memory, test_brand):
+    """Rule A: When bank is provisioned but no operations have run, status is BANK_PROVISIONED."""
+    test_client, _, _ = client_with_mock_memory
+    resp = test_client.get(f"/api/v1/brands/{test_brand.id}/memory/status")
     assert resp.status_code == 200
     data = resp.json()
-    assert data["brand_id"] == brand_id
+    assert data["service_state"] == "BANK_PROVISIONED"
     assert data["bank_provisioned"] is True
-    assert "bank_id" not in data  # ADR-002: no bank ID leakage
-    assert data["service_connected"] is True
-    assert data["service_state"] in ["BANK_PROVISIONED", "OPERATIONS_VERIFIED"]
 
 
-def test_memory_status_unauthenticated_state(client_with_mock_memory, test_brand, monkeypatch):
+def test_regression_b_retain_only_not_operations_verified(client_with_mock_memory, test_brand):
+    """Rule B: RETAIN only does NOT result in OPERATIONS_VERIFIED."""
     test_client, _, _ = client_with_mock_memory
-    brand_id = test_brand.id
+    run_id = "test-run-b-retain-only"
 
-    from backend.app.services.memory_service import MemoryService
-    from backend.app.api.v1.memory import get_memory_service
-    from backend.app.core.config import settings
-    import unittest.mock as mock
+    # Execute RETAIN
+    resp_ret = test_client.post(
+        f"/api/v1/brands/{test_brand.id}/memory/retain",
+        json={"content": "Observation", "verification_run_id": run_id},
+    )
+    assert resp_ret.status_code == 200
 
-    unauthed_client = mock.MagicMock()
-    unauthed_client._is_authenticated_mock = False
-    version_resp = mock.MagicMock()
-    version_resp.api_version = "1.1.0"
-    unauthed_client.aget_version = mock.AsyncMock(return_value=version_resp)
+    # Status must still be BANK_PROVISIONED
+    resp = test_client.get(f"/api/v1/brands/{test_brand.id}/memory/status")
+    assert resp.json()["service_state"] == "BANK_PROVISIONED"
 
-    service = MemoryService(hindsight_client=unauthed_client)
-    app.dependency_overrides[get_memory_service] = lambda: service
-    monkeypatch.setattr(settings, "HINDSIGHT_API_KEY", None)
 
-    resp = test_client.get(f"/api/v1/brands/{brand_id}/memory/status")
-    assert resp.status_code == 200
+def test_regression_c_retain_recall_not_operations_verified(client_with_mock_memory, test_brand):
+    """Rule C: RETAIN + RECALL only does NOT result in OPERATIONS_VERIFIED."""
+    test_client, _, _ = client_with_mock_memory
+    run_id = "test-run-c-retain-recall"
+
+    test_client.post(
+        f"/api/v1/brands/{test_brand.id}/memory/retain",
+        json={"content": "Observation", "verification_run_id": run_id},
+    )
+    test_client.post(
+        f"/api/v1/brands/{test_brand.id}/memory/recall",
+        json={"query": "Observation query", "verification_run_id": run_id},
+    )
+
+    resp = test_client.get(f"/api/v1/brands/{test_brand.id}/memory/status")
+    assert resp.json()["service_state"] == "BANK_PROVISIONED"
+
+
+def test_regression_d_retain_reflect_not_operations_verified(client_with_mock_memory, test_brand):
+    """Rule D: RETAIN + REFLECT only does NOT result in OPERATIONS_VERIFIED."""
+    test_client, _, _ = client_with_mock_memory
+    run_id = "test-run-d-retain-reflect"
+
+    test_client.post(
+        f"/api/v1/brands/{test_brand.id}/memory/retain",
+        json={"content": "Observation", "verification_run_id": run_id},
+    )
+    test_client.post(
+        f"/api/v1/brands/{test_brand.id}/memory/reflect",
+        json={"query": "Reflect query", "verification_run_id": run_id},
+    )
+
+    resp = test_client.get(f"/api/v1/brands/{test_brand.id}/memory/status")
+    assert resp.json()["service_state"] == "BANK_PROVISIONED"
+
+
+def test_regression_e_recall_reflect_not_operations_verified(client_with_mock_memory, test_brand):
+    """Rule E: RECALL + REFLECT only does NOT result in OPERATIONS_VERIFIED."""
+    test_client, _, _ = client_with_mock_memory
+    run_id = "test-run-e-recall-reflect"
+
+    test_client.post(
+        f"/api/v1/brands/{test_brand.id}/memory/recall",
+        json={"query": "Observation query", "verification_run_id": run_id},
+    )
+    test_client.post(
+        f"/api/v1/brands/{test_brand.id}/memory/reflect",
+        json={"query": "Reflect query", "verification_run_id": run_id},
+    )
+
+    resp = test_client.get(f"/api/v1/brands/{test_brand.id}/memory/status")
+    assert resp.json()["service_state"] == "BANK_PROVISIONED"
+
+
+def test_regression_f_all_three_in_same_run_is_operations_verified(client_with_mock_memory, test_brand):
+    """Rule F: All three operations succeeding in the SAME valid live verification run -> OPERATIONS_VERIFIED."""
+    test_client, _, _ = client_with_mock_memory
+    run_id = "test-run-f-complete"
+
+    test_client.post(
+        f"/api/v1/brands/{test_brand.id}/memory/retain",
+        json={"content": "Verified takeaway", "verification_run_id": run_id},
+    )
+    test_client.post(
+        f"/api/v1/brands/{test_brand.id}/memory/recall",
+        json={"query": "Verified query", "verification_run_id": run_id},
+    )
+    test_client.post(
+        f"/api/v1/brands/{test_brand.id}/memory/reflect",
+        json={"query": "Verified reflect", "verification_run_id": run_id},
+    )
+
+    resp = test_client.get(f"/api/v1/brands/{test_brand.id}/memory/status")
     data = resp.json()
-    assert data["service_state"] == "AUTH_REQUIRED"
-    assert data["service_connected"] is False
-    assert data["bank_provisioned"] is False
-    assert "authentication is required" in data["message"].lower()
+    assert data["service_state"] == "OPERATIONS_VERIFIED"
+    assert data["verification_run_id"] == run_id
+    assert data["verified_at"] is not None
+    assert "operations (retain, recall, reflect) verified" in data["message"].lower()
 
 
-def test_memory_activity_telemetry(client_with_mock_memory, test_brand, db_session):
+def test_regression_g_operations_across_unrelated_runs_not_verified(client_with_mock_memory, test_brand):
+    """Rule G: All three operations spread across UNRELATED verification runs -> NOT OPERATIONS_VERIFIED."""
+    test_client, _, _ = client_with_mock_memory
+
+    # Run 1: Retain only
+    test_client.post(
+        f"/api/v1/brands/{test_brand.id}/memory/retain",
+        json={"content": "Takeaway 1", "verification_run_id": "run-alpha"},
+    )
+    # Run 2: Recall only
+    test_client.post(
+        f"/api/v1/brands/{test_brand.id}/memory/recall",
+        json={"query": "Query 2", "verification_run_id": "run-beta"},
+    )
+    # Run 3: Reflect only
+    test_client.post(
+        f"/api/v1/brands/{test_brand.id}/memory/reflect",
+        json={"query": "Query 3", "verification_run_id": "run-gamma"},
+    )
+
+    resp = test_client.get(f"/api/v1/brands/{test_brand.id}/memory/status")
+    assert resp.json()["service_state"] == "BANK_PROVISIONED"
+
+
+def test_regression_h_one_operation_fails_not_operations_verified(client_with_mock_memory, test_brand, mock_hindsight_client):
+    """Rule H: If any operation in the run fails, run status is FAILED -> NOT OPERATIONS_VERIFIED."""
+    test_client, _, _ = client_with_mock_memory
+    run_id = "test-run-h-with-failure"
+
+    # Retain succeeds
+    test_client.post(
+        f"/api/v1/brands/{test_brand.id}/memory/retain",
+        json={"content": "Takeaway", "verification_run_id": run_id},
+    )
+
+    # Recall fails (simulating exception from engine)
+    mock_hindsight_client.arecall.side_effect = Exception("Hindsight engine timeout")
+    resp_fail = test_client.post(
+        f"/api/v1/brands/{test_brand.id}/memory/recall",
+        json={"query": "Query", "verification_run_id": run_id},
+    )
+    assert resp_fail.status_code == 502
+
+    # Reset mock for reflect
+    mock_hindsight_client.arecall.side_effect = None
+    mock_hindsight_client.areflect.side_effect = None
+    test_client.post(
+        f"/api/v1/brands/{test_brand.id}/memory/reflect",
+        json={"query": "Query", "verification_run_id": run_id},
+    )
+
+    resp = test_client.get(f"/api/v1/brands/{test_brand.id}/memory/status")
+    assert resp.json()["service_state"] == "BANK_PROVISIONED"
+
+
+def test_regression_i_mocked_test_operations_never_count_as_live(db_session, test_brand, mock_hindsight_client):
+    """Rule I: Mocked test operations (is_live=False) NEVER count as real live operations."""
+    service_mocked = MemoryService(
+        hindsight_client=mock_hindsight_client,
+        api_key="sk-fake",
+        is_live=False,  # Explicitly non-live
+    )
+
+    def override_get_db():
+        yield db_session
+
+    app.dependency_overrides[get_db] = override_get_db
+    app.dependency_overrides[get_memory_service] = lambda: service_mocked
+
+    with TestClient(app) as test_client:
+        run_id = "test-run-i-mocked"
+        test_client.post(
+            f"/api/v1/brands/{test_brand.id}/memory/retain",
+            json={"content": "Mocked takeaway", "verification_run_id": run_id},
+        )
+        test_client.post(
+            f"/api/v1/brands/{test_brand.id}/memory/recall",
+            json={"query": "Mocked query", "verification_run_id": run_id},
+        )
+        test_client.post(
+            f"/api/v1/brands/{test_brand.id}/memory/reflect",
+            json={"query": "Mocked reflect", "verification_run_id": run_id},
+        )
+
+        resp = test_client.get(f"/api/v1/brands/{test_brand.id}/memory/status")
+        # Must NOT be OPERATIONS_VERIFIED because operations were mocked (is_live=False)
+        assert resp.json()["service_state"] == "BANK_PROVISIONED"
+
+    app.dependency_overrides.clear()
+
+
+def test_regression_j_different_brand_cannot_satisfy_verification(client_with_mock_memory, test_brand, test_brand_b):
+    """Rule J: Operations run for Brand A cannot satisfy Brand B's verification."""
+    test_client, _, _ = client_with_mock_memory
+    run_id = "test-run-j-brand-a"
+
+    # Complete all 3 for Brand A
+    test_client.post(
+        f"/api/v1/brands/{test_brand.id}/memory/retain",
+        json={"content": "Takeaway for Brand A", "verification_run_id": run_id},
+    )
+    test_client.post(
+        f"/api/v1/brands/{test_brand.id}/memory/recall",
+        json={"query": "Query for Brand A", "verification_run_id": run_id},
+    )
+    test_client.post(
+        f"/api/v1/brands/{test_brand.id}/memory/reflect",
+        json={"query": "Reflect for Brand A", "verification_run_id": run_id},
+    )
+
+    # Brand A is verified
+    resp_a = test_client.get(f"/api/v1/brands/{test_brand.id}/memory/status")
+    assert resp_a.json()["service_state"] == "OPERATIONS_VERIFIED"
+
+    # Brand B is strictly NOT verified
+    resp_b = test_client.get(f"/api/v1/brands/{test_brand_b.id}/memory/status")
+    assert resp_b.json()["service_state"] == "BANK_PROVISIONED"
+
+
+def test_regression_k_revoked_authentication_returns_auth_required(client_with_mock_memory, test_brand, mock_hindsight_client):
+    """Rule K: If cloud authentication is revoked (401 Unauthorized), do not display verified; return AUTH_REQUIRED."""
+    test_client, _, _ = client_with_mock_memory
+    run_id = "test-run-k-pre-verified"
+
+    # 1. Complete verification run
+    test_client.post(
+        f"/api/v1/brands/{test_brand.id}/memory/retain",
+        json={"content": "Takeaway", "verification_run_id": run_id},
+    )
+    test_client.post(
+        f"/api/v1/brands/{test_brand.id}/memory/recall",
+        json={"query": "Query", "verification_run_id": run_id},
+    )
+    test_client.post(
+        f"/api/v1/brands/{test_brand.id}/memory/reflect",
+        json={"query": "Query", "verification_run_id": run_id},
+    )
+
+    # Verified state reached
+    assert test_client.get(f"/api/v1/brands/{test_brand.id}/memory/status").json()["service_state"] == "OPERATIONS_VERIFIED"
+
+    # 2. Simulate authentication revocation: cloud endpoint now returns 401 Unauthorized
+    mock_hindsight_client.aget_bank_config.side_effect = Exception("401 Unauthorized: Invalid API key")
+
+    resp_revoked = test_client.get(f"/api/v1/brands/{test_brand.id}/memory/status")
+    data_revoked = resp_revoked.json()
+    assert data_revoked["service_state"] == "AUTH_REQUIRED"
+    assert data_revoked["service_connected"] is False
+    assert "rejected the provided api key" in data_revoked["message"].lower()
+
+    # Reset mock
+    mock_hindsight_client.aget_bank_config.side_effect = None
+
+
+# =========================================================================
+# Additional Coverage Tests
+# =========================================================================
+
+def test_memory_status_unauthenticated_state(db_session, test_brand):
+    """Verify unauthenticated state when no API key is provided."""
+    unauthed_client = MagicMock()
+    unauthed_client.aget_version = AsyncMock(return_value=MagicMock(api_version="1.1.0", version="1.1.0"))
+
+    service = MemoryService(hindsight_client=unauthed_client, api_key=None, is_live=False)
+
+    def override_get_db():
+        yield db_session
+
+    app.dependency_overrides[get_db] = override_get_db
+    app.dependency_overrides[get_memory_service] = lambda: service
+
+    with TestClient(app) as test_client:
+        resp = test_client.get(f"/api/v1/brands/{test_brand.id}/memory/status")
+        assert resp.status_code == 200
+        data = resp.json()
+        assert data["service_state"] == "AUTH_REQUIRED"
+        assert data["service_connected"] is False
+        assert data["bank_provisioned"] is False
+        assert "authentication is required" in data["message"].lower()
+
+    app.dependency_overrides.clear()
+
+
+def test_memory_activity_telemetry(client_with_mock_memory, test_brand):
     test_client, _, _ = client_with_mock_memory
     brand_id = test_brand.id
 
-    # Retain a memory
     test_client.post(
         f"/api/v1/brands/{brand_id}/memory/retain",
         json={"content": "Macro visual clips drove 4.2x engagement."},
     )
 
-    # Retrieve activity
     resp = test_client.get(f"/api/v1/brands/{brand_id}/memory/activity")
     assert resp.status_code == 200
     data = resp.json()
     assert data["brand_id"] == brand_id
-    assert "bank_id" not in data  # ADR-002: no bank ID leakage
+    assert "bank_id" not in data
     assert data["total_count"] >= 1
     assert data["activities"][0]["operation_type"] == "RETAIN"
     assert data["activities"][0]["status"] == "SUCCESS"
 
 
 def test_brand_isolation_boundary(client_with_mock_memory, db_session):
-    test_client, _, _ = client_with_mock_memory
-
-    # Create Brand A: The Taco Syndicate
     brand_a = Brand(
         name="The Taco Syndicate",
         industry="Dining",
@@ -255,7 +526,6 @@ def test_brand_isolation_boundary(client_with_mock_memory, db_session):
         market_region="Austin",
         brand_voice="Casual",
     )
-    # Create Brand B: Luxe Parisian Spa
     brand_b = Brand(
         name="Luxe Parisian Spa",
         industry="Hospitality",
@@ -272,7 +542,6 @@ def test_brand_isolation_boundary(client_with_mock_memory, db_session):
     bank_id_a = MemoryService.get_bank_id_for_brand(brand_a.id)
     bank_id_b = MemoryService.get_bank_id_for_brand(brand_b.id)
 
-    # Strictly different bank IDs
     assert bank_id_a != bank_id_b
     assert bank_id_a == f"campaignecho-brand-{brand_a.id.lower()}"
     assert bank_id_b == f"campaignecho-brand-{brand_b.id.lower()}"
@@ -292,7 +561,6 @@ def test_hindsight_unreachable_error_handling(client_with_mock_memory, test_bran
     test_client, _, _ = client_with_mock_memory
     brand_id = test_brand.id
 
-    # Simulate Hindsight service failure
     mock_hindsight_client.aretain.side_effect = ConnectionError("Connection refused on port 8888")
 
     resp = test_client.post(
@@ -303,3 +571,4 @@ def test_hindsight_unreachable_error_handling(client_with_mock_memory, test_bran
     data = resp.json()
     assert "retention failed" in data["message"].lower()
 
+    mock_hindsight_client.aretain.side_effect = None

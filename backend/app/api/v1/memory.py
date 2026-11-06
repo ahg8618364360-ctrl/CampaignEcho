@@ -76,6 +76,7 @@ async def retain_memory(
         is_synthetic=payload.is_synthetic,
         source_type=payload.source_type,
         campaign_id=payload.campaign_id,
+        verification_run_id=payload.verification_run_id,
     )
 
 
@@ -101,6 +102,7 @@ async def recall_memories(
         max_tokens=payload.max_tokens,
         tags=payload.tags,
         tags_match=payload.tags_match,
+        verification_run_id=payload.verification_run_id,
     )
 
 
@@ -124,6 +126,26 @@ async def reflect_memory(
         budget=payload.budget,
         context=payload.context,
         tags=payload.tags,
+        verification_run_id=payload.verification_run_id,
+    )
+
+
+@router.post(
+    "/verify",
+    status_code=status.HTTP_200_OK,
+    summary="Execute Correlated Memory Operations Verification Suite",
+)
+async def verify_brand_memory_operations(
+    brand_id: str,
+    verification_run_id: Optional[str] = Query(None, description="Optional custom verification run ID"),
+    db: Session = Depends(get_db),
+    service: MemoryService = Depends(get_memory_service),
+):
+    """Executes a correlated verification suite (RETAIN, RECALL, REFLECT) ensuring all 3 succeed."""
+    return await service.run_verification_suite(
+        db=db,
+        brand_id=brand_id,
+        verification_run_id=verification_run_id,
     )
 
 

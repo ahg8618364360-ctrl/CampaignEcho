@@ -51,6 +51,7 @@ class Brand(Base):
     # Relationships
     campaigns = relationship("Campaign", back_populates="brand", cascade="all, delete-orphan")
     memory_logs = relationship("MemoryLog", back_populates="brand", cascade="all, delete-orphan")
+    verification_runs = relationship("MemoryVerificationRun", back_populates="brand", cascade="all, delete-orphan")
 
 
 class Campaign(Base):
@@ -140,8 +141,34 @@ class MemoryLog(Base):
     items_count = Column(Integer, default=0, nullable=False)
     status = Column(String(30), default="SUCCESS", nullable=False)
     latency_ms = Column(Integer, nullable=False)
+    verification_run_id = Column(String(64), nullable=True, index=True)
+    is_live = Column(Boolean, default=True, nullable=False)
     created_at = Column(DateTime, default=get_utc_now, nullable=False)
 
     # Relationships
     brand = relationship("Brand", back_populates="memory_logs")
+
+
+class MemoryVerificationRun(Base):
+    """Explicit, auditable record for a correlated memory operations verification run.
+    
+    OPERATIONS_VERIFIED requires all 3 operations (RETAIN, RECALL, REFLECT) to succeed
+    against the verified brand bank within the SAME live run.
+    """
+
+    __tablename__ = "memory_verification_runs"
+
+    id = Column(String(36), primary_key=True, default=generate_uuid)
+    verification_run_id = Column(String(64), unique=True, nullable=False, index=True)
+    brand_id = Column(String(36), ForeignKey("brands.id", ondelete="CASCADE"), nullable=False, index=True)
+    retain_success = Column(Boolean, default=False, nullable=False)
+    recall_success = Column(Boolean, default=False, nullable=False)
+    reflect_success = Column(Boolean, default=False, nullable=False)
+    is_live = Column(Boolean, default=True, nullable=False)
+    status = Column(String(30), default="IN_PROGRESS", nullable=False)  # IN_PROGRESS, VERIFIED, FAILED
+    verified_at = Column(DateTime, nullable=True)
+    created_at = Column(DateTime, default=get_utc_now, nullable=False)
+
+    # Relationships
+    brand = relationship("Brand", back_populates="verification_runs")
 

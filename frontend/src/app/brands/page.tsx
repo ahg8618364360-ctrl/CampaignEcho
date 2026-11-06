@@ -225,7 +225,7 @@ export default function BrandsPage() {
               <span>Architectural 1:1 Bank Isolation Boundary</span>
             </div>
             <p className="text-ink-secondary leading-relaxed">
-              CampaignEcho maps every brand to an isolated memory bank identifier. While the deterministic server boundary is enforced in application code, empirical verification of live operations remains pending cloud API authentication.
+              Application-level brand isolation is implemented through deterministic bank mapping. Live Hindsight isolation verification is pending.
             </p>
             <div className="pt-1 flex items-center justify-between text-[11px] text-ink-secondary font-mono">
               <span>Deterministic Bank Scheme:</span>

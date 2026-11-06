@@ -10,7 +10,7 @@ from backend.app.core.exceptions import (
     CampaignEchoException,
     ResourceNotFoundException,
 )
-from backend.app.db.models import Brand, MemoryLog
+from backend.app.db.models import Brand, MemoryLog, MemoryVerificationRun
 from backend.app.schemas.memory import (
     BankProvisionResponse,
     MemoryActivityItem,
@@ -27,16 +27,25 @@ class MemoryService:
     """Enterprise Memory Service interfacing with Vectorize Hindsight.
 
     Enforces 1:1 brand isolation, deterministic bank naming, safe async lifecycle,
-    and privacy-preserving operational telemetry.
+    auditable verification runs, and privacy-preserving operational telemetry.
     """
 
-    def __init__(self, hindsight_client: Optional[Hindsight] = None):
+    def __init__(
+        self,
+        hindsight_client: Optional[Hindsight] = None,
+        api_key: Optional[str] = None,
+        base_url: Optional[str] = None,
+        is_live: Optional[bool] = None,
+    ):
+        self.api_key = api_key if api_key is not None else settings.HINDSIGHT_API_KEY
+        self.base_url = base_url or settings.effective_hindsight_url
+        self.is_live = is_live if is_live is not None else bool(self.api_key)
         if hindsight_client:
             self._client = hindsight_client
         else:
             self._client = Hindsight(
-                base_url=settings.effective_hindsight_url,
-                api_key=settings.HINDSIGHT_API_KEY,
+                base_url=self.base_url,
+                api_key=self.api_key,
                 timeout=settings.HINDSIGHT_TIMEOUT,
                 max_attempts=settings.HINDSIGHT_MAX_RETRIES,
             )
@@ -64,7 +73,7 @@ class MemoryService:
             if "401" in err_msg or "Unauthorized" in err_msg or "Forbidden" in err_msg:
                 logger.error("Hindsight authentication failed: %s", err_msg)
                 return False, "AUTH_FAILED", None
-            logger.warning("Hindsight engine unreachable at %s: %s", settings.effective_hindsight_url, err_msg)
+            logger.warning("Hindsight engine unreachable at %s: %s", self.base_url, err_msg)
             return False, "UNREACHABLE", None
 
     def _get_verified_brand(self, db: Session, brand_id: str) -> Brand:
@@ -83,9 +92,12 @@ class MemoryService:
         latency_ms: int,
         items_count: int = 0,
         context_tag: Optional[str] = None,
+        verification_run_id: Optional[str] = None,
+        is_live: Optional[bool] = None,
     ) -> None:
         """Persist privacy-safe telemetry into the application database."""
         try:
+            live_flag = is_live if is_live is not None else self.is_live
             log_entry = MemoryLog(
                 brand_id=brand_id,
                 operation_type=operation_type,
@@ -93,12 +105,67 @@ class MemoryService:
                 latency_ms=latency_ms,
                 items_count=items_count,
                 context_tag=context_tag,
+                verification_run_id=verification_run_id,
+                is_live=live_flag,
                 created_at=datetime.now(timezone.utc),
             )
             db.add(log_entry)
             db.commit()
         except Exception as exc:
             logger.warning("Failed to record memory telemetry: %s", exc)
+            db.rollback()
+
+    def _record_run_step(
+        self,
+        db: Session,
+        brand_id: str,
+        verification_run_id: Optional[str],
+        operation_type: str,
+        success: bool,
+    ) -> None:
+        """Track verification steps for a single run to ensure RETAIN, RECALL, and REFLECT all succeed."""
+        if not verification_run_id:
+            return
+        try:
+            run = (
+                db.query(MemoryVerificationRun)
+                .filter(
+                    MemoryVerificationRun.verification_run_id == verification_run_id,
+                    MemoryVerificationRun.brand_id == brand_id,
+                )
+                .first()
+            )
+            if not run:
+                run = MemoryVerificationRun(
+                    verification_run_id=verification_run_id,
+                    brand_id=brand_id,
+                    is_live=self.is_live,
+                    status="IN_PROGRESS",
+                    created_at=datetime.now(timezone.utc),
+                )
+                db.add(run)
+
+            if not success:
+                run.status = "FAILED"
+            else:
+                if operation_type == "RETAIN":
+                    run.retain_success = True
+                elif operation_type == "RECALL":
+                    run.recall_success = True
+                elif operation_type == "REFLECT":
+                    run.reflect_success = True
+
+                if not self.is_live:
+                    run.is_live = False
+
+                if run.retain_success and run.recall_success and run.reflect_success:
+                    if run.is_live and run.status != "FAILED":
+                        run.status = "VERIFIED"
+                        run.verified_at = datetime.now(timezone.utc)
+
+            db.commit()
+        except Exception as exc:
+            logger.warning("Failed to record verification step: %s", exc)
             db.rollback()
 
     async def provision_bank(
@@ -194,6 +261,7 @@ class MemoryService:
         is_synthetic: bool = False,
         source_type: str = "CAMPAIGN_POSTMORTEM",
         campaign_id: Optional[str] = None,
+        verification_run_id: Optional[str] = None,
     ) -> MemoryRetainResponse:
         """Asynchronously retain an empirical campaign observation or brand rule into Hindsight."""
         brand = self._get_verified_brand(db, brand_id)
@@ -205,6 +273,8 @@ class MemoryService:
         meta["source_type"] = str(source_type)
         if campaign_id:
             meta["campaign_id"] = str(campaign_id)
+        if verification_run_id:
+            meta["verification_run_id"] = str(verification_run_id)
 
         retain_tags = list(tags or [])
         if "is_synthetic" not in retain_tags and (is_synthetic or brand.is_synthetic):
@@ -235,6 +305,14 @@ class MemoryService:
                 latency_ms=latency_ms,
                 items_count=1,
                 context_tag=source_type,
+                verification_run_id=verification_run_id,
+            )
+            self._record_run_step(
+                db=db,
+                brand_id=brand.id,
+                verification_run_id=verification_run_id,
+                operation_type="RETAIN",
+                success=True,
             )
 
             return MemoryRetainResponse(
@@ -245,6 +323,7 @@ class MemoryService:
                 duration_ms=latency_ms,
                 is_synthetic=is_synthetic or brand.is_synthetic,
                 source_type=source_type,
+                verification_run_id=verification_run_id,
                 message="Campaign experience retained in Hindsight memory.",
             )
 
@@ -258,6 +337,14 @@ class MemoryService:
                 latency_ms=latency_ms,
                 items_count=0,
                 context_tag=source_type,
+                verification_run_id=verification_run_id,
+            )
+            self._record_run_step(
+                db=db,
+                brand_id=brand.id,
+                verification_run_id=verification_run_id,
+                operation_type="RETAIN",
+                success=False,
             )
             logger.error("Memory retain failed for brand %s: %s", brand_id, exc)
             raise CampaignEchoException(
@@ -276,6 +363,7 @@ class MemoryService:
         max_tokens: int = 4096,
         tags: Optional[List[str]] = None,
         tags_match: str = "any",
+        verification_run_id: Optional[str] = None,
     ) -> MemoryRecallResponse:
         """Recall contextually relevant memories for a query from the brand's bank."""
         brand = self._get_verified_brand(db, brand_id)
@@ -327,6 +415,14 @@ class MemoryService:
                 latency_ms=latency_ms,
                 items_count=len(memory_items),
                 context_tag=query[:50],
+                verification_run_id=verification_run_id,
+            )
+            self._record_run_step(
+                db=db,
+                brand_id=brand.id,
+                verification_run_id=verification_run_id,
+                operation_type="RECALL",
+                success=True,
             )
 
             return MemoryRecallResponse(
@@ -335,6 +431,7 @@ class MemoryService:
                 results=memory_items,
                 total_results=len(memory_items),
                 duration_ms=latency_ms,
+                verification_run_id=verification_run_id,
                 provenance={
                     "engine": "Vectorize Hindsight",
                     "budget": budget,
@@ -352,6 +449,14 @@ class MemoryService:
                 latency_ms=latency_ms,
                 items_count=0,
                 context_tag=query[:50],
+                verification_run_id=verification_run_id,
+            )
+            self._record_run_step(
+                db=db,
+                brand_id=brand.id,
+                verification_run_id=verification_run_id,
+                operation_type="RECALL",
+                success=False,
             )
             logger.error("Memory recall failed for brand %s: %s", brand_id, exc)
             raise CampaignEchoException(
@@ -368,6 +473,7 @@ class MemoryService:
         budget: str = "low",
         context: Optional[str] = None,
         tags: Optional[List[str]] = None,
+        verification_run_id: Optional[str] = None,
     ) -> MemoryReflectResponse:
         """Synthesize higher-order marketing intelligence over the brand's historical experiences."""
         brand = self._get_verified_brand(db, brand_id)
@@ -396,6 +502,14 @@ class MemoryService:
                 latency_ms=latency_ms,
                 items_count=len(facts_list),
                 context_tag=query[:50],
+                verification_run_id=verification_run_id,
+            )
+            self._record_run_step(
+                db=db,
+                brand_id=brand.id,
+                verification_run_id=verification_run_id,
+                operation_type="REFLECT",
+                success=True,
             )
 
             return MemoryReflectResponse(
@@ -403,6 +517,7 @@ class MemoryService:
                 query=query,
                 reflection=str(reflection_text),
                 duration_ms=latency_ms,
+                verification_run_id=verification_run_id,
                 facts=[f if isinstance(f, dict) else {"fact": str(f)} for f in facts_list],
             )
 
@@ -416,6 +531,14 @@ class MemoryService:
                 latency_ms=latency_ms,
                 items_count=0,
                 context_tag=query[:50],
+                verification_run_id=verification_run_id,
+            )
+            self._record_run_step(
+                db=db,
+                brand_id=brand.id,
+                verification_run_id=verification_run_id,
+                operation_type="REFLECT",
+                success=False,
             )
             logger.error("Memory reflect failed for brand %s: %s", brand_id, exc)
             raise CampaignEchoException(
@@ -439,10 +562,7 @@ class MemoryService:
         brand = self._get_verified_brand(db, brand_id)
         bank_id = self.get_bank_id_for_brand(brand.id)
 
-        # Check if client has real API key or is an authenticated test mock
-        is_mocked_auth = getattr(self._client, "_is_authenticated_mock", False)
-        has_api_key = bool(settings.HINDSIGHT_API_KEY) or is_mocked_auth
-
+        has_api_key = bool(self.api_key)
         is_reachable, engine_status, version = await self.check_engine_health()
 
         service_state = "NOT_CONFIGURED"
@@ -450,41 +570,67 @@ class MemoryService:
         service_connected = False
         memories_count = None
         message = ""
+        active_verification_id: Optional[str] = None
+        verified_timestamp: Optional[datetime] = None
 
         if not is_reachable:
             service_state = "ENDPOINT_UNREACHABLE"
             service_connected = False
             is_provisioned = False
-            message = f"Hindsight endpoint is unreachable at {settings.effective_hindsight_url}."
+            message = f"Hindsight endpoint is unreachable at {self.base_url}."
         elif not has_api_key:
-            # Endpoint is reachable via public /version, but no credentials provided
             service_state = "AUTH_REQUIRED"
             service_connected = False
             is_provisioned = False
             engine_status = "AUTH_REQUIRED"
             message = "Hindsight Cloud endpoint is reachable, but authentication is required. Configure HINDSIGHT_API_KEY in .env."
         else:
-            # Has API key (or test mock) and endpoint responded to /version
             try:
+                # Active revalidation check: prove cloud bank configuration access right now
                 await self._client.aget_bank_config(bank_id=bank_id)
                 is_provisioned = True
                 service_connected = True
 
-                # Check if operations have been verified for this brand
-                has_verified_ops = (
-                    db.query(MemoryLog)
+                # Strict Verification Check:
+                # 1. Must have an explicit MemoryVerificationRun for this brand
+                # 2. Status must be VERIFIED
+                # 3. Must be executed with is_live=True
+                # 4. retain_success, recall_success, reflect_success must ALL be True in that single run
+                verified_run = (
+                    db.query(MemoryVerificationRun)
                     .filter(
-                        MemoryLog.brand_id == brand.id,
-                        MemoryLog.status == "SUCCESS",
-                        MemoryLog.operation_type.in_(["RETAIN", "RECALL", "REFLECT"]),
+                        MemoryVerificationRun.brand_id == brand.id,
+                        MemoryVerificationRun.status == "VERIFIED",
+                        MemoryVerificationRun.is_live == True,
+                        MemoryVerificationRun.retain_success == True,
+                        MemoryVerificationRun.recall_success == True,
+                        MemoryVerificationRun.reflect_success == True,
                     )
+                    .order_by(MemoryVerificationRun.verified_at.desc())
                     .first()
-                    is not None
                 )
 
-                if has_verified_ops:
-                    service_state = "OPERATIONS_VERIFIED"
-                    message = f"Memory bank is provisioned and operations are verified on Hindsight v{version}."
+                # 5. Corroborate with actual live telemetry logs belonging to that exact verification_run_id
+                if verified_run:
+                    logged_ops = (
+                        db.query(MemoryLog.operation_type)
+                        .filter(
+                            MemoryLog.brand_id == brand.id,
+                            MemoryLog.verification_run_id == verified_run.verification_run_id,
+                            MemoryLog.status == "SUCCESS",
+                            MemoryLog.is_live == True,
+                        )
+                        .all()
+                    )
+                    verified_op_types = {op[0] for op in logged_ops}
+                    if {"RETAIN", "RECALL", "REFLECT"}.issubset(verified_op_types):
+                        service_state = "OPERATIONS_VERIFIED"
+                        active_verification_id = verified_run.verification_run_id
+                        verified_timestamp = verified_run.verified_at
+                        message = f"Memory bank is provisioned and all 3 operations (Retain, Recall, Reflect) verified in run {verified_run.verification_run_id} on Hindsight v{version}."
+                    else:
+                        service_state = "BANK_PROVISIONED"
+                        message = f"Memory bank is provisioned on Hindsight v{version}; operational verification pending."
                 else:
                     service_state = "BANK_PROVISIONED"
                     message = f"Memory bank is provisioned on Hindsight v{version}; operational verification pending."
@@ -526,7 +672,76 @@ class MemoryService:
             message=message,
             memories_count=memories_count,
             has_api_key=has_api_key,
+            verification_run_id=active_verification_id,
+            verified_at=verified_timestamp,
         )
+
+    async def run_verification_suite(
+        self,
+        db: Session,
+        brand_id: str,
+        verification_run_id: Optional[str] = None,
+    ) -> Dict[str, Any]:
+        """Execute a correlated live verification suite (RETAIN, RECALL, REFLECT) for a brand."""
+        brand = self._get_verified_brand(db, brand_id)
+        run_id = verification_run_id or f"verif-{int(time.time())}-{brand.id[:8]}"
+
+        results: Dict[str, Any] = {
+            "brand_id": brand.id,
+            "verification_run_id": run_id,
+            "is_live": self.is_live,
+            "retain": None,
+            "recall": None,
+            "reflect": None,
+            "operations_verified": False,
+        }
+
+        # 1. Retain
+        try:
+            retain_res = await self.retain(
+                db=db,
+                brand_id=brand.id,
+                content=f"Verification takeaway for {brand.name}: Student late-night promo test.",
+                context="Automated verification test run",
+                tags=["verification", "automated_suite"],
+                verification_run_id=run_id,
+            )
+            results["retain"] = retain_res.model_dump()
+        except Exception as exc:
+            results["retain"] = {"status": "FAILED", "error": str(exc)}
+            return results
+
+        # 2. Recall
+        try:
+            recall_res = await self.recall(
+                db=db,
+                brand_id=brand.id,
+                query="Student late-night promo test",
+                verification_run_id=run_id,
+            )
+            results["recall"] = recall_res.model_dump()
+        except Exception as exc:
+            results["recall"] = {"status": "FAILED", "error": str(exc)}
+            return results
+
+        # 3. Reflect
+        try:
+            reflect_res = await self.reflect(
+                db=db,
+                brand_id=brand.id,
+                query="What promo test works for this audience?",
+                verification_run_id=run_id,
+            )
+            results["reflect"] = reflect_res.model_dump()
+        except Exception as exc:
+            results["reflect"] = {"status": "FAILED", "error": str(exc)}
+            return results
+
+        # Check final status
+        status_res = await self.get_status(db=db, brand_id=brand.id)
+        results["operations_verified"] = (status_res.service_state == "OPERATIONS_VERIFIED")
+        results["service_state"] = status_res.service_state
+        return results
 
     def get_activity_logs(
         self,

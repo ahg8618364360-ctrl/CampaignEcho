@@ -242,21 +242,45 @@ Queries engine health, authentication state, and bank verification status for th
 - `AUTHENTICATED`: Valid cloud key confirmed.
 - `BANK_NOT_PROVISIONED`: Authenticated, but brand bank has not yet been provisioned.
 - `BANK_PROVISIONED`: Cloud bank provisioned; awaiting initial operations.
-- `OPERATIONS_VERIFIED`: Cloud bank provisioned and successful retain/recall operations verified in logs.
+- `OPERATIONS_VERIFIED`: Correlated verification run containing all three operations (RETAIN, RECALL, REFLECT) completed successfully against the live Hindsight service.
 
 #### Response (`200 OK`)
 ```json
 {
   "brand_id": "b0f7a264-8845-4279-9923-28f7311c1092",
-  "bank_provisioned": false,
-  "service_connected": false,
-  "service_state": "AUTH_REQUIRED",
-  "has_api_key": false,
-  "engine_status": "AUTH_REQUIRED",
+  "bank_provisioned": true,
+  "service_connected": true,
+  "service_state": "OPERATIONS_VERIFIED",
+  "has_api_key": true,
+  "engine_status": "CONNECTED",
   "version": "1.1.0",
-  "message": "Hindsight endpoint is reachable (v1.1.0), but HINDSIGHT_API_KEY is not configured. Bank operations require valid cloud credentials.",
-  "memories_count": null,
-  "last_verified": "2026-11-06T13:41:48Z"
+  "message": "Memory bank is provisioned and all 3 operations (Retain, Recall, Reflect) verified in run verif-run-4129 on Hindsight v1.1.0.",
+  "memories_count": 1,
+  "verification_run_id": "verif-run-4129",
+  "verified_at": "2026-11-06T15:10:00Z",
+  "last_verified": "2026-11-06T15:10:05Z"
+}
+```
+
+---
+
+### `POST /brands/{brand_id}/memory/verify`
+Executes a correlated verification suite ensuring that RETAIN, RECALL, and REFLECT all succeed against the live Hindsight memory bank in a single auditable run.
+
+#### Query Parameters:
+- `verification_run_id` (optional, string): Custom verification correlation ID.
+
+#### Response (`200 OK`)
+```json
+{
+  "brand_id": "b0f7a264-8845-4279-9923-28f7311c1092",
+  "verification_run_id": "verif-run-4129",
+  "is_live": true,
+  "retain": { "status": "SUCCESS", "items_retained": 1 },
+  "recall": { "total_results": 1, "duration_ms": 42 },
+  "reflect": { "duration_ms": 110 },
+  "operations_verified": true,
+  "service_state": "OPERATIONS_VERIFIED"
 }
 ```
 

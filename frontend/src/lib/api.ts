@@ -28,6 +28,8 @@ export interface MemoryStatusResponse {
   message: string;
   memories_count?: number | null;
   has_api_key?: boolean;
+  verification_run_id?: string | null;
+  verified_at?: string | null;
   last_verified?: string;
 }
 

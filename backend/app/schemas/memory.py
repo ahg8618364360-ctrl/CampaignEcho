@@ -46,6 +46,7 @@ class MemoryRetainRequest(BaseModel):
     is_synthetic: bool = Field(False, description="Flag explicitly indicating if this is demo fixture data")
     source_type: str = Field("CAMPAIGN_POSTMORTEM", description="Data provenance classification")
     campaign_id: Optional[str] = Field(None, description="Originating campaign identifier if applicable")
+    verification_run_id: Optional[str] = Field(None, description="Correlation identifier for verification run")
 
 
 class MemoryRetainResponse(BaseModel):
@@ -58,6 +59,7 @@ class MemoryRetainResponse(BaseModel):
     duration_ms: int
     is_synthetic: bool
     source_type: str
+    verification_run_id: Optional[str] = None
     recorded_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
     message: str
 
@@ -71,6 +73,7 @@ class MemoryRecallRequest(BaseModel):
     max_tokens: int = Field(4096, ge=128, le=16384)
     tags: Optional[List[str]] = Field(None, description="Tags to filter by")
     tags_match: Literal["any", "all", "exact"] = Field("any", description="Tag matching strategy")
+    verification_run_id: Optional[str] = Field(None, description="Correlation identifier for verification run")
 
 
 class MemoryRecallResponse(BaseModel):
@@ -81,6 +84,7 @@ class MemoryRecallResponse(BaseModel):
     results: List[MemoryItem] = Field(default_factory=list)
     total_results: int
     duration_ms: int
+    verification_run_id: Optional[str] = None
     provenance: Dict[str, Any] = Field(default_factory=dict)
 
 
@@ -91,6 +95,7 @@ class MemoryReflectRequest(BaseModel):
     budget: Literal["low", "mid", "high"] = Field("low", description="Reflection token budget")
     context: Optional[str] = Field(None, description="Current campaign context")
     tags: Optional[List[str]] = Field(None, description="Tags to scope reflection")
+    verification_run_id: Optional[str] = Field(None, description="Correlation identifier for verification run")
 
 
 class MemoryReflectResponse(BaseModel):
@@ -100,6 +105,7 @@ class MemoryReflectResponse(BaseModel):
     query: str
     reflection: str
     duration_ms: int
+    verification_run_id: Optional[str] = None
     facts: List[Dict[str, Any]] = Field(default_factory=list)
 
 
@@ -123,6 +129,8 @@ class MemoryStatusResponse(BaseModel):
     message: str
     memories_count: Optional[int] = None
     has_api_key: bool = False
+    verification_run_id: Optional[str] = None
+    verified_at: Optional[datetime] = None
     last_verified: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
 
 

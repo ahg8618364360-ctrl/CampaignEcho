@@ -78,8 +78,8 @@ export default function OverviewPage() {
       />
 
       {/* 2. Workspace Readiness Strip (Live Dynamic Telemetry) */}
-      <section className="px-4 py-2.5 rounded-xl bg-surface border border-hairline flex flex-col md:flex-row md:items-center justify-between gap-3 shadow-xs">
-        <div className="flex flex-wrap items-center gap-x-5 gap-y-2 text-xs">
+      <section className="px-3.5 py-2 rounded-xl bg-surface border border-hairline flex flex-col md:flex-row md:items-center justify-between gap-2.5 shadow-xs">
+        <div className="flex flex-wrap items-center gap-x-5 gap-y-1.5 text-xs">
           <span className="font-medium text-ink flex items-center gap-1.5 font-sans">
             <Compass className="w-3.5 h-3.5 text-terracotta" />
             <span>Workspace Readiness</span>
@@ -157,10 +157,10 @@ export default function OverviewPage() {
       </section>
 
       {/* 3. 12-Column Grid: Brand Intelligence Profile (8-col) + Memory Posture (4-col) */}
-      <section className="grid grid-cols-1 lg:grid-cols-12 gap-5">
+      <section className="grid grid-cols-1 lg:grid-cols-12 gap-4">
         {/* Brand Intelligence Profile (8-col) */}
-        <div className="lg:col-span-8 p-5 rounded-xl bg-surface border border-hairline flex flex-col justify-between shadow-xs space-y-4">
-          <div className="space-y-2">
+        <div className="lg:col-span-8 p-4 sm:p-4.5 rounded-xl bg-surface border border-hairline flex flex-col justify-between shadow-xs space-y-3">
+          <div className="space-y-1.5">
             <div className="flex items-start justify-between gap-4">
               <div>
                 <span className="text-[10px] font-sans font-semibold uppercase tracking-wider text-ink-secondary block">
@@ -185,37 +185,37 @@ export default function OverviewPage() {
           </div>
 
           {/* 4-Stat Corridor Matrix */}
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-3 border-t border-hairline/60 text-xs">
-            <div className="p-2.5 rounded-lg bg-surface-subtle border border-hairline/60">
-              <p className="text-[11px] text-ink-secondary font-medium font-sans mb-0.5">Target Audience</p>
-              <p className="text-xs text-ink font-medium leading-snug font-sans">
-                University students (18–24), value-conscious, active after 9 PM.
+          <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-2 pt-2 border-t border-hairline/60 text-xs">
+            <div className="p-2 rounded-lg bg-surface-subtle border border-hairline/60">
+              <p className="text-[10px] text-ink-secondary font-medium font-sans mb-0.5">Target Audience</p>
+              <p className="text-[11px] text-ink font-medium leading-snug font-sans">
+                University students (18–24), active post-9 PM.
               </p>
             </div>
-            <div className="p-2.5 rounded-lg bg-surface-subtle border border-hairline/60">
-              <p className="text-[11px] text-ink-secondary font-medium font-sans mb-0.5">Brand Voice</p>
-              <p className="text-xs text-ink font-medium leading-snug font-sans">
-                Energetic, authentic, witty, zero corporate pretension.
+            <div className="p-2 rounded-lg bg-surface-subtle border border-hairline/60">
+              <p className="text-[10px] text-ink-secondary font-medium font-sans mb-0.5">Brand Voice</p>
+              <p className="text-[11px] text-ink font-medium leading-snug font-sans">
+                Energetic, witty, zero corporate pretension.
               </p>
             </div>
-            <div className="p-2.5 rounded-lg bg-surface-subtle border border-hairline/60">
-              <p className="text-[11px] text-ink-secondary font-medium font-sans mb-0.5">Operational Market</p>
-              <p className="text-xs text-ink font-medium leading-snug font-sans">
+            <div className="p-2 rounded-lg bg-surface-subtle border border-hairline/60">
+              <p className="text-[10px] text-ink-secondary font-medium font-sans mb-0.5">Market</p>
+              <p className="text-[11px] text-ink font-medium leading-snug font-sans">
                 Austin, TX (West Campus Corridor)
               </p>
             </div>
-            <div className="p-2.5 rounded-lg bg-surface-subtle border border-hairline/60">
-              <p className="text-[11px] text-ink-secondary font-medium font-sans mb-0.5">Negative Constraint</p>
-              <p className="text-xs text-ink font-medium leading-snug font-sans">
-                No fine-dining aesthetics; no alcohol promos in campus campaigns.
+            <div className="p-2 rounded-lg bg-surface-subtle border border-hairline/60">
+              <p className="text-[10px] text-ink-secondary font-medium font-sans mb-0.5">Negative Constraint</p>
+              <p className="text-[11px] text-ink font-medium leading-snug font-sans">
+                No fine-dining; zero campus alcohol promos.
               </p>
             </div>
           </div>
         </div>
 
         {/* Learning Posture & Memory Isolation Summary (4-col) */}
-        <div className="lg:col-span-4 p-5 rounded-xl bg-surface-subtle border border-hairline flex flex-col justify-between shadow-xs space-y-4">
-          <div className="space-y-2">
+        <div className="lg:col-span-4 p-4 sm:p-4.5 rounded-xl bg-surface-subtle border border-hairline flex flex-col justify-between shadow-xs space-y-3">
+          <div className="space-y-1.5">
             <div className="flex items-center justify-between">
               <span className="text-[10px] font-sans font-semibold uppercase tracking-wider text-ink-secondary block">
                 Memory Architecture
@@ -228,11 +228,11 @@ export default function OverviewPage() {
               Brand Isolation Boundary
             </h3>
             <p className="text-xs text-ink-secondary leading-relaxed font-sans">
-              Every brand maps to an architectural memory bank (`campaignecho-brand-{"{brand_id}"}`). Cross-tenant data leaks are blocked server-side.
+              Application-level brand isolation is implemented through deterministic bank mapping. Live Hindsight isolation verification is pending.
             </p>
           </div>
 
-          <div className="pt-3 border-t border-hairline/80 space-y-2.5 text-xs font-sans">
+          <div className="pt-2 border-t border-hairline/80 space-y-2 text-xs font-sans">
             <div className="flex items-center gap-2 text-ink-secondary font-medium">
               <ShieldCheck className="w-4 h-4 text-forest shrink-0" />
               <span>
@@ -253,7 +253,7 @@ export default function OverviewPage() {
             </div>
             <Link
               href="/memory-explorer"
-              className="text-xs text-ink hover:text-terracotta flex items-center justify-between font-medium font-sans pt-1 transition-colors"
+              className="text-xs text-ink hover:text-terracotta flex items-center justify-between font-medium font-sans pt-0.5 transition-colors"
             >
               <span>Inspect Memory Fixtures</span>
               <ArrowRight className="w-3.5 h-3.5" />
