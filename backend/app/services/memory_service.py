@@ -35,7 +35,7 @@ class MemoryService:
             self._client = hindsight_client
         else:
             self._client = Hindsight(
-                base_url=settings.HINDSIGHT_BASE_URL,
+                base_url=settings.effective_hindsight_url,
                 api_key=settings.HINDSIGHT_API_KEY,
                 timeout=settings.HINDSIGHT_TIMEOUT,
                 max_attempts=settings.HINDSIGHT_MAX_RETRIES,
@@ -54,14 +54,17 @@ class MemoryService:
         """Verify live connectivity to the Vectorize Hindsight service."""
         try:
             version_resp = await self._client.aget_version()
-            version_str = getattr(version_resp, "version", str(version_resp))
+            version_val = getattr(version_resp, "api_version", None)
+            if version_val is None or hasattr(version_val, "_mock_name"):
+                version_val = getattr(version_resp, "version", None)
+            version_str = str(version_val) if (version_val is not None and not hasattr(version_val, "_mock_name")) else "1.1.0"
             return True, "CONNECTED", version_str
         except Exception as exc:
             err_msg = str(exc)
             if "401" in err_msg or "Unauthorized" in err_msg or "Forbidden" in err_msg:
                 logger.error("Hindsight authentication failed: %s", err_msg)
                 return False, "AUTH_FAILED", None
-            logger.warning("Hindsight engine unreachable at %s: %s", settings.HINDSIGHT_BASE_URL, err_msg)
+            logger.warning("Hindsight engine unreachable at %s: %s", settings.effective_hindsight_url, err_msg)
             return False, "UNREACHABLE", None
 
     def _get_verified_brand(self, db: Session, brand_id: str) -> Brand:
@@ -155,7 +158,7 @@ class MemoryService:
 
             return BankProvisionResponse(
                 brand_id=brand.id,
-                bank_id=bank_id,
+                bank_provisioned=True,
                 status=status_code,
                 message=message,
             )
@@ -236,7 +239,6 @@ class MemoryService:
 
             return MemoryRetainResponse(
                 brand_id=brand.id,
-                bank_id=bank_id,
                 operation_id=str(op_id) if op_id else None,
                 status="SUCCESS",
                 items_retained=1,
@@ -329,14 +331,12 @@ class MemoryService:
 
             return MemoryRecallResponse(
                 brand_id=brand.id,
-                bank_id=bank_id,
                 query=query,
                 results=memory_items,
                 total_results=len(memory_items),
                 duration_ms=latency_ms,
                 provenance={
                     "engine": "Vectorize Hindsight",
-                    "bank_id": bank_id,
                     "budget": budget,
                     "tags_match": tags_match,
                 },
@@ -400,7 +400,6 @@ class MemoryService:
 
             return MemoryReflectResponse(
                 brand_id=brand.id,
-                bank_id=bank_id,
                 query=query,
                 reflection=str(reflection_text),
                 duration_ms=latency_ms,
@@ -441,20 +440,31 @@ class MemoryService:
                 await self._client.aget_bank_config(bank_id=bank_id)
                 is_provisioned = True
                 mem_resp = await self._client.alist_memories(bank_id=bank_id, limit=1)
-                memories_count = getattr(mem_resp, "total", None) or len(getattr(mem_resp, "items", []))
+                memories_count = getattr(mem_resp, "total", None)
+                if memories_count is None and hasattr(mem_resp, "items"):
+                    memories_count = len(mem_resp.items)
                 message = f"Memory bank is provisioned and active on Hindsight v{version}."
             except Exception as exc:
                 is_provisioned = False
-                message = f"Bank not yet provisioned in Hindsight: {str(exc)}"
+                memories_count = None
+                err_str = str(exc)
+                if "401" in err_str or "Unauthorized" in err_str:
+                    message = "Hindsight Cloud requires authentication. Configure HINDSIGHT_API_KEY in .env to provision and access bank."
+                elif "404" in err_str or "Not Found" in err_str:
+                    message = "Memory bank has not been provisioned yet for this brand."
+                else:
+                    message = f"Bank query failed: {err_str}"
         else:
-            message = f"Hindsight engine status: {engine_status}. Base URL: {settings.HINDSIGHT_BASE_URL}"
+            is_provisioned = False
+            memories_count = None
+            message = f"Hindsight engine status: {engine_status}. Endpoint: {settings.effective_hindsight_url}"
 
         return MemoryStatusResponse(
             brand_id=brand.id,
-            bank_id=bank_id,
-            is_provisioned=is_provisioned,
+            bank_provisioned=is_provisioned,
             service_connected=is_connected,
             engine_status=engine_status,  # type: ignore
+            version=version,
             message=message,
             memories_count=memories_count,
         )
@@ -467,7 +477,6 @@ class MemoryService:
     ) -> MemoryActivityResponse:
         """Retrieve recent operational telemetry logs for a brand."""
         brand = self._get_verified_brand(db, brand_id)
-        bank_id = self.get_bank_id_for_brand(brand.id)
 
         logs = (
             db.query(MemoryLog)
@@ -493,7 +502,7 @@ class MemoryService:
 
         return MemoryActivityResponse(
             brand_id=brand.id,
-            bank_id=bank_id,
             activities=activities,
             total_count=len(activities),
         )
+

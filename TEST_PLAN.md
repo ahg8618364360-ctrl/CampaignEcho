@@ -79,11 +79,14 @@ Using the configured Playwright MCP and automated test scripts:
 ## 4. Execution Commands
 
 ```bash
-# Run backend unit & integration tests
-pytest tests/unit tests/integration -v --tb=short
+# Run backend unit tests with mocks
+pytest -v --tb=short backend/tests
 
-# Run backend with coverage
-pytest --cov=app --cov-report=term-missing tests/
+# Run live Hindsight integration tests (requires HINDSIGHT_API_KEY in .env)
+pytest -v -m integration backend/tests
+
+# Run all backend tests with coverage
+pytest --cov=backend/app --cov-report=term-missing backend/tests/
 
 # Run Playwright UI acceptance tests
 npx playwright test

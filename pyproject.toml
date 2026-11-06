@@ -13,4 +13,8 @@ requires-python = ">=3.11"
 pythonpath = ["."]
 testpaths = ["backend/tests"]
 asyncio_default_fixture_loop_scope = "function"
+markers = [
+    "integration: live integration tests requiring real external service connectivity and credentials",
+    "unit: isolated fast unit tests using local database and mocks",
+]
 

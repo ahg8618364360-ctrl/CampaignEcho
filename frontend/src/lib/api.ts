@@ -13,12 +13,12 @@ export interface HealthReadyResponse {
 
 export interface MemoryStatusResponse {
   brand_id: string;
-  bank_id: string;
-  is_provisioned: boolean;
+  bank_provisioned: boolean;
   service_connected: boolean;
   engine_status: "CONNECTED" | "UNREACHABLE" | "NOT_CONFIGURED" | "AUTH_FAILED";
+  version?: string;
   message: string;
-  memories_count?: number;
+  memories_count?: number | null;
   last_verified?: string;
 }
 
@@ -35,7 +35,6 @@ export interface MemoryActivityItem {
 
 export interface MemoryActivityResponse {
   brand_id: string;
-  bank_id: string;
   activities: MemoryActivityItem[];
   total_count: number;
 }

@@ -25,10 +25,10 @@ class BankProvisionRequest(BaseModel):
 
 
 class BankProvisionResponse(BaseModel):
-    """Response confirming bank provisioning status."""
+    """Response confirming bank provisioning status without leaking internal bank ID."""
 
     brand_id: str
-    bank_id: str
+    bank_provisioned: bool = True
     status: Literal["PROVISIONED", "ALREADY_EXISTS", "FAILED", "NOT_CONFIGURED"]
     message: str
     created_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
@@ -52,7 +52,6 @@ class MemoryRetainResponse(BaseModel):
     """Response returned upon memory retention."""
 
     brand_id: str
-    bank_id: str
     operation_id: Optional[str] = None
     status: Literal["SUCCESS", "FAILED", "OFFLINE_SIMULATED"]
     items_retained: int = 1
@@ -78,7 +77,6 @@ class MemoryRecallResponse(BaseModel):
     """Response containing retrieved memories and source evidence."""
 
     brand_id: str
-    bank_id: str
     query: str
     results: List[MemoryItem] = Field(default_factory=list)
     total_results: int
@@ -99,7 +97,6 @@ class MemoryReflectResponse(BaseModel):
     """Response containing synthesized reflection and facts."""
 
     brand_id: str
-    bank_id: str
     query: str
     reflection: str
     duration_ms: int
@@ -110,10 +107,10 @@ class MemoryStatusResponse(BaseModel):
     """Live connectivity and readiness status of the brand's memory bank."""
 
     brand_id: str
-    bank_id: str
-    is_provisioned: bool
+    bank_provisioned: bool
     service_connected: bool
     engine_status: Literal["CONNECTED", "UNREACHABLE", "NOT_CONFIGURED", "AUTH_FAILED"]
+    version: Optional[str] = None
     message: str
     memories_count: Optional[int] = None
     last_verified: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
@@ -136,6 +133,6 @@ class MemoryActivityResponse(BaseModel):
     """List of recent memory telemetry logs."""
 
     brand_id: str
-    bank_id: str
     activities: List[MemoryActivityItem] = Field(default_factory=list)
     total_count: int
+

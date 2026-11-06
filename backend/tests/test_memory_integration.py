@@ -7,16 +7,19 @@ from backend.app.services.memory_service import MemoryService
 from backend.app.db.models import Brand
 
 
-# Determine if live Hindsight service is accessible
+# Determine if live Hindsight service is accessible with credentials
 HINDSIGHT_KEY = os.getenv("HINDSIGHT_API_KEY") or settings.HINDSIGHT_API_KEY
-HINDSIGHT_URL = os.getenv("HINDSIGHT_BASE_URL") or settings.HINDSIGHT_BASE_URL
+HINDSIGHT_URL = os.getenv("HINDSIGHT_API_URL") or os.getenv("HINDSIGHT_BASE_URL") or settings.effective_hindsight_url
 
-live_hindsight_available = bool(HINDSIGHT_KEY or (HINDSIGHT_URL and "localhost" not in HINDSIGHT_URL))
+live_hindsight_available = bool(HINDSIGHT_KEY)
 
-pytestmark = pytest.mark.skipif(
-    not live_hindsight_available,
-    reason="Live Hindsight service credentials (HINDSIGHT_API_KEY or remote HINDSIGHT_BASE_URL) not configured. Run with HINDSIGHT_API_KEY=<key> to execute live cloud integration tests.",
-)
+pytestmark = [
+    pytest.mark.integration,
+    pytest.mark.skipif(
+        not live_hindsight_available,
+        reason="Live Hindsight service credentials (HINDSIGHT_API_KEY) not configured in .env. Configure HINDSIGHT_API_KEY to run live cloud integration tests against https://api.hindsight.vectorize.io.",
+    ),
+]
 
 
 @pytest.fixture
@@ -101,7 +104,8 @@ async def test_critical_2_real_recall(live_hindsight_client, db_session):
         budget="mid",
     )
     assert recall_resp.total_results >= 0
-    assert recall_resp.bank_id == MemoryService.get_bank_id_for_brand(brand.id)
+    assert recall_resp.brand_id == brand.id
+    assert "bank_id" not in recall_resp.model_dump()
 
 
 @pytest.mark.asyncio
@@ -175,7 +179,8 @@ async def test_critical_4_cross_session_persistence(live_hindsight_client, db_se
         query="video performance engagement",
         budget="mid",
     )
-    assert recall_resp.bank_id == MemoryService.get_bank_id_for_brand(brand.id)
+    assert recall_resp.brand_id == brand.id
+    assert "bank_id" not in recall_resp.model_dump()
 
 
 @pytest.mark.asyncio
@@ -226,3 +231,4 @@ async def test_critical_5_strict_brand_isolation(live_hindsight_client, db_sessi
     for item in spa_recall.results:
         assert "Chipotle Marinade" not in item.content
         assert "Taco" not in item.content
+

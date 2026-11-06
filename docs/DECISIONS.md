@@ -12,17 +12,17 @@
 
 ---
 
-## ADR-002: Deterministic 1:1 Memory Bank Isolation per Brand
-- **Status**: ACCEPTED
-- **Context**: CampaignEcho manages multiple brands. Cross-brand leakage would violate tenant boundaries.
+## ADR-002: Deterministic 1:1 Memory Bank Isolation per Brand & Zero Public Exposure
+- **Status**: ACCEPTED (Refined in M2.1)
+- **Context**: CampaignEcho manages multiple brands. Cross-brand leakage would violate tenant boundaries. Furthermore, internal bank identifiers must never leak to the public client API.
 - **Decision**: Enforce a strict 1:1 mapping between Brand entities and Hindsight memory banks:
   ```python
-  bank_id = f"campaignecho-brand-{brand_id}"
+  bank_id = f"campaignecho-brand-{brand_id.lower()}"
   ```
-  Bank IDs remain internal backend identifiers and are never exposed in public client API responses.
+  Bank IDs remain internal backend identifiers. All public API response schemas (`BankProvisionResponse`, `MemoryRetainResponse`, `MemoryRecallResponse`, `MemoryReflectResponse`, `MemoryStatusResponse`, `MemoryActivityResponse`) explicitly omit `bank_id`.
 - **Consequences**:
   - Guarantees strict multi-tenant data boundaries.
-  - Keeps low-level memory infrastructure details shielded from the presentation tier.
+  - Keeps low-level memory infrastructure details completely shielded from the presentation tier.
 
 ---
 
@@ -63,14 +63,16 @@
 
 ---
 
-## ADR-007: Native Async Hindsight Client & Operational Telemetry Persistence
-- **Status**: ACCEPTED
-- **Context**: Milestone 2 requires integrating Vectorize Hindsight (`hindsight-client` v1.2.0) into the FastAPI backend. Sync client calls inside async routes block the event loop or cause deadlocks. In addition, operational diagnostics must be tracked without leaking memory text or violating tenant boundaries.
+## ADR-007: Native Async Hindsight Client & Canonical Environment Configuration
+- **Status**: ACCEPTED (Refined in M2.1)
+- **Context**: Milestone 2 and M2.1 audit require integrating Vectorize Hindsight (`hindsight-client` v1.2.0) into the FastAPI backend. Sync client calls inside async routes block the event loop or cause deadlocks. In addition, configuration must be standardized across files, and operational diagnostics tracked without leaking memory text, internal bank IDs, or credentials.
 - **Decision**:
-  1. Use pure native asynchronous methods on the official SDK (`aretain`, `arecall`, `areflect`, `acreate_bank`, `aget_version`).
-  2. Implement `MemoryService` with strict deterministic bank naming (`campaignecho-brand-{brand_id.lower()}`). Client requests cannot inject arbitrary bank identifiers.
-  3. Classify engine status transparently into `CONNECTED`, `UNREACHABLE`, and `AUTH_FAILED`. Never report fake connectivity.
-  4. Persist privacy-safe operational telemetry into the SQLite `memory_logs` table (`brand_id`, `operation_type`, `items_count`, `latency_ms`, `status`).
+  1. Standardize `HINDSIGHT_API_URL` as the canonical configuration name (defaulting to official Vectorize Hindsight Cloud: `https://api.hindsight.vectorize.io`), while maintaining `HINDSIGHT_BASE_URL` as a backward-compatibility alias via `settings.effective_hindsight_url`.
+  2. Use pure native asynchronous methods on the official SDK (`aretain`, `arecall`, `areflect`, `acreate_bank`, `aget_version`).
+  3. Implement `MemoryService` with strict deterministic bank naming (`campaignecho-brand-{brand_id.lower()}`). Client requests cannot inject arbitrary bank identifiers, and response schemas never expose bank IDs.
+  4. Classify engine status transparently into `CONNECTED`, `UNREACHABLE`, and `AUTH_FAILED`. Unknown memory counts must return `null` instead of falsely claiming zero.
+  5. Persist privacy-safe operational telemetry into the SQLite `memory_logs` table (`brand_id`, `operation_type`, `items_count`, `latency_ms`, `status`).
+  6. Register pytest marker `integration` in `pyproject.toml` so live tests can be executed specifically via `pytest -v -m integration backend/tests`.
 - **Consequences**:
   - Zero event loop starvation in high-throughput campaign generation.
   - Provable 1:1 tenant isolation across brands.

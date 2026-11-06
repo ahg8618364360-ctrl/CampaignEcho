@@ -156,3 +156,4 @@ def get_memory_activity(
 ):
     """Retrieves privacy-preserving operational audit telemetry for the brand's memory operations."""
     return service.get_activity_logs(db=db, brand_id=brand_id, limit=limit)
+

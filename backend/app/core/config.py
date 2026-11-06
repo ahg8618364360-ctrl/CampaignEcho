@@ -28,10 +28,18 @@ class Settings(BaseSettings):
     VERSION: str = "0.1.0"
 
     # Vectorize Hindsight Configuration
-    HINDSIGHT_BASE_URL: str = "http://localhost:8888"
+    # Official Cloud: https://api.hindsight.vectorize.io
+    # Local Server: http://localhost:8888
+    HINDSIGHT_API_URL: str = "https://api.hindsight.vectorize.io"
+    HINDSIGHT_BASE_URL: Optional[str] = None
     HINDSIGHT_API_KEY: Optional[str] = None
     HINDSIGHT_TIMEOUT: float = 30.0
     HINDSIGHT_MAX_RETRIES: int = 3
+
+    @property
+    def effective_hindsight_url(self) -> str:
+        """Canonical Hindsight API URL, supporting HINDSIGHT_API_URL with HINDSIGHT_BASE_URL fallback."""
+        return self.HINDSIGHT_BASE_URL or self.HINDSIGHT_API_URL
 
     model_config = SettingsConfigDict(
         env_file=".env",

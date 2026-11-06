@@ -75,9 +75,9 @@ cd C:\CampaignEcho
 cp .env.example .env
 
 # Configure environment variables in .env:
-# HINDSIGHT_BASE_URL=http://localhost:8888  (or Vectorize Cloud URL)
-# HINDSIGHT_API_KEY=your_hindsight_api_key  (if using authenticated cloud)
-# GROQ_API_KEY=your_groq_api_key            (for campaign strategy generation)
+# HINDSIGHT_API_URL=https://api.hindsight.vectorize.io  (default Vectorize Cloud or http://localhost:8888)
+# HINDSIGHT_API_KEY=your_hindsight_api_key              (obtained from https://ui.hindsight.vectorize.ai)
+# GROQ_API_KEY=your_groq_api_key                        (for campaign strategy generation)
 ```
 
 ### 2. Backend Initialization

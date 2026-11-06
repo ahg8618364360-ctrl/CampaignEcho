@@ -176,3 +176,4 @@ GET /api/v1/brands/9d215d96-2695-41ee-8625-64be3e547504/memory/status -> 200 OK
 
 Milestone 2 is **100% complete and verified**.  
 The backend is now primed for **Milestone 3: Campaign Learning Loop** (connecting the Groq LLM with Hindsight memory recall to produce memory-informed campaign strategies).
+

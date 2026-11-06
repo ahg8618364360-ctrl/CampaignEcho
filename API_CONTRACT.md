@@ -61,7 +61,8 @@ Create a new brand profile. The internal Hindsight memory bank mapping is provis
   "market_region": "Austin, TX (West Campus)",
   "brand_voice": "Energetic, authentic, witty, zero pretension",
   "preferred_language": "en",
-  "restrictions": "No high-end fine dining aesthetics; never offer alcohol discounts in student promos."
+  "restrictions": "No high-end fine dining aesthetics; never offer alcohol discounts in student promos.",
+  "is_synthetic": true
 }
 ```
 
@@ -77,7 +78,7 @@ Create a new brand profile. The internal Hindsight memory bank mapping is provis
   "brand_voice": "Energetic, authentic, witty, zero pretension",
   "preferred_language": "en",
   "restrictions": "No high-end fine dining aesthetics; never offer alcohol discounts in student promos.",
-  "is_synthetic": false,
+  "is_synthetic": true,
   "created_at": "2026-11-05T12:00:00Z",
   "updated_at": "2026-11-05T12:00:00Z"
 }
@@ -107,14 +108,16 @@ Retrieve all registered brands.
 ## 3. Brand Memory Endpoints (Implemented in M2)
 
 ### `POST /brands/{brand_id}/memory/provision`
-Idempotently creates or verifies the dedicated Hindsight memory bank for the brand (`campaignecho-brand-{brand_id}`).
+Idempotently creates or verifies the dedicated Hindsight memory bank for the brand. In accordance with ADR-002, the underlying bank identifier is managed strictly server-side and is never exposed in public client responses.
 
 #### Response (`200 OK`)
 ```json
 {
   "brand_id": "b0f7a264-8845-4279-9923-28f7311c1092",
+  "bank_provisioned": true,
   "status": "PROVISIONED",
-  "message": "Memory bank provisioned or verified successfully"
+  "message": "Memory bank provisioned or verified successfully",
+  "created_at": "2026-11-06T11:30:00Z"
 }
 ```
 
@@ -129,12 +132,13 @@ Retains durable marketing experiences, campaign outcomes, or audience feedback i
   "content": "Late-night BOGO burrito promotions after 9 PM drove 380 redemptions with university students, whereas lunch promos failed.",
   "context": "campaign_outcome",
   "campaign_id": "c1a2b3c4-d5e6-7890-abcd-ef1234567890",
-  "source_type": "CAMPAIGN_RESULT",
-  "is_synthetic": false,
+  "source_type": "CAMPAIGN_POSTMORTEM",
+  "is_synthetic": true,
   "metadata": {
     "target_segment": "students_18_24",
-    "redemptions": 380
-  }
+    "redemptions": "380"
+  },
+  "tags": ["bogo", "late_night", "synthetic"]
 }
 ```
 
@@ -142,9 +146,14 @@ Retains durable marketing experiences, campaign outcomes, or audience feedback i
 ```json
 {
   "brand_id": "b0f7a264-8845-4279-9923-28f7311c1092",
-  "retained": true,
-  "memory_id": "mem_01hqz...",
-  "status": "RETAINED"
+  "operation_id": "op_01hqz...",
+  "status": "SUCCESS",
+  "items_retained": 1,
+  "duration_ms": 142,
+  "is_synthetic": true,
+  "source_type": "CAMPAIGN_POSTMORTEM",
+  "recorded_at": "2026-11-06T11:30:00Z",
+  "message": "Campaign experience retained in Hindsight memory."
 }
 ```
 
@@ -157,8 +166,10 @@ Contextually queries the brand's memory bank using native async `arecall` (seman
 ```json
 {
   "query": "What promotions drive foot traffic with college students?",
-  "limit": 5,
-  "context": "campaign_brief"
+  "budget": "mid",
+  "max_tokens": 4096,
+  "tags": ["bogo"],
+  "tags_match": "any"
 }
 ```
 
@@ -167,16 +178,26 @@ Contextually queries the brand's memory bank using native async `arecall` (seman
 {
   "brand_id": "b0f7a264-8845-4279-9923-28f7311c1092",
   "query": "What promotions drive foot traffic with college students?",
-  "results_count": 1,
-  "memories": [
+  "results": [
     {
       "id": "mem_01hqz...",
       "content": "Late-night BOGO burrito promotions after 9 PM drove 380 redemptions...",
+      "memory_type": "observation",
       "score": 0.92,
-      "context": "campaign_outcome",
-      "created_at": "2026-11-05T12:00:00Z"
+      "tags": ["bogo", "late_night", "synthetic"],
+      "metadata": {
+        "target_segment": "students_18_24"
+      },
+      "timestamp": "2026-11-06T11:30:00Z"
     }
-  ]
+  ],
+  "total_results": 1,
+  "duration_ms": 88,
+  "provenance": {
+    "engine": "Vectorize Hindsight",
+    "budget": "mid",
+    "tags_match": "any"
+  }
 }
 ```
 
@@ -188,8 +209,9 @@ Synthesizes higher-order strategic patterns across historical memories using nat
 #### Request Body
 ```json
 {
-  "prompt": "What creative angles deliver the highest conversion rates for late-night promos?",
-  "context": "strategy_synthesis"
+  "query": "What creative angles deliver the highest conversion rates for late-night promos?",
+  "budget": "low",
+  "tags": ["late_night"]
 }
 ```
 
@@ -197,26 +219,47 @@ Synthesizes higher-order strategic patterns across historical memories using nat
 ```json
 {
   "brand_id": "b0f7a264-8845-4279-9923-28f7311c1092",
-  "prompt": "What creative angles deliver the highest conversion rates for late-night promos?",
+  "query": "What creative angles deliver the highest conversion rates for late-night promos?",
   "reflection": "Historical data demonstrates that student audiences respond strongly to late-night urgency hooks...",
-  "status": "COMPLETED"
+  "duration_ms": 320,
+  "facts": [
+    {
+      "fact": "Late-night BOGO promos drove 380 redemptions after 9 PM."
+    }
+  ]
 }
 ```
 
 ---
 
 ### `GET /brands/{brand_id}/memory/status`
-Queries engine health and verification status for the brand's memory bank without disclosing internal credentials.
+Queries engine health and verification status for the brand's memory bank without disclosing internal credentials or bank identifiers. Unknown memory counts use `null`.
 
 #### Response (`200 OK`)
 ```json
 {
   "brand_id": "b0f7a264-8845-4279-9923-28f7311c1092",
   "bank_provisioned": true,
+  "service_connected": true,
   "engine_status": "CONNECTED",
-  "version": "1.2.0",
-  "total_memories": 12,
-  "last_retained_at": "2026-11-05T15:20:00Z"
+  "version": "1.1.0",
+  "message": "Memory bank is provisioned and active on Hindsight v1.1.0.",
+  "memories_count": 12,
+  "last_verified": "2026-11-06T11:30:00Z"
+}
+```
+
+#### Unconfigured/Unprovisioned State (`200 OK`)
+```json
+{
+  "brand_id": "b0f7a264-8845-4279-9923-28f7311c1092",
+  "bank_provisioned": false,
+  "service_connected": true,
+  "engine_status": "CONNECTED",
+  "version": "1.1.0",
+  "message": "Hindsight Cloud requires authentication. Configure HINDSIGHT_API_KEY in .env to provision and access bank.",
+  "memories_count": null,
+  "last_verified": "2026-11-06T11:30:00Z"
 }
 ```
 
@@ -229,17 +272,19 @@ Retrieves privacy-safe operational telemetry from the SQLite `memory_logs` table
 ```json
 {
   "brand_id": "b0f7a264-8845-4279-9923-28f7311c1092",
-  "logs": [
+  "activities": [
     {
-      "id": 1,
+      "id": "1",
       "brand_id": "b0f7a264-8845-4279-9923-28f7311c1092",
       "operation_type": "RETAIN",
+      "context_tag": "CAMPAIGN_POSTMORTEM",
       "items_count": 1,
       "status": "SUCCESS",
-      "latency_ms": 142.5,
-      "created_at": "2026-11-05T15:20:00Z"
+      "latency_ms": 142,
+      "created_at": "2026-11-06T11:30:00Z"
     }
-  ]
+  ],
+  "total_count": 1
 }
 ```
 

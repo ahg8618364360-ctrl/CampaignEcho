@@ -13,7 +13,7 @@ from backend.app.api.v1.memory import get_memory_service
 def mock_hindsight_client():
     client = MagicMock()
     # Async methods on Hindsight client
-    client.aget_version = AsyncMock(return_value=MagicMock(version="1.2.0"))
+    client.aget_version = AsyncMock(return_value=MagicMock(api_version="1.2.0", version="1.2.0"))
     client.aget_bank_config = AsyncMock(return_value={"bank_id": "test", "name": "Test Bank"})
     client.acreate_bank = AsyncMock(return_value=MagicMock(bank_id="test"))
     client.aretain = AsyncMock(return_value=MagicMock(operation_id="op-12345"))
@@ -92,15 +92,17 @@ def test_bank_provisioning_idempotency(client_with_mock_memory, test_brand, mock
     assert resp1.status_code == 200
     data1 = resp1.json()
     assert data1["brand_id"] == brand_id
-    assert data1["bank_id"] == f"campaignecho-brand-{brand_id.lower()}"
+    assert data1["bank_provisioned"] is True
+    assert "bank_id" not in data1  # Strict ADR-002: Bank ID never exposed to client
     assert data1["status"] in ["PROVISIONED", "ALREADY_EXISTS"]
 
     # Second provision: idempotent, returns ALREADY_EXISTS
-    mock_hindsight_client.aget_bank_config.return_value = {"bank_id": data1["bank_id"]}
+    mock_hindsight_client.aget_bank_config.return_value = {"status": "active"}
     resp2 = test_client.post(f"/api/v1/brands/{brand_id}/memory/provision")
     assert resp2.status_code == 200
     data2 = resp2.json()
     assert data2["status"] == "ALREADY_EXISTS"
+    assert "bank_id" not in data2
 
 
 def test_memory_retain_success(client_with_mock_memory, test_brand, mock_hindsight_client):
@@ -120,7 +122,7 @@ def test_memory_retain_success(client_with_mock_memory, test_brand, mock_hindsig
     assert resp.status_code == 200
     data = resp.json()
     assert data["brand_id"] == brand_id
-    assert data["bank_id"] == f"campaignecho-brand-{brand_id.lower()}"
+    assert "bank_id" not in data  # ADR-002: no bank ID leakage
     assert data["status"] == "SUCCESS"
     assert data["is_synthetic"] is True
     assert data["operation_id"] == "op-12345"
@@ -185,7 +187,8 @@ def test_memory_status_connected(client_with_mock_memory, test_brand, mock_hinds
     assert resp.status_code == 200
     data = resp.json()
     assert data["brand_id"] == brand_id
-    assert data["is_provisioned"] is True
+    assert data["bank_provisioned"] is True
+    assert "bank_id" not in data  # ADR-002: no bank ID leakage
     assert data["service_connected"] is True
     assert data["engine_status"] == "CONNECTED"
 
@@ -205,6 +208,7 @@ def test_memory_activity_telemetry(client_with_mock_memory, test_brand, db_sessi
     assert resp.status_code == 200
     data = resp.json()
     assert data["brand_id"] == brand_id
+    assert "bank_id" not in data  # ADR-002: no bank ID leakage
     assert data["total_count"] >= 1
     assert data["activities"][0]["operation_type"] == "RETAIN"
     assert data["activities"][0]["status"] == "SUCCESS"
@@ -269,3 +273,4 @@ def test_hindsight_unreachable_error_handling(client_with_mock_memory, test_bran
     assert resp.status_code == 502
     data = resp.json()
     assert "retention failed" in data["message"].lower()
+

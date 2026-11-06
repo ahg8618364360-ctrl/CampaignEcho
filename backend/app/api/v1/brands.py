@@ -43,3 +43,4 @@ def get_brand(brand_id: str, db: Session = Depends(get_db)):
     if not brand:
         raise ResourceNotFoundException("Brand", brand_id)
     return brand
+
