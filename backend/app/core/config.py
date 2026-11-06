@@ -36,6 +36,12 @@ class Settings(BaseSettings):
     HINDSIGHT_TIMEOUT: float = 30.0
     HINDSIGHT_MAX_RETRIES: int = 3
 
+    # Groq Cloud LLM Configuration
+    GROQ_API_KEY: Optional[str] = None
+    GROQ_MODEL: str = "openai/gpt-oss-120b"
+    GROQ_TEMPERATURE: float = 0.7
+    GROQ_MAX_TOKENS: int = 4096
+
     @property
     def effective_hindsight_url(self) -> str:
         """Canonical Hindsight API URL, supporting HINDSIGHT_API_URL with HINDSIGHT_BASE_URL fallback."""

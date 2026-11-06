@@ -50,3 +50,4 @@ def downgrade() -> None:
     op.drop_index(op.f('ix_memory_logs_verification_run_id'), table_name='memory_logs')
     op.drop_column('memory_logs', 'is_live')
     op.drop_column('memory_logs', 'verification_run_id')
+
