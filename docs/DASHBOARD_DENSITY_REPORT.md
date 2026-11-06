@@ -73,3 +73,4 @@ Automated verification conducted using the Playwright browser automation suite a
 - [x] **R-17/R-38**: All shown metrics are real runtime telemetry or explicit demo fixtures; no fake filler numbers.
 - [x] **R-25**: WCAG 2.2 AA contrast verified across all computed styles.
 - [x] **R-32/R-39**: All interactive elements have focus outlines, 44×44px hit targets on mobile, and semantic tags.
+

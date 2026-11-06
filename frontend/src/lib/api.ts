@@ -13,12 +13,21 @@ export interface HealthReadyResponse {
 
 export interface MemoryStatusResponse {
   brand_id: string;
+  service_state:
+    | "NOT_CONFIGURED"
+    | "ENDPOINT_UNREACHABLE"
+    | "AUTH_REQUIRED"
+    | "AUTHENTICATED"
+    | "BANK_NOT_PROVISIONED"
+    | "BANK_PROVISIONED"
+    | "OPERATIONS_VERIFIED";
   bank_provisioned: boolean;
   service_connected: boolean;
-  engine_status: "CONNECTED" | "UNREACHABLE" | "NOT_CONFIGURED" | "AUTH_FAILED";
+  engine_status: string;
   version?: string;
   message: string;
   memories_count?: number | null;
+  has_api_key?: boolean;
   last_verified?: string;
 }
 

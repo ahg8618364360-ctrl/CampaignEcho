@@ -16,6 +16,7 @@ import {
   Search,
   Building2,
   Lock,
+  Info,
 } from "lucide-react";
 
 interface BrandItem {
@@ -59,9 +60,9 @@ export default function BrandsPage() {
       {/* 1. Header */}
       <PageHeader
         badge="Multi-Brand Workspaces"
-        badgeSubtext="Active Bank: campaignecho-brand-b0f7"
-        title="Brand Management & Tenant Isolation"
-        description="Configure brand identity guidelines, voice parameters, and verify strict 1:1 Hindsight memory bank isolation across client accounts."
+        badgeSubtext="Demonstration Profile"
+        title="Brand Management & Tenant Boundaries"
+        description="Configure brand identity guidelines, voice parameters, and review architectural 1:1 Hindsight memory bank isolation across client accounts."
         actions={
           <Button
             variant="primary"
@@ -86,8 +87,8 @@ export default function BrandsPage() {
                 Workspaces
               </h2>
             </div>
-            <span className="text-[11px] font-medium px-2 py-0.5 rounded-full bg-forest-subtle text-forest border border-forest-border font-sans">
-              1 Active
+            <span className="text-[11px] font-medium px-2 py-0.5 rounded-full bg-surface-subtle text-ink-secondary border border-hairline font-sans">
+              1 Demo Profile
             </span>
           </div>
 
@@ -121,8 +122,8 @@ export default function BrandsPage() {
                     <p className="text-xs font-semibold text-ink font-sans">
                       {brand.name}
                     </p>
-                    <span className="text-[10px] font-medium px-1.5 py-0.2 rounded-full bg-forest-subtle text-forest border border-forest-border">
-                      Demo Fixture
+                    <span className="text-[10px] font-medium px-1.5 py-0.2 rounded-full bg-surface-subtle text-ink-secondary border border-hairline">
+                      Synthetic Fixture
                     </span>
                   </div>
                   <p className="text-[11px] text-ink-secondary font-sans">
@@ -130,7 +131,7 @@ export default function BrandsPage() {
                   </p>
                   <div className="mt-2 pt-2 border-t border-hairline/60 flex items-center justify-between text-[10px] text-ink-secondary font-sans">
                     <span>{brand.market.split("(")[0]}</span>
-                    <span className="text-forest font-medium">Bank Isolated</span>
+                    <span className="text-ink-secondary">Bank Scoped</span>
                   </div>
                 </button>
               );
@@ -170,7 +171,7 @@ export default function BrandsPage() {
                 href="/memory-explorer"
                 icon={<BrainCircuit className="w-3.5 h-3.5 text-ink-secondary" />}
               >
-                Inspect Bank
+                Inspect Fixtures
               </Button>
             </div>
           </div>
@@ -218,17 +219,17 @@ export default function BrandsPage() {
           </div>
 
           {/* Strict Tenant Isolation Guarantee Strip */}
-          <div className="p-4 rounded-xl bg-forest-subtle/50 border border-forest-border/60 space-y-2 text-xs font-sans">
-            <div className="flex items-center gap-2 text-forest font-semibold">
-              <ShieldCheck className="w-4 h-4 shrink-0" />
-              <span>Strict Vectorize Hindsight 1:1 Bank Isolation</span>
+          <div className="p-4 rounded-xl bg-surface-subtle border border-hairline space-y-2 text-xs font-sans">
+            <div className="flex items-center gap-2 text-ink font-semibold">
+              <ShieldCheck className="w-4 h-4 text-forest shrink-0" />
+              <span>Architectural 1:1 Bank Isolation Boundary</span>
             </div>
             <p className="text-ink-secondary leading-relaxed">
-              This brand operates inside its dedicated memory bank. CampaignEcho enforces tenant boundaries server-side so proprietary performance data, audience reactions, and post-mortems can never be recalled by another brand.
+              CampaignEcho maps every brand to an isolated memory bank identifier. While the deterministic server boundary is enforced in application code, empirical verification of live operations remains pending cloud API authentication.
             </p>
             <div className="pt-1 flex items-center justify-between text-[11px] text-ink-secondary font-mono">
-              <span>Tenant Bank Mapping:</span>
-              <span className="text-forest font-medium">{selectedBrand.bankId}</span>
+              <span>Deterministic Bank Scheme:</span>
+              <span className="text-ink font-medium">campaignecho-brand-{"{brand_id}"}</span>
             </div>
           </div>
         </section>

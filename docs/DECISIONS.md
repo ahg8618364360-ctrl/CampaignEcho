@@ -77,3 +77,23 @@
   - Zero event loop starvation in high-throughput campaign generation.
   - Provable 1:1 tenant isolation across brands.
   - Safe audit trail for latency and error monitoring without PII or prompt leakage.
+
+---
+
+## ADR-008: 7-State Hindsight Service Health & Truthful UI Model
+- **Status**: ACCEPTED
+- **Context**: A binary "Connected / Offline" status is misleading when interacting with public cloud endpoints like Vectorize Hindsight Cloud (`https://api.hindsight.vectorize.io`). The public `/version` endpoint returns HTTP 200 without authentication, whereas bank provisioning, retention, and recall require a valid Bearer API key (`HINDSIGHT_API_KEY`). Displaying "Connected" when unauthenticated or claiming empirical bank isolation without verified credentials violates AGENTS.md Law 1 and Law 5.
+- **Decision**:
+  1. Implement an explicit 7-state lifecycle in `backend/app/schemas/memory.py`:
+     - `NOT_CONFIGURED`: Missing endpoint URL.
+     - `ENDPOINT_UNREACHABLE`: Network or cloud endpoint down / timed out.
+     - `AUTH_REQUIRED`: Endpoint reachable, but API key missing or 401 Unauthorized.
+     - `AUTHENTICATED`: API key verified, brand bank not yet checked.
+     - `BANK_NOT_PROVISIONED`: Authenticated, but brand bank does not exist in cloud.
+     - `BANK_PROVISIONED`: Cloud bank created, no retain/recall operations yet.
+     - `OPERATIONS_VERIFIED`: Cloud bank exists and retain/recall logs verified.
+  2. Enforce strict synthetic data provenance across all frontend views. Demonstration fixtures ("The Taco Syndicate") must be explicitly tagged as synthetic (`is_synthetic = true`, `source_type = SYNTHETIC_FIXTURE`).
+  3. Prohibit claiming empirical multi-tenant bank isolation until live authenticated tests pass. Disclaim isolation boundaries as architectural until verified in production.
+- **Consequences**:
+  - UI never deceptively indicates functional memory operations when unauthenticated.
+  - Full transparency for hackathon evaluators and enterprise users regarding memory provenance and live readiness.

@@ -16,6 +16,7 @@ import {
   TrendingUp,
   AlertTriangle,
   FileSpreadsheet,
+  Info,
 } from "lucide-react";
 
 interface CampaignRecord {
@@ -30,6 +31,7 @@ interface CampaignRecord {
   outcomeLabel: string;
   mainLesson: string;
   memoryProvenance: string;
+  isSynthetic: boolean;
 }
 
 const HISTORICAL_RECORDS: CampaignRecord[] = [
@@ -42,9 +44,10 @@ const HISTORICAL_RECORDS: CampaignRecord[] = [
     impressions: "42,800",
     conversions: "380 redemptions",
     outcomeType: "success",
-    outcomeLabel: "Proven Success",
+    outcomeLabel: "Synthetic Observation",
     mainLesson: "BOGO promotions after 9 PM combined with macro food prep clips delivered 4.2x engagement over static carousels.",
-    memoryProvenance: "Vectorize Hindsight #mem-0891 (aretain)",
+    memoryProvenance: "Synthetic demonstration data — not yet verified as retained in Hindsight",
+    isSynthetic: true,
   },
   {
     id: "camp-002",
@@ -55,9 +58,10 @@ const HISTORICAL_RECORDS: CampaignRecord[] = [
     impressions: "18,400",
     conversions: "4 redemptions",
     outcomeType: "mistake",
-    outcomeLabel: "Documented Mistake",
+    outcomeLabel: "Synthetic Negative Rule",
     mainLesson: "Upscale aesthetic created cognitive friction with budget-conscious student demographic; perceived as unaffordable.",
-    memoryProvenance: "Vectorize Hindsight #mem-0744 (Negative Constraint)",
+    memoryProvenance: "Synthetic demonstration data — not yet verified as retained in Hindsight",
+    isSynthetic: true,
   },
   {
     id: "camp-003",
@@ -68,9 +72,10 @@ const HISTORICAL_RECORDS: CampaignRecord[] = [
     impressions: "12,600",
     conversions: "512 redemptions",
     outcomeType: "operational",
-    outcomeLabel: "Operational Guideline",
+    outcomeLabel: "Synthetic Guideline",
     mainLesson: "Showing college ID directly to the cashier reduced counter wait times by 65% compared to QR code redemption apps.",
-    memoryProvenance: "Vectorize Hindsight #mem-0612 (areflect)",
+    memoryProvenance: "Synthetic demonstration data — not yet verified as retained in Hindsight",
+    isSynthetic: true,
   },
 ];
 
@@ -96,9 +101,9 @@ export default function CampaignHistoryPage() {
       {/* 1. Header with Actions */}
       <PageHeader
         badge="Empirical Observation Ledger"
-        badgeSubtext="3 Recorded Historical Experiences"
+        badgeSubtext="Synthetic Demo Fixtures"
         title="Campaign History & Observations"
-        description="Structured repository of past marketing executions, empirical performance observations, and causal insights retained in brand memory."
+        description="Structured repository of past marketing executions, observed performance metrics, and qualitative post-mortems for The Taco Syndicate demonstration profile."
         actions={
           <>
             <Button
@@ -113,21 +118,29 @@ export default function CampaignHistoryPage() {
               href="/memory-explorer"
               icon={<BrainCircuit className="w-3.5 h-3.5 text-ink-secondary" />}
             >
-              Inspect Memory Graph
+              Inspect Memory Fixtures
             </Button>
           </>
         }
       />
 
-      {/* 2. Top Summary Metric Cards (Attio / Basepoint style) */}
+      {/* Synthetic Provenance Notice Strip */}
+      <div className="p-3 rounded-lg bg-surface-subtle border border-hairline flex items-center gap-2 text-xs text-ink-secondary font-sans">
+        <Info className="w-4 h-4 text-ink-secondary shrink-0" />
+        <span>
+          <strong className="text-ink font-medium">Synthetic Demonstration Fixtures:</strong> The 3 records below represent sample observations for The Taco Syndicate. They have not yet been retained into live Hindsight Cloud memory banks.
+        </span>
+      </div>
+
+      {/* 2. Top Summary Metric Cards */}
       <section className="grid grid-cols-1 sm:grid-cols-3 gap-4">
         <div className="p-4 rounded-xl bg-surface border border-hairline flex items-center justify-between shadow-xs">
           <div>
             <p className="text-[11px] font-sans font-medium text-ink-secondary uppercase tracking-wider">
-              Total Observations
+              Sample Observations
             </p>
             <p className="font-serif text-2xl text-ink font-normal mt-0.5 tabular-nums">
-              3 Campaigns
+              3 Demo Fixtures
             </p>
           </div>
           <span className="p-2 rounded-lg bg-surface-subtle border border-hairline text-ink">
@@ -138,7 +151,7 @@ export default function CampaignHistoryPage() {
         <div className="p-4 rounded-xl bg-surface border border-hairline flex items-center justify-between shadow-xs">
           <div>
             <p className="text-[11px] font-sans font-medium text-ink-secondary uppercase tracking-wider">
-              High-Performing Angle
+              Sample Top Angle
             </p>
             <p className="font-serif text-2xl text-forest font-normal mt-0.5 tabular-nums">
               Late-Night BOGO (4.2x)
@@ -152,7 +165,7 @@ export default function CampaignHistoryPage() {
         <div className="p-4 rounded-xl bg-surface border border-hairline flex items-center justify-between shadow-xs">
           <div>
             <p className="text-[11px] font-sans font-medium text-ink-secondary uppercase tracking-wider">
-              Enforced Avoidance
+              Sample Avoidance
             </p>
             <p className="font-serif text-2xl text-terracotta font-normal mt-0.5">
               Upscale Gourmet
@@ -173,7 +186,7 @@ export default function CampaignHistoryPage() {
             type="text"
             value={search}
             onChange={(e) => setSearch(e.target.value)}
-            placeholder="Search campaigns, platforms, or lessons..."
+            placeholder="Search demo campaigns, platforms, or lessons..."
             className="w-full pl-9 pr-3 py-1.5 rounded-lg bg-surface border border-hairline text-xs text-ink placeholder:text-ink-secondary/60 focus:outline-none focus:border-terracotta transition-colors"
           />
         </div>
@@ -233,9 +246,9 @@ export default function CampaignHistoryPage() {
                 <th className="py-3 px-4">Timeline</th>
                 <th className="py-3 px-4">Platform</th>
                 <th className="py-3 px-4">Performance</th>
-                <th className="py-3 px-4">Outcome</th>
+                <th className="py-3 px-4">Fixture Type</th>
                 <th className="py-3 px-4 min-w-[280px]">Primary Empirical Lesson</th>
-                <th className="py-3 px-4">Memory Provenance</th>
+                <th className="py-3 px-4">Provenance Classification</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-hairline text-xs font-sans">
@@ -279,13 +292,13 @@ export default function CampaignHistoryPage() {
                     {/* Outcome Tag */}
                     <td className="py-3.5 px-4 whitespace-nowrap">
                       {isSuccess && (
-                        <span className="inline-flex items-center gap-1 text-[11px] font-medium px-2 py-0.5 rounded-full bg-forest-subtle text-forest border border-forest-border">
+                        <span className="inline-flex items-center gap-1 text-[11px] font-medium px-2 py-0.5 rounded-full bg-surface-subtle text-forest border border-forest-border">
                           <CheckCircle2 className="w-3 h-3" />
                           <span>{item.outcomeLabel}</span>
                         </span>
                       )}
                       {isMistake && (
-                        <span className="inline-flex items-center gap-1 text-[11px] font-medium px-2 py-0.5 rounded-full bg-terracotta-subtle text-terracotta border border-terracotta-border">
+                        <span className="inline-flex items-center gap-1 text-[11px] font-medium px-2 py-0.5 rounded-full bg-surface-subtle text-terracotta border border-terracotta-border">
                           <Lightbulb className="w-3 h-3" />
                           <span>{item.outcomeLabel}</span>
                         </span>
@@ -304,13 +317,9 @@ export default function CampaignHistoryPage() {
 
                     {/* Provenance */}
                     <td className="py-3.5 px-4 whitespace-nowrap">
-                      <Link
-                        href="/memory-explorer"
-                        className="inline-flex items-center gap-1 text-[11px] text-ink-secondary hover:text-terracotta font-mono transition-colors"
-                      >
-                        <BrainCircuit className="w-3 h-3 shrink-0" />
-                        <span className="truncate max-w-[140px]">{item.memoryProvenance}</span>
-                      </Link>
+                      <span className="inline-flex items-center gap-1 text-[11px] text-ink-secondary/80 italic font-sans">
+                        <span>{item.memoryProvenance}</span>
+                      </span>
                     </td>
                   </tr>
                 );

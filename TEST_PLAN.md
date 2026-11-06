@@ -63,16 +63,17 @@ tests/
 
 Using the configured Playwright MCP and automated test scripts:
 
-1. **Responsive Viewport Matrix**:
-   - Mobile: `375 x 812` (iPhone X / 13 mini)
-   - Tablet: `768 x 1024` (iPad portrait)
-   - Desktop: `1440 x 900` (MacBook / Standard Laptop)
-2. **Visual Checks**:
-   - Typography line-height and contrast check (compliance with `docs/DESIGN_REFERENCE_LOCK.md`).
-   - No horizontal scrollbars or element cutoffs on mobile.
-   - Distinct color-coding of Retain (Emerald), Recall (Blue), and Reflect (Violet).
+1. **Responsive Viewport Matrix (18 / 18 Scenarios Verified in M2.1)**:
+   - **Desktop (`1440 x 900`)**: Overview, Brands, Campaign Studio, Campaign History, Memory Explorer, Settings.
+   - **Tablet (`768 x 1024`)**: Overview, Brands, Campaign Studio, Campaign History, Memory Explorer, Settings.
+   - **Mobile (`390 x 844`)**: Overview, Brands, Campaign Studio, Campaign History, Memory Explorer, Settings.
+2. **Visual & Contrast Standards**:
+   - WCAG 2.2 AA compliant contrast on all warm ivory cards (`#F5F3EE`, `#EFECE6`, text `#1A1816`).
+   - Unified shared components (`PageContainer`, `PageHeader`, `SectionHeading`, `Button`, `FeatureState`, `Sidebar`, `WorkspaceHeader`).
+   - Clean responsive collapse and horizontal overflow prevention.
 3. **Console Log Auditing**:
-   - Zero `uncaught exception` or `failed to fetch` errors in the browser console.
+   - Zero `uncaught exception`, zero network error, and zero warning in the browser console across all 18 routes and viewports.
+   - Verified and logged in `docs/M2_1_FINAL_ACCEPTANCE_REPORT.md`.
 
 ---
 

@@ -18,6 +18,7 @@ import {
   Tag,
   Clock,
   ExternalLink,
+  Info,
 } from "lucide-react";
 
 interface MemoryItem {
@@ -29,10 +30,12 @@ interface MemoryItem {
   content: string;
   causalFactor: string;
   bankId: string;
+  isSynthetic: boolean;
   metadata: {
     campaignRef?: string;
     confidence: number;
     tags: string[];
+    provenance: string;
   };
 }
 
@@ -48,10 +51,12 @@ const MEMORY_ITEMS: MemoryItem[] = [
     causalFactor:
       "Appetite stimulation during late study sessions creates immediate impulse purchasing when coupled with a low-friction BOGO offer.",
     bankId: "campaignecho-brand-b0f7",
+    isSynthetic: true,
     metadata: {
       campaignRef: "camp-001",
       confidence: 0.94,
       tags: ["late-night", "food-prep", "bogo", "video-reels"],
+      provenance: "Synthetic demonstration data — not yet verified as retained in Hindsight",
     },
   },
   {
@@ -65,10 +70,12 @@ const MEMORY_ITEMS: MemoryItem[] = [
     causalFactor:
       "Upscale culinary aesthetic directly violates the student audience value corridor. Never use fine-dining framing for campus locations.",
     bankId: "campaignecho-brand-b0f7",
+    isSynthetic: true,
     metadata: {
       campaignRef: "camp-002",
       confidence: 0.98,
       tags: ["negative-constraint", "pricing-friction", "avoid-gourmet"],
+      provenance: "Synthetic demonstration data — not yet verified as retained in Hindsight",
     },
   },
   {
@@ -82,10 +89,12 @@ const MEMORY_ITEMS: MemoryItem[] = [
     causalFactor:
       "Queue speed directly impacts group dining decisions during late-night peak hours.",
     bankId: "campaignecho-brand-b0f7",
+    isSynthetic: true,
     metadata: {
       campaignRef: "camp-003",
       confidence: 0.91,
       tags: ["operational", "counter-speed", "friction-reduction"],
+      provenance: "Synthetic demonstration data — not yet verified as retained in Hindsight",
     },
   },
 ];
@@ -112,7 +121,7 @@ export default function MemoryExplorerPage() {
       {/* 1. Header */}
       <PageHeader
         badge="Vectorize Hindsight Engine"
-        badgeSubtext="Dedicated Brand Bank: campaignecho-brand-b0f7"
+        badgeSubtext="Demonstration Memory Workspace"
         title="Memory Explorer & Activity Stream"
         description="Inspect brand memory banks, verify causal retention chains, and track how accumulated experience shapes future strategic recommendations."
         actions={
@@ -126,28 +135,41 @@ export default function MemoryExplorerPage() {
         }
       />
 
-      {/* 2. Bank Health & Isolation Strip */}
+      {/* Truthful Status & Synthetic Fixture Banner */}
+      <div className="p-3.5 rounded-xl bg-amber-500/10 border border-amber-500/25 flex items-start gap-3 text-xs text-ink font-sans">
+        <Info className="w-4 h-4 text-amber-700 shrink-0 mt-0.5" />
+        <div className="space-y-1">
+          <p className="font-semibold text-amber-900">
+            Synthetic Demonstration Data — Live Memory Operations Pending Authentication
+          </p>
+          <p className="text-ink-secondary leading-relaxed">
+            The items displayed in this workspace are synthetic demo fixtures representing The Taco Syndicate. Vectorize Hindsight Cloud is reachable, but live bank provisioning and retain operations require configuring <code className="font-mono bg-surface px-1 py-0.5 rounded text-ink">HINDSIGHT_API_KEY</code> in <code className="font-mono bg-surface px-1 py-0.5 rounded text-ink">.env</code>.
+          </p>
+        </div>
+      </div>
+
+      {/* 2. Bank Health & Architectural Isolation Strip */}
       <section className="px-4 py-2.5 rounded-xl bg-surface border border-hairline flex flex-col md:flex-row md:items-center justify-between gap-3 shadow-xs text-xs font-sans">
         <div className="flex flex-wrap items-center gap-x-6 gap-y-2">
           <div className="flex items-center gap-2">
             <ShieldCheck className="w-4 h-4 text-forest" />
-            <span className="font-medium text-ink">Active Bank:</span>
+            <span className="font-medium text-ink">Architectural Bank:</span>
             <span className="font-mono text-ink-secondary">campaignecho-brand-b0f7</span>
           </div>
           <div className="flex items-center gap-2">
-            <span className="w-2 h-2 rounded-full bg-forest" />
-            <span className="text-ink-secondary">Tenant Isolation:</span>
-            <span className="font-medium text-ink">1:1 Verified</span>
+            <span className="w-2 h-2 rounded-full bg-amber-500" />
+            <span className="text-ink-secondary">Bank Authentication:</span>
+            <span className="font-medium text-ink">API Key Required</span>
           </div>
           <div className="flex items-center gap-2">
             <Database className="w-3.5 h-3.5 text-terracotta" />
-            <span className="text-ink-secondary">Stored Lessons:</span>
-            <span className="font-medium text-ink tabular-nums">3 Items</span>
+            <span className="text-ink-secondary">Sample Fixtures:</span>
+            <span className="font-medium text-ink tabular-nums">3 Demo Items</span>
           </div>
         </div>
 
         <span className="text-[11px] text-ink-secondary font-mono">
-          Engine: Vectorize Hindsight v1.2.0
+          Endpoint: https://api.hindsight.vectorize.io
         </span>
       </section>
 
@@ -161,11 +183,11 @@ export default function MemoryExplorerPage() {
                 Activity Stream
               </span>
               <h2 className="font-serif text-lg text-ink font-normal mt-0.5">
-                Retained Memories
+                Demonstration Fixtures
               </h2>
             </div>
             <span className="text-[11px] font-medium px-2 py-0.5 rounded-full bg-surface-subtle text-ink-secondary border border-hairline tabular-nums">
-              {filteredItems.length} Records
+              {filteredItems.length} Fixtures
             </span>
           </div>
 
@@ -201,7 +223,7 @@ export default function MemoryExplorerPage() {
                   <div className="flex items-center justify-between text-[10px] font-mono mb-1">
                     <span className="text-ink-secondary font-medium">{item.id}</span>
                     <span className="px-1.5 py-0.2 rounded bg-surface border border-hairline uppercase text-[9px] font-sans">
-                      {item.operation}
+                      Demo {item.operation}
                     </span>
                   </div>
 
@@ -213,18 +235,18 @@ export default function MemoryExplorerPage() {
                     {isSuccess && (
                       <span className="text-forest font-medium flex items-center gap-1">
                         <CheckCircle2 className="w-3 h-3" />
-                        <span>Success Pattern</span>
+                        <span>Synthetic Pattern</span>
                       </span>
                     )}
                     {isMistake && (
                       <span className="text-terracotta font-medium flex items-center gap-1">
                         <Lightbulb className="w-3 h-3" />
-                        <span>Negative Constraint</span>
+                        <span>Synthetic Constraint</span>
                       </span>
                     )}
                     {!isSuccess && !isMistake && (
                       <span className="text-ink-secondary font-medium">
-                        Operational Rule
+                        Synthetic Rule
                       </span>
                     )}
 
@@ -248,6 +270,10 @@ export default function MemoryExplorerPage() {
                 <span className="text-xs text-ink-secondary font-sans">·</span>
                 <span className="text-[11px] font-mono text-ink-secondary">
                   API: {selectedMemory.operation}
+                </span>
+                <span className="text-xs text-ink-secondary font-sans">·</span>
+                <span className="text-[11px] text-amber-700 font-sans">
+                  Synthetic Demo Fixture
                 </span>
               </div>
               <h3 className="font-serif text-xl text-ink font-normal mt-0.5">
@@ -283,7 +309,7 @@ export default function MemoryExplorerPage() {
 
           {activeTab === "detail" ? (
             <div className="space-y-4 text-xs font-sans">
-              {/* Category & Confidence */}
+              {/* Category & Status */}
               <div className="flex items-center justify-between p-3 rounded-lg bg-surface-subtle border border-hairline">
                 <div>
                   <span className="text-[10px] text-ink-secondary uppercase tracking-wider block mb-0.5">
@@ -295,10 +321,10 @@ export default function MemoryExplorerPage() {
                 </div>
                 <div className="text-right">
                   <span className="text-[10px] text-ink-secondary uppercase tracking-wider block mb-0.5">
-                    Hindsight Confidence
+                    Data Integrity Status
                   </span>
-                  <span className="font-semibold text-forest text-xs tabular-nums">
-                    {(selectedMemory.metadata.confidence * 100).toFixed(0)}% Match
+                  <span className="font-semibold text-amber-700 text-xs">
+                    Synthetic Demo Fixture
                   </span>
                 </div>
               </div>
@@ -306,7 +332,7 @@ export default function MemoryExplorerPage() {
               {/* Retained Memory Text */}
               <div className="space-y-1">
                 <span className="text-[11px] font-semibold text-ink uppercase tracking-wider block">
-                  Retained Strategic Content
+                  Candidate Strategic Content
                 </span>
                 <p className="p-3.5 rounded-lg bg-surface border border-hairline text-ink leading-relaxed text-xs">
                   {selectedMemory.content}
@@ -341,15 +367,15 @@ export default function MemoryExplorerPage() {
               </div>
 
               {/* Citation Chip Preview */}
-              <div className="p-3 rounded-lg bg-forest-subtle border border-forest-border flex items-center justify-between">
-                <div className="flex items-center gap-2 text-forest">
-                  <CheckCircle2 className="w-4 h-4 shrink-0" />
+              <div className="p-3 rounded-lg bg-surface-subtle border border-hairline flex items-center justify-between">
+                <div className="flex items-center gap-2 text-ink">
+                  <CheckCircle2 className="w-4 h-4 text-ink-secondary shrink-0" />
                   <span className="text-xs font-semibold">
-                    Memory Citation Chip Ready
+                    Citation Chip Format (Demo)
                   </span>
                 </div>
-                <code className="text-[11px] font-mono text-forest bg-surface px-2 py-0.5 rounded border border-forest-border/60">
-                  [{selectedMemory.id}]
+                <code className="text-[11px] font-mono text-ink-secondary bg-surface px-2 py-0.5 rounded border border-hairline">
+                  [Demo Fixture · {selectedMemory.id}]
                 </code>
               </div>
             </div>

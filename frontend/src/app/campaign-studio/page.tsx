@@ -164,15 +164,15 @@ export default function CampaignStudioPage() {
               <span className="text-[10px] font-sans font-semibold uppercase tracking-wider text-ink-secondary block">
                 Memory Grounding Desk
               </span>
-              <span className="text-[10px] font-medium px-2 py-0.5 rounded-full bg-forest-subtle text-forest border border-forest-border">
-                Bank Scoped
+              <span className="text-[10px] font-medium px-2 py-0.5 rounded-full bg-surface text-ink-secondary border border-hairline">
+                Candidate Demo Fixtures
               </span>
             </div>
             <h3 className="font-serif text-lg text-ink font-normal mt-0.5">
-              Active Brand Memories
+              Brand Memory Candidates
             </h3>
             <p className="text-xs text-ink-secondary font-sans mt-1">
-              Historical lessons automatically recalled from the brand's Vectorize Hindsight bank to constrain strategy generation.
+              Sample fixtures illustrating lessons to be recalled from Hindsight memory once live retention is active.
             </p>
           </div>
 
@@ -181,7 +181,7 @@ export default function CampaignStudioPage() {
             <div className="p-3 rounded-lg bg-surface border border-hairline space-y-1 shadow-2xs">
               <div className="flex items-center justify-between">
                 <span className="text-[10px] font-semibold text-forest uppercase tracking-wider">
-                  Verified Precedent
+                  Synthetic Candidate Precedent
                 </span>
                 <span className="text-[11px] text-ink-secondary tabular-nums">4.2x Engagement</span>
               </div>
@@ -191,14 +191,14 @@ export default function CampaignStudioPage() {
               </p>
               <div className="pt-1 text-[10px] font-mono text-ink-secondary/80 flex items-center gap-1">
                 <BrainCircuit className="w-3 h-3 text-forest" />
-                <span>#mem-0891 (aretain)</span>
+                <span>Synthetic Demo Fixture · not yet verified in Hindsight</span>
               </div>
             </div>
 
             <div className="p-3 rounded-lg bg-surface border border-hairline space-y-1 shadow-2xs">
               <div className="flex items-center justify-between">
                 <span className="text-[10px] font-semibold text-terracotta uppercase tracking-wider">
-                  Hard Negative Constraint
+                  Synthetic Negative Constraint
                 </span>
                 <span className="text-[11px] text-ink-secondary">Proven Failure</span>
               </div>
@@ -208,14 +208,14 @@ export default function CampaignStudioPage() {
               </p>
               <div className="pt-1 text-[10px] font-mono text-ink-secondary/80 flex items-center gap-1">
                 <Lightbulb className="w-3 h-3 text-terracotta" />
-                <span>#mem-0744 (Negative Constraint)</span>
+                <span>Synthetic Demo Fixture · not yet verified in Hindsight</span>
               </div>
             </div>
 
             <div className="p-3 rounded-lg bg-surface border border-hairline space-y-1 shadow-2xs">
               <div className="flex items-center justify-between">
                 <span className="text-[10px] font-semibold text-ink-secondary uppercase tracking-wider">
-                  Operational Rule
+                  Synthetic Operational Rule
                 </span>
                 <span className="text-[11px] text-ink-secondary">-65% Friction</span>
               </div>
@@ -225,22 +225,22 @@ export default function CampaignStudioPage() {
               </p>
               <div className="pt-1 text-[10px] font-mono text-ink-secondary/80 flex items-center gap-1">
                 <CheckCircle2 className="w-3 h-3 text-ink-secondary" />
-                <span>#mem-0612 (areflect)</span>
+                <span>Synthetic Demo Fixture · not yet verified in Hindsight</span>
               </div>
             </div>
           </div>
 
-          {/* Tenant Isolation Guarantee */}
+          {/* Tenant Isolation Architectural Guarantee */}
           <div className="pt-3 border-t border-hairline/80 flex items-center justify-between text-xs text-ink-secondary font-sans">
             <span className="flex items-center gap-1.5 text-forest font-medium">
               <ShieldCheck className="w-3.5 h-3.5" />
-              <span>Strict 1:1 Isolation</span>
+              <span>Architectural 1:1 Isolation</span>
             </span>
             <Link
               href="/memory-explorer"
               className="text-terracotta hover:underline text-[11px] font-medium"
             >
-              Inspect Bank Ledger
+              Inspect Fixture Ledger
             </Link>
           </div>
         </section>

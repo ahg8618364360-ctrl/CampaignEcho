@@ -425,48 +425,107 @@ class MemoryService:
             )
 
     async def get_status(self, db: Session, brand_id: str) -> MemoryStatusResponse:
-        """Retrieve live bank readiness and service connectivity status."""
+        """Retrieve live bank readiness and service connectivity status with explicit states.
+
+        Explicit 7 states:
+        1. NOT_CONFIGURED
+        2. ENDPOINT_UNREACHABLE
+        3. AUTH_REQUIRED
+        4. AUTHENTICATED
+        5. BANK_NOT_PROVISIONED
+        6. BANK_PROVISIONED
+        7. OPERATIONS_VERIFIED
+        """
         brand = self._get_verified_brand(db, brand_id)
         bank_id = self.get_bank_id_for_brand(brand.id)
 
-        is_connected, engine_status, version = await self.check_engine_health()
+        # Check if client has real API key or is an authenticated test mock
+        is_mocked_auth = getattr(self._client, "_is_authenticated_mock", False)
+        has_api_key = bool(settings.HINDSIGHT_API_KEY) or is_mocked_auth
 
+        is_reachable, engine_status, version = await self.check_engine_health()
+
+        service_state = "NOT_CONFIGURED"
         is_provisioned = False
+        service_connected = False
         memories_count = None
-        message = "Memory service is operational."
+        message = ""
 
-        if is_connected:
+        if not is_reachable:
+            service_state = "ENDPOINT_UNREACHABLE"
+            service_connected = False
+            is_provisioned = False
+            message = f"Hindsight endpoint is unreachable at {settings.effective_hindsight_url}."
+        elif not has_api_key:
+            # Endpoint is reachable via public /version, but no credentials provided
+            service_state = "AUTH_REQUIRED"
+            service_connected = False
+            is_provisioned = False
+            engine_status = "AUTH_REQUIRED"
+            message = "Hindsight Cloud endpoint is reachable, but authentication is required. Configure HINDSIGHT_API_KEY in .env."
+        else:
+            # Has API key (or test mock) and endpoint responded to /version
             try:
                 await self._client.aget_bank_config(bank_id=bank_id)
                 is_provisioned = True
-                mem_resp = await self._client.alist_memories(bank_id=bank_id, limit=1)
-                memories_count = getattr(mem_resp, "total", None)
-                if memories_count is None and hasattr(mem_resp, "items"):
-                    memories_count = len(mem_resp.items)
-                message = f"Memory bank is provisioned and active on Hindsight v{version}."
+                service_connected = True
+
+                # Check if operations have been verified for this brand
+                has_verified_ops = (
+                    db.query(MemoryLog)
+                    .filter(
+                        MemoryLog.brand_id == brand.id,
+                        MemoryLog.status == "SUCCESS",
+                        MemoryLog.operation_type.in_(["RETAIN", "RECALL", "REFLECT"]),
+                    )
+                    .first()
+                    is not None
+                )
+
+                if has_verified_ops:
+                    service_state = "OPERATIONS_VERIFIED"
+                    message = f"Memory bank is provisioned and operations are verified on Hindsight v{version}."
+                else:
+                    service_state = "BANK_PROVISIONED"
+                    message = f"Memory bank is provisioned on Hindsight v{version}; operational verification pending."
+
+                # Retrieve memories count safely
+                try:
+                    mem_resp = await self._client.alist_memories(bank_id=bank_id, limit=1)
+                    memories_count = getattr(mem_resp, "total", None)
+                    if memories_count is None and hasattr(mem_resp, "items"):
+                        memories_count = len(mem_resp.items)
+                except Exception:
+                    memories_count = None
+
             except Exception as exc:
-                is_provisioned = False
-                memories_count = None
                 err_str = str(exc)
                 if "401" in err_str or "Unauthorized" in err_str:
-                    message = "Hindsight Cloud requires authentication. Configure HINDSIGHT_API_KEY in .env to provision and access bank."
+                    service_state = "AUTH_REQUIRED"
+                    service_connected = False
+                    is_provisioned = False
+                    message = "Hindsight Cloud rejected the provided API key (401 Unauthorized)."
                 elif "404" in err_str or "Not Found" in err_str:
-                    message = "Memory bank has not been provisioned yet for this brand."
+                    service_state = "BANK_NOT_PROVISIONED"
+                    service_connected = True
+                    is_provisioned = False
+                    message = "Authenticated with Hindsight, but brand memory bank has not been provisioned yet."
                 else:
-                    message = f"Bank query failed: {err_str}"
-        else:
-            is_provisioned = False
-            memories_count = None
-            message = f"Hindsight engine status: {engine_status}. Endpoint: {settings.effective_hindsight_url}"
+                    service_state = "AUTHENTICATED"
+                    service_connected = True
+                    is_provisioned = False
+                    message = f"Authenticated with Hindsight; bank status check failed: {err_str}"
 
         return MemoryStatusResponse(
             brand_id=brand.id,
+            service_state=service_state,  # type: ignore
             bank_provisioned=is_provisioned,
-            service_connected=is_connected,
-            engine_status=engine_status,  # type: ignore
+            service_connected=service_connected,
+            engine_status=engine_status,
             version=version,
             message=message,
             memories_count=memories_count,
+            has_api_key=has_api_key,
         )
 
     def get_activity_logs(

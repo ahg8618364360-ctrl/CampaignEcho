@@ -1,11 +1,15 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { checkReadiness, type HealthReadyResponse } from "@/lib/api";
+import {
+  checkReadiness,
+  fetchMemoryStatus,
+  type HealthReadyResponse,
+  type MemoryStatusResponse,
+} from "@/lib/api";
 import Link from "next/link";
 import { PageContainer } from "@/components/PageContainer";
 import { PageHeader } from "@/components/PageHeader";
-import { SectionHeading } from "@/components/SectionHeading";
 import { Button } from "@/components/Button";
 import {
   Plus,
@@ -17,28 +21,33 @@ import {
   Compass,
   AlertCircle,
   Lightbulb,
-  ExternalLink,
-  Layers,
-  Sparkle,
+  Info,
 } from "lucide-react";
 
 export default function OverviewPage() {
   const [health, setHealth] = useState<HealthReadyResponse | null>(null);
+  const [memoryStatus, setMemoryStatus] = useState<MemoryStatusResponse | null>(null);
   const [loading, setLoading] = useState(true);
 
-  const refreshHealth = async () => {
+  const refreshAll = async () => {
     setLoading(true);
-    const data = await checkReadiness();
-    setHealth(data);
+    const [hData, mData] = await Promise.all([
+      checkReadiness(),
+      fetchMemoryStatus("9d215d96-2695-41ee-8625-64be3e547504"),
+    ]);
+    setHealth(hData);
+    setMemoryStatus(mData);
     setLoading(false);
   };
 
   useEffect(() => {
-    refreshHealth();
+    refreshAll();
   }, []);
 
   const isBackendAlive = health?.status === "ready" || health?.status === "unready";
   const isDbConnected = health?.database === "connected";
+  const serviceState = memoryStatus?.service_state || "NOT_CONFIGURED";
+  const isHindsightAuth = serviceState === "OPERATIONS_VERIFIED" || serviceState === "BANK_PROVISIONED";
 
   return (
     <PageContainer size="wide">
@@ -62,13 +71,13 @@ export default function OverviewPage() {
               href="/memory-explorer"
               icon={<BrainCircuit className="w-3.5 h-3.5 text-ink-secondary" />}
             >
-              Inspect Memories
+              Inspect Memory Fixtures
             </Button>
           </>
         }
       />
 
-      {/* 2. Workspace Readiness Strip (Compact Horizontal Summary ~40px) */}
+      {/* 2. Workspace Readiness Strip (Live Dynamic Telemetry) */}
       <section className="px-4 py-2.5 rounded-xl bg-surface border border-hairline flex flex-col md:flex-row md:items-center justify-between gap-3 shadow-xs">
         <div className="flex flex-wrap items-center gap-x-5 gap-y-2 text-xs">
           <span className="font-medium text-ink flex items-center gap-1.5 font-sans">
@@ -76,6 +85,7 @@ export default function OverviewPage() {
             <span>Workspace Readiness</span>
           </span>
 
+          {/* FastAPI Backend */}
           <div className="flex items-center gap-1.5">
             <span
               className={`w-2 h-2 rounded-full ${
@@ -88,6 +98,7 @@ export default function OverviewPage() {
             </span>
           </div>
 
+          {/* Database */}
           <div className="flex items-center gap-1.5">
             <span
               className={`w-2 h-2 rounded-full ${
@@ -100,12 +111,34 @@ export default function OverviewPage() {
             </span>
           </div>
 
-          <div className="flex items-center gap-1.5 text-ink-secondary">
-            <span className="w-2 h-2 rounded-full bg-forest" />
-            <span>Hindsight Engine:</span>
-            <span className="font-medium text-ink">Ready (v1.2.0)</span>
+          {/* Truthful Hindsight State */}
+          <div className="flex items-center gap-1.5">
+            <span
+              className={`w-2 h-2 rounded-full ${
+                isHindsightAuth
+                  ? "bg-forest"
+                  : serviceState === "AUTH_REQUIRED"
+                  ? "bg-amber-500"
+                  : "bg-hairline"
+              }`}
+            />
+            <span className="text-ink-secondary">Hindsight Engine:</span>
+            <span className="font-medium text-ink">
+              {loading
+                ? "Probing..."
+                : serviceState === "OPERATIONS_VERIFIED"
+                ? "Verified"
+                : serviceState === "BANK_PROVISIONED"
+                ? "Provisioned"
+                : serviceState === "AUTH_REQUIRED"
+                ? "Auth Required"
+                : serviceState === "ENDPOINT_UNREACHABLE"
+                ? "Unreachable"
+                : "Not Configured"}
+            </span>
           </div>
 
+          {/* Groq LLM */}
           <div className="flex items-center gap-1.5 text-ink-secondary">
             <span className="w-2 h-2 rounded-full bg-hairline" />
             <span>LLM Synthesis:</span>
@@ -114,7 +147,7 @@ export default function OverviewPage() {
         </div>
 
         <button
-          onClick={refreshHealth}
+          onClick={refreshAll}
           disabled={loading}
           className="self-end md:self-auto text-xs text-ink-secondary hover:text-ink flex items-center gap-1 px-2.5 py-1 rounded border border-hairline/60 bg-surface-subtle transition-colors disabled:opacity-50 cursor-pointer"
         >
@@ -185,34 +218,44 @@ export default function OverviewPage() {
           <div className="space-y-2">
             <div className="flex items-center justify-between">
               <span className="text-[10px] font-sans font-semibold uppercase tracking-wider text-ink-secondary block">
-                Memory Posture
+                Memory Architecture
               </span>
-              <span className="text-[10px] font-medium px-2 py-0.5 rounded-full bg-forest-subtle text-forest border border-forest-border">
-                Isolated 1:1
+              <span className="text-[10px] font-medium px-2 py-0.5 rounded-full bg-surface text-ink-secondary border border-hairline">
+                Deterministic 1:1
               </span>
             </div>
             <h3 className="font-serif text-lg sm:text-xl text-ink font-normal">
-              Brand Isolation Guarantee
+              Brand Isolation Boundary
             </h3>
             <p className="text-xs text-ink-secondary leading-relaxed font-sans">
-              Memories are locked into a dedicated memory bank strictly scoped to this brand. Insights from other restaurants or agency clients never cross tenant boundaries.
+              Every brand maps to an architectural memory bank (`campaignecho-brand-{"{brand_id}"}`). Cross-tenant data leaks are blocked server-side.
             </p>
           </div>
 
-          <div className="pt-3 border-t border-hairline/80 space-y-2.5">
-            <div className="flex items-center gap-2 text-xs text-forest font-medium font-sans">
-              <ShieldCheck className="w-4 h-4 shrink-0" />
-              <span>Dedicated Bank Mapping Active</span>
+          <div className="pt-3 border-t border-hairline/80 space-y-2.5 text-xs font-sans">
+            <div className="flex items-center gap-2 text-ink-secondary font-medium">
+              <ShieldCheck className="w-4 h-4 text-forest shrink-0" />
+              <span>
+                {isHindsightAuth
+                  ? "Live Bank Verified"
+                  : "Architectural Isolation (Auth Pending)"}
+              </span>
             </div>
             <div className="p-2 rounded bg-surface border border-hairline text-[11px] text-ink-secondary flex items-center justify-between font-sans">
-              <span>Hindsight Tenant:</span>
-              <span className="font-medium text-ink">Strict Server Isolation</span>
+              <span>Hindsight Cloud:</span>
+              <span className="font-medium text-ink">
+                {serviceState === "AUTH_REQUIRED"
+                  ? "Reachable · Key Required"
+                  : serviceState === "OPERATIONS_VERIFIED"
+                  ? "Connected & Verified"
+                  : serviceState}
+              </span>
             </div>
             <Link
               href="/memory-explorer"
               className="text-xs text-ink hover:text-terracotta flex items-center justify-between font-medium font-sans pt-1 transition-colors"
             >
-              <span>Explore Memory Graph</span>
+              <span>Inspect Memory Fixtures</span>
               <ArrowRight className="w-3.5 h-3.5" />
             </Link>
           </div>
@@ -227,7 +270,7 @@ export default function OverviewPage() {
               Campaign Learning Ledger
             </h2>
             <p className="text-xs text-ink-secondary mt-0.5 font-sans">
-              Accumulated observations, performance takeaways, and client feedback retained in Hindsight memory.
+              Synthetic demonstration fixtures illustrating how empirical takeaways will be grounded once retained in Hindsight.
             </p>
           </div>
           <Link
@@ -245,10 +288,10 @@ export default function OverviewPage() {
           <div className="p-4 rounded-xl bg-surface border border-hairline hover:border-hairline-strong transition-all flex flex-col justify-between space-y-3 shadow-xs">
             <div className="space-y-2">
               <div className="flex items-center justify-between">
-                <span className="text-[10px] font-semibold uppercase tracking-wider px-2 py-0.5 rounded-full bg-forest-subtle text-forest border border-forest-border font-sans">
-                  Proven Success
+                <span className="text-[10px] font-semibold uppercase tracking-wider px-2 py-0.5 rounded-full bg-surface-subtle text-forest border border-forest-border font-sans">
+                  Synthetic Observation
                 </span>
-                <span className="text-[11px] text-ink-secondary font-sans tabular-nums">Campaign #1</span>
+                <span className="text-[11px] text-ink-secondary font-sans tabular-nums">Demo Fixture #1</span>
               </div>
               <h3 className="text-sm font-semibold text-ink font-sans">
                 Late Night Burrito Drops
@@ -258,9 +301,8 @@ export default function OverviewPage() {
               </p>
             </div>
             <div className="pt-2.5 border-t border-hairline/60 flex items-center justify-between text-[11px] font-sans">
-              <span className="flex items-center gap-1 text-forest font-medium">
-                <CheckCircle2 className="w-3.5 h-3.5" />
-                <span>Retained in Memory</span>
+              <span className="flex items-center gap-1 text-ink-secondary font-normal italic">
+                <span>Synthetic fixture · Live retain pending</span>
               </span>
               <span className="text-ink-secondary tabular-nums">380 Redemptions</span>
             </div>
@@ -270,10 +312,10 @@ export default function OverviewPage() {
           <div className="p-4 rounded-xl bg-surface border border-hairline hover:border-hairline-strong transition-all flex flex-col justify-between space-y-3 shadow-xs">
             <div className="space-y-2">
               <div className="flex items-center justify-between">
-                <span className="text-[10px] font-semibold uppercase tracking-wider px-2 py-0.5 rounded-full bg-terracotta-subtle text-terracotta border border-terracotta-border font-sans">
-                  Documented Mistake
+                <span className="text-[10px] font-semibold uppercase tracking-wider px-2 py-0.5 rounded-full bg-surface-subtle text-terracotta border border-terracotta-border font-sans">
+                  Synthetic Negative Rule
                 </span>
-                <span className="text-[11px] text-ink-secondary font-sans tabular-nums">Campaign #2</span>
+                <span className="text-[11px] text-ink-secondary font-sans tabular-nums">Demo Fixture #2</span>
               </div>
               <h3 className="text-sm font-semibold text-ink font-sans">
                 Gourmet Truffle Tasting
@@ -283,9 +325,8 @@ export default function OverviewPage() {
               </p>
             </div>
             <div className="pt-2.5 border-t border-hairline/60 flex items-center justify-between text-[11px] font-sans">
-              <span className="flex items-center gap-1 text-terracotta font-medium">
-                <Lightbulb className="w-3.5 h-3.5" />
-                <span>Negative Constraint</span>
+              <span className="flex items-center gap-1 text-ink-secondary font-normal italic">
+                <span>Synthetic fixture · Live retain pending</span>
               </span>
               <span className="text-ink-secondary">Avoid Upscale</span>
             </div>
@@ -296,9 +337,9 @@ export default function OverviewPage() {
             <div className="space-y-2">
               <div className="flex items-center justify-between">
                 <span className="text-[10px] font-semibold uppercase tracking-wider px-2 py-0.5 rounded-full bg-surface-subtle text-ink-secondary border border-hairline font-sans">
-                  Operational Takeaway
+                  Synthetic Guideline
                 </span>
-                <span className="text-[11px] text-ink-secondary font-sans tabular-nums">Post-Mortem</span>
+                <span className="text-[11px] text-ink-secondary font-sans tabular-nums">Demo Post-Mortem</span>
               </div>
               <h3 className="text-sm font-semibold text-ink font-sans">
                 Flash Student ID Redemption
@@ -308,9 +349,8 @@ export default function OverviewPage() {
               </p>
             </div>
             <div className="pt-2.5 border-t border-hairline/60 flex items-center justify-between text-[11px] font-sans">
-              <span className="flex items-center gap-1 text-forest font-medium">
-                <CheckCircle2 className="w-3.5 h-3.5" />
-                <span>Operational Guideline</span>
+              <span className="flex items-center gap-1 text-ink-secondary font-normal italic">
+                <span>Synthetic fixture · Live retain pending</span>
               </span>
               <span className="text-ink-secondary">-65% Counter Friction</span>
             </div>

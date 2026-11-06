@@ -4,18 +4,17 @@ import { useEffect, useState } from "react";
 import { checkReadiness, fetchMemoryStatus, type HealthReadyResponse, type MemoryStatusResponse } from "@/lib/api";
 import { PageContainer } from "@/components/PageContainer";
 import { PageHeader } from "@/components/PageHeader";
-import { SectionHeading } from "@/components/SectionHeading";
 import { Button } from "@/components/Button";
 import {
   Server,
   Database,
   RefreshCw,
-  SlidersHorizontal,
   CheckCircle2,
   AlertCircle,
   Cpu,
   Brain,
   ShieldCheck,
+  AlertTriangle,
 } from "lucide-react";
 
 export default function SettingsPage() {
@@ -40,7 +39,7 @@ export default function SettingsPage() {
 
   const isBackendAlive = health?.status === "ready" || health?.status === "unready";
   const isDbConnected = health?.database === "connected";
-  const isMemoryConnected = memoryStatus?.service_connected ?? false;
+  const serviceState = memoryStatus?.service_state || "NOT_CONFIGURED";
 
   return (
     <PageContainer size="wide">
@@ -141,19 +140,39 @@ export default function SettingsPage() {
               <div>
                 <p className="text-xs sm:text-sm font-medium text-ink font-sans">Vectorize Hindsight Memory Engine</p>
                 <p className="text-[11px] text-ink-secondary font-sans">
-                  SDK: <code className="font-mono text-ink">hindsight-client v1.2.0</code> (Native async: aretain, arecall, areflect)
+                  Cloud Endpoint: <code className="font-mono text-ink">https://api.hindsight.vectorize.io</code> · Version: {memoryStatus?.version || "1.1.0"}
                 </p>
+                {serviceState === "AUTH_REQUIRED" && (
+                  <p className="text-[11px] text-amber-700 mt-0.5">
+                    Cloud endpoint responded (HTTP 200 /version), but authentication requires <code className="font-mono bg-surface px-1 py-0.5 rounded">HINDSIGHT_API_KEY</code> in .env.
+                  </p>
+                )}
               </div>
             </div>
             <div className="flex items-center gap-2 self-start sm:self-auto">
-              {isMemoryConnected ? (
+              {serviceState === "OPERATIONS_VERIFIED" ? (
                 <span className="flex items-center gap-1 text-[11px] font-medium text-forest bg-forest-subtle px-2.5 py-0.5 rounded-full border border-forest-border font-sans">
                   <CheckCircle2 className="w-3.5 h-3.5" />
-                  <span>Connected</span>
+                  <span>Operations Verified</span>
+                </span>
+              ) : serviceState === "BANK_PROVISIONED" ? (
+                <span className="flex items-center gap-1 text-[11px] font-medium text-forest bg-forest-subtle px-2.5 py-0.5 rounded-full border border-forest-border font-sans">
+                  <CheckCircle2 className="w-3.5 h-3.5" />
+                  <span>Bank Provisioned</span>
+                </span>
+              ) : serviceState === "AUTH_REQUIRED" ? (
+                <span className="flex items-center gap-1 text-[11px] font-medium text-amber-800 bg-amber-500/10 px-2.5 py-0.5 rounded-full border border-amber-500/30 font-sans">
+                  <AlertTriangle className="w-3.5 h-3.5 text-amber-600" />
+                  <span>Authentication Required</span>
+                </span>
+              ) : serviceState === "ENDPOINT_UNREACHABLE" ? (
+                <span className="flex items-center gap-1 text-[11px] font-medium text-alert bg-alert/10 px-2.5 py-0.5 rounded-full border border-alert/30 font-sans">
+                  <AlertCircle className="w-3.5 h-3.5" />
+                  <span>Unreachable</span>
                 </span>
               ) : (
-                <span className="flex items-center gap-1 text-[11px] font-medium text-ink-secondary bg-surface-subtle px-2.5 py-0.5 rounded-full border border-hairline font-sans">
-                  <span>Engine: {memoryStatus?.engine_status || "Checking..."}</span>
+                <span className="text-[11px] font-medium text-ink-secondary bg-surface-subtle px-2.5 py-0.5 rounded-full border border-hairline font-sans">
+                  <span>State: {serviceState}</span>
                 </span>
               )}
             </div>

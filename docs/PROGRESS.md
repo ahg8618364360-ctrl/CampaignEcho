@@ -1,6 +1,6 @@
 # CampaignEcho Living Progress & Milestone Tracker
 
-**Current Phase**: MILESTONE 2.1 AUDITED (Live Connection Reachable; Cloud Key Configuration Required for Live Acceptance)  
+**Current Phase**: MILESTONE 2.1 FINAL ACCEPTANCE AUDITED (7-State Memory Model Implemented; 18/18 Browser Scenarios Verified; Live Acceptance Conditionally Blocked on Hindsight Cloud API Key)  
 **Last Updated**: November 6, 2026
 
 ---
@@ -11,8 +11,8 @@
 | :--- | :--- | :--- | :--- | :--- |
 | **M0** | **Appendix A Global Tooling & Milestone 0 Planning** | **COMPLETED** | Nov 5, 2026 | Approved specification baseline, design lock, and tooling report |
 | **M1** | **Foundation (Backend & Frontend Setup)** | **COMPLETED** | Nov 5, 2026 | FastAPI backend, Next.js 15+ frontend, SQLite, Alembic migrations, Pytest suite, Playwright browser QA verified |
-| **M2** | **Hindsight Memory Engine** | **IMPLEMENTED (Live Acceptance Pending)** | Nov 6, 2026 | Real `hindsight-client` Python SDK (v1.2.0), native `aretain`, `arecall`, `areflect`, `acreate_bank`, deterministic 1:1 brand bank isolation, SQLite telemetry logging, zero bank ID exposure in API schemas, 16 passed unit tests |
-| **M2.1** | **Hindsight Live Integration Acceptance** | **DIAGNOSED & BLOCKED ON CLOUD KEY** | Nov 6, 2026 | Live connection to `https://api.hindsight.vectorize.io` verified (`v1.1.0` HTTP 200). Authenticated bank operations require `HINDSIGHT_API_KEY` in local `.env`. Certified in `docs/M2_1_LIVE_ACCEPTANCE_REPORT.md` |
+| **M2** | **Hindsight Memory Engine** | **IMPLEMENTED (Live Acceptance Pending)** | Nov 6, 2026 | Real `hindsight-client` Python SDK (v1.2.0), native `aretain`, `arecall`, `areflect`, `acreate_bank`, deterministic 1:1 brand bank isolation, SQLite telemetry logging, zero bank ID exposure in API schemas, 10 passed unit tests |
+| **M2.1** | **Hindsight Live Acceptance & UI Truthfulness** | **FINAL ACCEPTANCE AUDITED** | Nov 6, 2026 | 7-state truthful service model, synthetic provenance safeguards, 18/18 Playwright browser scenarios verified (0 errors). Live bank operations conditionally blocked on `HINDSIGHT_API_KEY`. Certified in `docs/M2_1_FINAL_ACCEPTANCE_REPORT.md` |
 | **M2.2** | **Dashboard Density & Workflow Optimisation** | **COMPLETED & VERIFIED** | Nov 6, 2026 | Standardized 12-column grid, compact 20-24px spacing, above-the-fold Overview at 1440x900, structured History ledger table, dual-pane Campaign Studio, 5/7 Memory Explorer split, verified across 3 viewports |
 | **M3** | Campaign Learning Loop | Withheld (Pending M2.1 Live Key) | - | Target: Brief → Hindsight recall → Groq generation → Results retention |
 | **M4** | Frontend Product Screens | Queued | - | Target: 6 core screens adhering to Reference Lock |

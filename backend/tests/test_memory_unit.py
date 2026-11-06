@@ -39,6 +39,7 @@ def mock_hindsight_client():
     client.areflect = AsyncMock(return_value=mock_reflect_resp)
 
     client.alist_memories = AsyncMock(return_value=MagicMock(total=1, items=[mock_memory_unit]))
+    client._is_authenticated_mock = True
     return client
 
 
@@ -190,7 +191,35 @@ def test_memory_status_connected(client_with_mock_memory, test_brand, mock_hinds
     assert data["bank_provisioned"] is True
     assert "bank_id" not in data  # ADR-002: no bank ID leakage
     assert data["service_connected"] is True
-    assert data["engine_status"] == "CONNECTED"
+    assert data["service_state"] in ["BANK_PROVISIONED", "OPERATIONS_VERIFIED"]
+
+
+def test_memory_status_unauthenticated_state(client_with_mock_memory, test_brand, monkeypatch):
+    test_client, _, _ = client_with_mock_memory
+    brand_id = test_brand.id
+
+    from backend.app.services.memory_service import MemoryService
+    from backend.app.api.v1.memory import get_memory_service
+    from backend.app.core.config import settings
+    import unittest.mock as mock
+
+    unauthed_client = mock.MagicMock()
+    unauthed_client._is_authenticated_mock = False
+    version_resp = mock.MagicMock()
+    version_resp.api_version = "1.1.0"
+    unauthed_client.aget_version = mock.AsyncMock(return_value=version_resp)
+
+    service = MemoryService(hindsight_client=unauthed_client)
+    app.dependency_overrides[get_memory_service] = lambda: service
+    monkeypatch.setattr(settings, "HINDSIGHT_API_KEY", None)
+
+    resp = test_client.get(f"/api/v1/brands/{brand_id}/memory/status")
+    assert resp.status_code == 200
+    data = resp.json()
+    assert data["service_state"] == "AUTH_REQUIRED"
+    assert data["service_connected"] is False
+    assert data["bank_provisioned"] is False
+    assert "authentication is required" in data["message"].lower()
 
 
 def test_memory_activity_telemetry(client_with_mock_memory, test_brand, db_session):

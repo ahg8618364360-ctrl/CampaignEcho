@@ -107,12 +107,22 @@ class MemoryStatusResponse(BaseModel):
     """Live connectivity and readiness status of the brand's memory bank."""
 
     brand_id: str
-    bank_provisioned: bool
-    service_connected: bool
-    engine_status: Literal["CONNECTED", "UNREACHABLE", "NOT_CONFIGURED", "AUTH_FAILED"]
+    service_state: Literal[
+        "NOT_CONFIGURED",
+        "ENDPOINT_UNREACHABLE",
+        "AUTH_REQUIRED",
+        "AUTHENTICATED",
+        "BANK_NOT_PROVISIONED",
+        "BANK_PROVISIONED",
+        "OPERATIONS_VERIFIED",
+    ] = "NOT_CONFIGURED"
+    bank_provisioned: bool = False
+    service_connected: bool = False
+    engine_status: str = "NOT_CONFIGURED"
     version: Optional[str] = None
     message: str
     memories_count: Optional[int] = None
+    has_api_key: bool = False
     last_verified: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
 
 

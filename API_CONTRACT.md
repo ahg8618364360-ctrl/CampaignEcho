@@ -233,19 +233,30 @@ Synthesizes higher-order strategic patterns across historical memories using nat
 ---
 
 ### `GET /brands/{brand_id}/memory/status`
-Queries engine health and verification status for the brand's memory bank without disclosing internal credentials or bank identifiers. Unknown memory counts use `null`.
+Queries engine health, authentication state, and bank verification status for the brand's memory bank without disclosing internal credentials or bank identifiers. Unknown memory counts use `null`.
+
+#### Service States:
+- `NOT_CONFIGURED`: Missing endpoint URL.
+- `ENDPOINT_UNREACHABLE`: Cloud/local engine offline or unreachable.
+- `AUTH_REQUIRED`: Endpoint reachable (e.g. `/version` HTTP 200), but `HINDSIGHT_API_KEY` missing or unauthorized.
+- `AUTHENTICATED`: Valid cloud key confirmed.
+- `BANK_NOT_PROVISIONED`: Authenticated, but brand bank has not yet been provisioned.
+- `BANK_PROVISIONED`: Cloud bank provisioned; awaiting initial operations.
+- `OPERATIONS_VERIFIED`: Cloud bank provisioned and successful retain/recall operations verified in logs.
 
 #### Response (`200 OK`)
 ```json
 {
   "brand_id": "b0f7a264-8845-4279-9923-28f7311c1092",
-  "bank_provisioned": true,
-  "service_connected": true,
-  "engine_status": "CONNECTED",
+  "bank_provisioned": false,
+  "service_connected": false,
+  "service_state": "AUTH_REQUIRED",
+  "has_api_key": false,
+  "engine_status": "AUTH_REQUIRED",
   "version": "1.1.0",
-  "message": "Memory bank is provisioned and active on Hindsight v1.1.0.",
-  "memories_count": 12,
-  "last_verified": "2026-11-06T11:30:00Z"
+  "message": "Hindsight endpoint is reachable (v1.1.0), but HINDSIGHT_API_KEY is not configured. Bank operations require valid cloud credentials.",
+  "memories_count": null,
+  "last_verified": "2026-11-06T13:41:48Z"
 }
 ```
 
