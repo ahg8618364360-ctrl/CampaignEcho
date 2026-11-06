@@ -174,3 +174,4 @@ To execute the live integration tests (`test_critical_1_real_retain` through `te
    .\venv\Scripts\pytest.exe -v -m integration backend/tests
    ```
    When the key is present, all 5 critical tests will run live against `api.hindsight.vectorize.io` without skipping, proving real retain, recall, reflect, process restart persistence, and cross-brand isolation.
+
