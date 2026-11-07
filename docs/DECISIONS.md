@@ -186,3 +186,23 @@
   - Zero warnings and 100% pass rate across the 39-test suite.
   - Zero visual regressions or console errors across 7 routes in both desktop and mobile viewports.
   - Production-ready CI/CD automation and verified repository hygiene.
+
+
+---
+
+## ADR-014: Milestone 7 Final Demonstration, Evaluator Automation & Release Submission Package
+- **Status**: ACCEPTED (Milestone 7)
+- **Context**: Milestone 7 prepares CampaignEcho for evaluator review and competition submission. Evaluators need a frictionless, one-command demonstration runner, idempotent seed data, unambiguous documentation, and verifiable compliance with competition guidelines (including zero prohibited terms, real Hindsight Cloud operations, and transparent Band Desktop reporting).
+- **Decision**:
+  1. Create automated PowerShell scripts for evaluator convenience:
+     - `scripts/check-demo.ps1`: Automated pre-flight environment diagnostic (Python, Node, DB, live Hindsight Cloud ping, live Z.ai gateway ping).
+     - `scripts/start-demo.ps1`: One-command startup that applies migrations, starts Uvicorn daemon, waits for health check, and starts Next.js server.
+     - `scripts/stop-demo.ps1`: Safe process termination using recorded PIDs, freeing ports 8000 and 3000 cleanly.
+  2. Implement idempotent demonstration seeder `scripts/seed_demo.py` ensuring "The Taco Syndicate" and 3 historical campaign fixtures have explicit synthetic tags (`is_synthetic = True`) and safe duplicate prevention.
+  3. Publish 9-slide executive evaluator presentation deck (`docs/EVALUATOR_PRESENTATION.md`), comprehensive judge guide (`docs/EVALUATOR_GUIDE.md`), team submission guide (`docs/SUBMISSION_GUIDE.md`), 4-minute demonstration video script and shot list (`docs/VIDEO_SCRIPT.md`, `docs/VIDEO_SHOT_LIST.md`), and updated runbook (`docs/FINAL_DEMO_RUNBOOK.md`).
+  4. Finalize 1,458-word technical article (`article.md`) titled *"Building Continuous AI Marketing Agents with Vectorize Hindsight"* with zero prohibited competition jargon, real code snippets, before/after table, and explicit limitations.
+  5. Report Band Desktop CLI status honestly and transparently: executable absent on Windows test runner; Antigravity IDE operational; complete manual connection instructions provided in `docs/COMPETITION_COMPLIANCE.md`.
+- **Consequences**:
+  - Full end-to-end evaluation flow reproducible in under 5 minutes with zero manual configuration.
+  - Complete compliance with all behavioral rules, memory isolation laws, and submission requirements.
+  - Ready for release branch pull request against `main`.

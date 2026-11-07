@@ -14,7 +14,7 @@
 [![LLM: Z.ai GLM-4.5-Flash](https://img.shields.io/badge/LLM-Z.ai_GLM--4.5--Flash-B85C38.svg)](https://z.ai)
 [![Next.js: 15.0.3](https://img.shields.io/badge/Frontend-Next.js_15_App_Router-000000.svg)](https://nextjs.org)
 [![FastAPI: 0.115](https://img.shields.io/badge/Backend-FastAPI_Python_3.11+-009688.svg)](https://fastapi.tiangolo.com)
-[![Tests: 35/35 Passing](https://img.shields.io/badge/Tests-35%2F35_Passing-brightgreen.svg)](docs/PROGRESS.md)
+[![Tests: 39/39 Passing](https://img.shields.io/badge/Tests-39%2F39_Passing-brightgreen.svg)](docs/PROGRESS.md)
 
 </div>
 
@@ -198,7 +198,35 @@ In accordance with CampaignEcho architectural standards, AI outputs must never c
 
 ---
 
-## ✦ Installation & Quickstart
+## ✦ Quickstart for Evaluators (One-Command Launch)
+
+For competition judges and evaluators, CampaignEcho provides fully automated PowerShell scripts to test and run the entire platform in seconds:
+
+```powershell
+# 1. Run environment diagnostics (validates Python, Node, live Hindsight Cloud & Z.ai gateway)
+.\scripts\check-demo.ps1
+
+# 2. Seed demonstration fixtures (idempotent; seeds "The Taco Syndicate")
+.\venv\Scripts\python.exe scripts\seed_demo.py
+
+# 3. Launch both backend (:8000) and frontend (:3000) in one command
+.\scripts\start-demo.ps1
+
+# 4. Open in your browser:
+#    Main Dashboard:    http://localhost:3000
+#    Memory Evolution:  http://localhost:3000/memory-evolution
+#    Memory Explorer:   http://localhost:3000/memory-explorer
+#    Interactive Docs:  http://127.0.0.1:8000/docs
+
+# 5. Cleanly shut down when finished
+.\scripts\stop-demo.ps1
+```
+
+For step-by-step instructions, see [docs/EVALUATOR_GUIDE.md](docs/EVALUATOR_GUIDE.md) and [docs/FINAL_DEMO_RUNBOOK.md](docs/FINAL_DEMO_RUNBOOK.md).
+
+---
+
+## ✦ Manual Installation & Development Setup
 
 ### Prerequisites
 - **Python**: 3.11 or higher (Python 3.13 tested)
@@ -239,7 +267,7 @@ python -m venv venv
 pip install -r backend/requirements.txt
 
 # Run migrations and seed verified demo brands
-python backend/scripts/seed_demo.py
+python scripts/seed_demo.py
 
 # Launch FastAPI development server (port 8000)
 uvicorn backend.app.main:app --host 127.0.0.1 --port 8000 --reload
@@ -268,10 +296,10 @@ Open `http://localhost:3000` in your browser.
 
 CampaignEcho adheres to a strict **Verification Before Completion** standard. All claims are grounded in verifiable execution evidence:
 
-- **Pytest Suite**: **35 passed, 0 skipped, 0 failed** in `backend/tests/` (including 5 live Vectorize Hindsight Cloud integration tests and the end-to-end continuous learning test `test_live_learning_e2e.py`).
+- **Pytest Suite**: **39 passed, 0 skipped, 0 failed** in `backend/tests/` (including 5 live Vectorize Hindsight Cloud integration tests, the end-to-end continuous learning test `test_live_learning_e2e.py`, and 6 Memory Evolution comparison tests).
 - **Frontend Typecheck**: `tsc --noEmit` exits with **0 errors**.
 - **Frontend Lint**: `next lint` reports **0 warnings, 0 errors**.
-- **Production Build**: `next build` compiles all 10 application routes statically without hydration issues.
+- **Production Build**: `next build` compiles all application routes statically without hydration issues.
 - **Cross-Viewport Testing**: Verified via Playwright at Desktop (1440px), Tablet (768px), and Mobile (390px) viewports with **zero console errors**.
 
 To run the complete verification suite locally:
