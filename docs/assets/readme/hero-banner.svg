@@ -1,0 +1,87 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 400" width="100%" height="100%">
+  <defs>
+    <linearGradient id="bgGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#F5F3EE"/>
+      <stop offset="100%" stop-color="#EDE9E1"/>
+    </linearGradient>
+    <linearGradient id="terracottaAccent" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" stop-color="#B85C38"/>
+      <stop offset="100%" stop-color="#8E3E23"/>
+    </linearGradient>
+    <filter id="cardShadow" x="-5%" y="-5%" width="110%" height="115%">
+      <feDropShadow dx="0" dy="8" stdDeviation="12" flood-color="#202923" flood-opacity="0.08"/>
+    </filter>
+  </defs>
+
+  <!-- Background Canvas -->
+  <rect width="1200" height="400" fill="url(#bgGrad)"/>
+  
+  <!-- Subtle Editorial Grid / Lines -->
+  <line x1="80" y1="80" x2="1120" y2="80" stroke="#E3DED4" stroke-width="1"/>
+  <line x1="80" y1="320" x2="1120" y2="320" stroke="#E3DED4" stroke-width="1"/>
+  <line x1="80" y1="80" x2="80" y2="320" stroke="#E3DED4" stroke-width="1"/>
+  <line x1="1120" y1="80" x2="1120" y2="320" stroke="#E3DED4" stroke-width="1"/>
+
+  <!-- Left Content Area -->
+  <g transform="translate(120, 130)">
+    <!-- Category Eyebrow -->
+    <rect x="0" y="0" width="220" height="28" rx="6" fill="#F0EBE1" stroke="#DCD6CA" stroke-width="1"/>
+    <circle cx="14" cy="14" r="4" fill="#39745D"/>
+    <text x="26" y="18" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif" font-size="11" font-weight="600" fill="#202923" letter-spacing="1.2">COGNITIVE MARKETING OS</text>
+
+    <!-- Main Title -->
+    <text x="0" y="70" font-family="Georgia, 'Times New Roman', serif" font-size="52" font-weight="700" fill="#202923" letter-spacing="-0.5">CampaignEcho</text>
+
+    <!-- Subtitle / Tagline -->
+    <text x="0" y="105" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif" font-size="20" font-weight="400" fill="#5F675F">
+      Every campaign teaches the next.
+    </text>
+
+    <!-- Architecture Badges -->
+    <g transform="translate(0, 135)">
+      <!-- Badge 1: Hindsight -->
+      <rect x="0" y="0" width="180" height="32" rx="4" fill="#202923"/>
+      <text x="14" y="20" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-size="12" font-weight="600" fill="#F5F3EE">⚡ Vectorize Hindsight</text>
+      
+      <!-- Badge 2: Z.ai LLM -->
+      <rect x="190" y="0" width="150" height="32" rx="4" fill="#39745D"/>
+      <text x="204" y="20" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-size="12" font-weight="600" fill="#F5F3EE">🧠 GLM-4.5-Flash</text>
+
+      <!-- Badge 3: Next.js 15 -->
+      <rect x="350" y="0" width="140" height="32" rx="4" fill="#B85C38"/>
+      <text x="364" y="20" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-size="12" font-weight="600" fill="#F5F3EE">✦ Next.js 15 App</text>
+    </g>
+  </g>
+
+  <!-- Right Visual / Epistemic Triad Card -->
+  <g transform="translate(730, 115)" filter="url(#cardShadow)">
+    <rect width="350" height="170" rx="10" fill="#FFFFFF" stroke="#E3DED4" stroke-width="1.5"/>
+    
+    <!-- Card Header -->
+    <rect width="350" height="38" rx="10" fill="#FAF8F5"/>
+    <line x1="0" y1="38" x2="350" y2="38" stroke="#EAE5DC" stroke-width="1"/>
+    <circle cx="20" cy="19" r="4.5" fill="#B85C38"/>
+    <circle cx="34" cy="19" r="4.5" fill="#DCD6CA"/>
+    <circle cx="48" cy="19" r="4.5" fill="#DCD6CA"/>
+    <text x="70" y="23" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-size="11" font-weight="600" fill="#5F675F" letter-spacing="0.5">CONTINUOUS LEARNING ENGINE</text>
+
+    <!-- Cognitive Primitives Rows -->
+    <g transform="translate(20, 52)">
+      <text x="0" y="14" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-size="12" font-weight="700" fill="#202923">1. Recall</text>
+      <text x="80" y="14" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-size="12" fill="#5F675F">Contextual semantic search</text>
+      <circle cx="300" cy="11" r="5" fill="#39745D"/>
+    </g>
+
+    <g transform="translate(20, 84)">
+      <text x="0" y="14" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-size="12" font-weight="700" fill="#202923">2. Reflect</text>
+      <text x="80" y="14" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-size="12" fill="#5F675F">Cross-campaign meta-synthesis</text>
+      <circle cx="300" cy="11" r="5" fill="#B85C38"/>
+    </g>
+
+    <g transform="translate(20, 116)">
+      <text x="0" y="14" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-size="12" font-weight="700" fill="#202923">3. Retain</text>
+      <text x="80" y="14" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-size="12" fill="#5F675F">Consolidates learnings per brand</text>
+      <circle cx="300" cy="11" r="5" fill="#202923"/>
+    </g>
+  </g>
+</svg>

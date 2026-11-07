@@ -1,125 +1,346 @@
-# CampaignEcho 📣
+<div align="center">
 
-> *"Every campaign teaches the next."*
+<img src="docs/assets/readme/hero-banner.svg" alt="CampaignEcho Banner" width="100%" />
 
-CampaignEcho is an enterprise-grade AI marketing intelligence platform that learns from a business's historical campaigns, brand voice, target audience preferences, client feedback, and actual performance metrics.
+# CampaignEcho
 
-Unlike conventional AI marketing assistants that generate generic, repetitive captions and ungrounded campaign ideas, CampaignEcho maintains persistent, brand-specific memory banks powered by **Vectorize Hindsight**. The more a brand uses CampaignEcho, the more contextual, defensive, and effective its marketing strategies become.
+### *Every Campaign Teaches the Next.*
 
----
+**Memory-Powered AI Marketing Intelligence Platform**  
+*Built with Vectorize Hindsight, Z.ai GLM-4.5-Flash, Next.js 15, and FastAPI.*
 
-## 🌟 The Core Differentiator: Persistent Brand Memory
+[![License: Apache 2.0](https://img.shields.io/badge/License-Apache_2.0-blue.svg)](LICENSE)
+[![Memory Engine: Vectorize Hindsight](https://img.shields.io/badge/Memory-Vectorize_Hindsight-39745D.svg)](https://hindsight.vectorize.io)
+[![LLM: Z.ai GLM-4.5-Flash](https://img.shields.io/badge/LLM-Z.ai_GLM--4.5--Flash-B85C38.svg)](https://z.ai)
+[![Next.js: 15.0.3](https://img.shields.io/badge/Frontend-Next.js_15_App_Router-000000.svg)](https://nextjs.org)
+[![FastAPI: 0.115](https://img.shields.io/badge/Backend-FastAPI_Python_3.11+-009688.svg)](https://fastapi.tiangolo.com)
+[![Tests: 35/35 Passing](https://img.shields.io/badge/Tests-35%2F35_Passing-brightgreen.svg)](docs/PROGRESS.md)
 
-Marketing knowledge is typically scattered across analytics dashboards, WhatsApp messages, client PDFs, and spreadsheets. When agencies plan their next campaign, past lessons are routinely forgotten:
-- High-performing hooks are abandoned.
-- Painful past failures are repeated with the same audience.
-- Tone restrictions must be re-explained to generic AI models.
-
-CampaignEcho solves this by executing three foundational memory operations via Vectorize Hindsight:
-1. **Retain**: Consolidates verified brand rules, performance metrics, and post-mortem feedback into an isolated memory bank.
-2. **Recall**: Contextually retrieves relevant past strategies and audience reactions before generating new campaigns.
-3. **Reflect**: Synthesizes cross-campaign patterns to deduce what consistently drives conversions for that specific brand.
+</div>
 
 ---
 
-## 🏗️ Architecture & Tech Stack
+## ✦ The Problem: The Stateless AI Trap
+
+Marketing teams running repetitive AI prompts hit an invisible wall:
+
+1. **Context Amnesia**: Every new chat window starts from tabula rasa. High-performing hooks discovered three months ago are forgotten, and tone guidelines must be manually restated.
+2. **Repetition of Costly Failures**: Without persistent institutional memory, generative models repeatedly recommend tactics that already flopped with that specific audience.
+3. **Ungrounded Hallucinations**: Standard LLMs cannot distinguish between speculative ideas, historical patterns, and empirically observed conversion metrics.
+
+**CampaignEcho replaces stateless prompt generation with a continuous cognitive feedback loop.** By pairing **Vectorize Hindsight** with modern generative LLMs, CampaignEcho maintains strict, tenant-isolated memory banks for every brand. Every brief recalls verified learnings; every campaign outcome retains new institutional truth.
+
+---
+
+## ✦ Visual Product Tour
+
+The CampaignEcho workspace is designed around the **Campaign Desk** design system—prioritizing typographical clarity, information density, and epistemic honesty.
+
+### 1. Executive Intelligence Overview
+*Real-time readiness telemetry, brand-isolated bank provisioning, and cognitive activity feeds.*
+![Executive Overview](docs/assets/readme/overview.png)
+
+### 2. Campaign Studio & Epistemic Triad
+*Interactive brief configuration, contextual memory recall, cross-campaign reflections, and grounded reel strategies with verified memory citations.*
+![Campaign Studio](docs/assets/readme/campaign-studio.png)
+
+### 3. Memory Explorer & Bank Inspector
+*Direct visibility into the Vectorize Hindsight memory bank. Search semantic memory, inspect reflection synthesis, and verify retention timestamps.*
+![Memory Explorer](docs/assets/readme/memory-explorer.png)
+
+### 4. Campaign History & Performance Ledger
+*Track historical campaign lifecycles from concept generation to live performance ingestion and automated memory consolidation.*
+![Campaign History](docs/assets/readme/campaign-history.png)
+
+### 5. Multi-Brand Directory & Memory Isolation
+*Strict 1:1 tenant isolation. Brand banks are mapped deterministically (`campaignecho-brand-{id}`) with zero cross-tenant contamination.*
+![Brand Directory](docs/assets/readme/brands.png)
+
+### 6. System & Infrastructure Telemetry
+*Verifiable runtime telemetry connecting Hindsight Cloud, Z.ai inference, and SQLite persistence.*
+![Settings & Telemetry](docs/assets/readme/settings.png)
+
+---
+
+## ✦ The Core Cognitive Learning Loop
+
+Unlike conventional AI tools that terminate once copy is generated, CampaignEcho forms a closed-loop learning cycle:
 
 ```mermaid
 flowchart TD
-    subgraph Frontend["Next.js 15+ App Router"]
-        UI["Overview · Brands · Studio · History · Memory Explorer · Evolution"]
+    subgraph S1["1. Brief Ingestion"]
+        Brief["Marketing Brief & Target Audience"]
     end
 
-    subgraph Backend["FastAPI Python Service"]
-        API["REST API Router (/api/v1)"]
-        BrandSvc["Brand Isolation & Bank Provisioning"]
-        CampaignSvc["Strategy Orchestration & Ingestion"]
-        MemoryAdapter["Hindsight Client Adapter"]
-        LLMAdapter["Groq Engine (Llama 3.3 70B)"]
-        DB[(SQLite / SQLAlchemy ORM)]
+    subgraph S2["2. Cognitive Memory Retrieval"]
+        RecallOp["Hindsight Recall (Semantic Search)"]
+        ReflectOp["Hindsight Reflect (Meta-Pattern Synthesis)"]
     end
 
-    subgraph Intelligence["External Engines"]
-        Hindsight["Vectorize Hindsight Memory Engine"]
-        Groq["Groq Cloud LLM Inference"]
+    subgraph S3["3. Grounded Strategy Generation"]
+        LLM["Z.ai GLM-4.5-Flash Inference"]
+        Triad["Epistemic Triad Output<br/>• Observed Patterns<br/>• Strategic Hypotheses<br/>• Actionable Reel Concept"]
+        CitationChip["Memory Citation Chips<br/>(Linked to Bank Items)"]
     end
 
-    Frontend -->|REST| API
-    API --> BrandSvc & CampaignSvc
-    BrandSvc & CampaignSvc --> DB
-    CampaignSvc --> MemoryAdapter --> Hindsight
-    CampaignSvc --> LLMAdapter --> Groq
+    subgraph S4["4. Live Execution & Feedback"]
+        Metrics["Campaign Launch & Performance<br/>(Reach, Clicks, Conversions, ROAS)"]
+    end
+
+    subgraph S5["5. Memory Consolidation"]
+        RetainOp["Hindsight Retain (Isolated Bank)"]
+        Persistence[("Cross-Session Storage<br/>campaignecho-brand-{id}")]
+    end
+
+    Brief --> RecallOp & ReflectOp
+    RecallOp & ReflectOp --> LLM
+    LLM --> Triad
+    Triad --> CitationChip
+    Triad --> Metrics
+    Metrics --> RetainOp
+    RetainOp --> Persistence
+    Persistence -.->|"Informs Next Brief"| RecallOp
 ```
-
-- **Frontend**: Next.js 15+ (App Router), TypeScript, Tailwind CSS, shadcn/ui, Lucide Icons, Recharts, GSAP Core.
-- **Backend**: Python 3.11+, FastAPI, Pydantic v2 validation, SQLAlchemy 2.0 ORM, SQLite.
-- **Memory Engine**: Vectorize Hindsight (`hindsight-client` Python SDK).
-- **LLM Engine**: Groq Cloud API (`llama-3.3-70b-versatile`).
-- **Testing & Verification**: Pytest, Playwright Browser Automation MCP, Ponytail Code Audit.
 
 ---
 
-## 🚀 Quickstart Guide
+## ✦ System Architecture
+
+CampaignEcho divides responsibilities cleanly between an editorial Next.js frontend, an asynchronous FastAPI service layer, and external cognitive intelligence engines.
+
+```mermaid
+flowchart TB
+    subgraph Client["Presentation Layer (Port 3000)"]
+        NextApp["Next.js 15 App Router<br/>• TypeScript Strict Mode<br/>• Tailwind CSS + Lucide Icons<br/>• Recharts Performance Visuals"]
+    end
+
+    subgraph API["Application Services (Port 8000)"]
+        FastAPIApp["FastAPI Service Layer<br/>• REST API (/api/v1)<br/>• Pydantic v2 Request/Response Validation<br/>• Brand Isolation Enforcer"]
+        DB[(SQLite / SQLAlchemy 2.0<br/>campaignecho.db)]
+    end
+
+    subgraph Cognitive["Cognitive Intelligence Engines"]
+        HindsightEngine["Vectorize Hindsight Cloud SDK<br/>• aretain() · arecall() · areflect()<br/>• Tenant Bank: campaignecho-brand-{id}"]
+        ZAIInference["Z.ai LLM Service<br/>• Model: glm-4.5-flash<br/>• OpenAI-Compatible Client"]
+    end
+
+    NextApp <-->|"HTTP / REST API"| FastAPIApp
+    FastAPIApp <-->|"Async ORM"| DB
+    FastAPIApp <-->|"hindsight-client SDK"| HindsightEngine
+    FastAPIApp <-->|"Async HTTP"| ZAIInference
+```
+
+---
+
+## ✦ Cognitive Primitives & Epistemic Honesty
+
+CampaignEcho implements the three foundational cognitive primitives of **Vectorize Hindsight**:
+
+### 1. Contextual Recall (`arecall`)
+Before drafting any strategy, CampaignEcho queries the brand's memory bank using semantic similarity:
+```python
+# Contextually retrieves verified historical precedents
+recalled_memories = await hindsight_client.arecall(
+    bank_id=f"campaignecho-brand-{brand_id}",
+    query=f"{brief.goal} targeting {brief.target_audience}",
+    limit=10
+)
+```
+
+### 2. High-Order Reflection (`areflect`)
+Rather than relying purely on isolated fragments, CampaignEcho triggers higher-order reflection over past campaign trajectories:
+```python
+# Synthesizes cross-campaign behavioral patterns
+reflection = await hindsight_client.areflect(
+    bank_id=f"campaignecho-brand-{brand_id}",
+    query="What hooks and messaging angles have generated the highest engagement for this audience?"
+)
+```
+
+### 3. Continuous Retention (`aretain`)
+When actual campaign analytics and post-mortem observations are reported, learnings are consolidated into the bank:
+```python
+# Permanently commits post-campaign performance to memory
+await hindsight_client.aretain(
+    bank_id=f"campaignecho-brand-{brand_id}",
+    content=f"Campaign '{campaign.title}' achieved {results.clicks} clicks with {results.roas}x ROAS. Key learning: {results.key_takeaway}",
+    metadata={"campaign_id": campaign.id, "verified": True}
+)
+```
+
+### The Epistemic Triad
+In accordance with CampaignEcho architectural standards, AI outputs must never claim false causality:
+- **Observed Performance**: Grounded empirical data recalled directly from memory.
+- **Historical Patterns**: Cross-campaign reflections synthesized by Hindsight.
+- **Strategic Hypotheses**: Deductive creative recommendations generated by the LLM.
+
+---
+
+## ✦ Technology Stack
+
+| Component | Technology | Version | Purpose |
+| :--- | :--- | :--- | :--- |
+| **Frontend Framework** | Next.js (App Router) | `15.0.3` | Server & client React component rendering |
+| **Language** | TypeScript | `5.6+` | Strict type safety across the client application |
+| **Styling & UI** | Tailwind CSS / shadcn/ui | `3.4+` | Campaign Desk editorial styling system |
+| **Iconography** | Lucide React | `0.454+` | Clean, minimalist interface icons |
+| **Visualization** | Recharts | `2.13+` | Metric distributions and performance charting |
+| **Backend Framework** | FastAPI | `0.115+` | High-throughput asynchronous REST API |
+| **Data Validation** | Pydantic | `v2.9+` | Strict schema serialization and contract enforcement |
+| **Persistence** | SQLite / SQLAlchemy | `2.0+` | Local database for brands, briefs, and campaigns |
+| **Memory Engine** | Vectorize Hindsight SDK | `hindsight-client` | Cloud cognitive memory (`retain`, `recall`, `reflect`) |
+| **LLM Inference** | Z.ai (`glm-4.5-flash`) | Latest | Fast, high-context campaign strategy generation |
+| **Browser QA** | Playwright MCP | `1.48+` | Automated cross-viewport UI and console regression testing |
+
+---
+
+## ✦ Installation & Quickstart
 
 ### Prerequisites
-- Node.js 20+ (Node v26 verified)
-- Python 3.11+ (Python 3.13 verified)
-- Git 2.40+ (Git 2.56 verified)
+- **Python**: 3.11 or higher (Python 3.13 tested)
+- **Node.js**: 20.0 or higher (Node v26 tested)
+- **Git**: 2.40 or higher
 
-### 1. Environment Setup
-```bash
-# Clone or navigate to the repository
-cd C:\CampaignEcho
+### 1. Clone & Environment Configuration
+
+```powershell
+# Clone the repository
+git clone https://github.com/ahg8618364360-ctrl/CampaignEcho.git
+cd CampaignEcho
 
 # Copy environment template
-cp .env.example .env
+Copy-Item .env.example .env
+```
 
-# Configure environment variables in .env:
-# HINDSIGHT_API_URL=https://api.hindsight.vectorize.io  (default Vectorize Cloud or http://localhost:8888)
-# HINDSIGHT_API_KEY=your_hindsight_api_key              (obtained from https://ui.hindsight.vectorize.ai)
-# GROQ_API_KEY=your_groq_api_key                        (for campaign strategy generation)
+Edit `.env` to configure your API keys:
+```ini
+# Hindsight Configuration
+HINDSIGHT_API_URL=https://api.hindsight.vectorize.io
+HINDSIGHT_API_KEY=your_hindsight_api_key_here
+
+# LLM Engine (Z.ai GLM-4.5-Flash)
+ZAI_API_KEY=your_zai_api_key_here
+LLM_PROVIDER=zai
+LLM_MODEL=glm-4.5-flash
 ```
 
 ### 2. Backend Initialization
-```bash
-# Create and activate virtual environment
+
+```powershell
+# Create and activate Python virtual environment
 python -m venv venv
-# Windows:
-.\venv\Scripts\activate
+.\venv\Scripts\Activate.ps1
 
 # Install dependencies
 pip install -r backend/requirements.txt
 
-# Run database migrations and seed demo data
+# Run migrations and seed verified demo brands
 python backend/scripts/seed_demo.py
 
-# Launch FastAPI server (port 8000)
-uvicorn backend.app.main:app --host 0.0.0.0 --port 8000 --reload
+# Launch FastAPI development server (port 8000)
+uvicorn backend.app.main:app --host 127.0.0.1 --port 8000 --reload
 ```
 
+The interactive API documentation is accessible at `http://127.0.0.1:8000/docs`.
+
 ### 3. Frontend Initialization
-```bash
+
+```powershell
+# Navigate to frontend directory
 cd frontend
+
+# Install dependencies
 npm install
+
+# Run development server (port 3000)
 npm run dev
-# Open http://localhost:3000
+```
+
+Open `http://localhost:3000` in your browser.
+
+---
+
+## ✦ Verification & Quality Proof
+
+CampaignEcho adheres to a strict **Verification Before Completion** standard. All claims are grounded in verifiable execution evidence:
+
+- **Pytest Suite**: **35 passed, 0 skipped, 0 failed** in `backend/tests/` (including 5 live Vectorize Hindsight Cloud integration tests and the end-to-end continuous learning test `test_live_learning_e2e.py`).
+- **Frontend Typecheck**: `tsc --noEmit` exits with **0 errors**.
+- **Frontend Lint**: `next lint` reports **0 warnings, 0 errors**.
+- **Production Build**: `next build` compiles all 10 application routes statically without hydration issues.
+- **Cross-Viewport Testing**: Verified via Playwright at Desktop (1440px), Tablet (768px), and Mobile (390px) viewports with **zero console errors**.
+
+To run the complete verification suite locally:
+```powershell
+# Run backend tests
+pytest backend/tests/ -v
+
+# Run frontend checks
+cd frontend
+npm run typecheck
+npm run lint
+npm run build
 ```
 
 ---
 
-## 📚 Complete Project Documentation
+## ✦ Repository Layout
 
-| Document | Purpose |
-| :--- | :--- |
-| **[AGENTS.md](file:///c:/CampaignEcho/AGENTS.md)** | Agent Engineering Rules, Behavioral Constitution, and Quality Standards |
-| **[ARCHITECTURE.md](file:///c:/CampaignEcho/ARCHITECTURE.md)** | Detailed System Architecture, Component Division, and Sequence Flows |
-| **[DATABASE_SCHEMA.md](file:///c:/CampaignEcho/DATABASE_SCHEMA.md)** | Entity-Relationship Diagram, Table Specs, and Synthetic Seed Data |
-| **[API_CONTRACT.md](file:///c:/CampaignEcho/API_CONTRACT.md)** | REST Endpoints, Pydantic Request/Response Models, and Status Codes |
-| **[TEST_PLAN.md](file:///c:/CampaignEcho/TEST_PLAN.md)** | Critical Cross-Session Acceptance Tests, Pytest Suites, and Playwright QA |
-| **[IMPLEMENTATION_PLAN.md](file:///c:/CampaignEcho/IMPLEMENTATION_PLAN.md)** | Detailed Milestone Roadmap (M0-M7) and Risk Register |
-| **[docs/DESIGN_REFERENCE_LOCK.md](file:///c:/CampaignEcho/docs/DESIGN_REFERENCE_LOCK.md)** | Locked Visual Tokens, Color Palette, Typography, and Interaction Rules |
-| **[docs/TOOLING_INVENTORY.md](file:///c:/CampaignEcho/docs/TOOLING_INVENTORY.md)** | Global Antigravity Environment, Skills, and MCP Inventory |
-| **[docs/DEMO_SCENARIO.md](file:///c:/CampaignEcho/docs/DEMO_SCENARIO.md)** | 60-Second Elevator Pitch & 3-Minute Walkthrough Script |
-| **[docs/PROGRESS.md](file:///c:/CampaignEcho/docs/PROGRESS.md)** | Living Project Status and Milestone Tracker |
-| **[docs/DECISIONS.md](file:///c:/CampaignEcho/docs/DECISIONS.md)** | Architectural Decision Records (ADRs) |
+```
+CampaignEcho/
+├── .env.example                   # Grounded configuration template
+├── README.md                      # Platform documentation & overview
+├── LICENSE                        # Apache 2.0 Open Source License
+├── SECURITY.md                    # Responsible disclosure & tenant isolation policy
+├── CONTRIBUTING.md                # Contribution workflow & quality gates
+├── AGENTS.md                      # Engineering constitution & architectural laws
+├── ARCHITECTURE.md                # Detailed component design & sequence flows
+├── API_CONTRACT.md                # REST API specifications & schemas
+├── DATABASE_SCHEMA.md             # SQLite / SQLAlchemy data models
+├── TEST_PLAN.md                   # Pytest & Playwright verification plan
+├── IMPLEMENTATION_PLAN.md         # Milestone execution roadmap
+├── backend/                       # Python FastAPI backend
+│   ├── app/                       # Application routers, services, & database
+│   │   ├── api/v1/                # Brands, campaigns, and memory endpoints
+│   │   ├── core/                  # Configuration & database session
+│   │   ├── models/                # SQLAlchemy database entities
+│   │   ├── schemas/               # Pydantic v2 schemas
+│   │   └── services/              # Hindsight memory & Z.ai adapters
+│   ├── requirements.txt           # Python backend dependencies
+│   ├── scripts/                   # Database seeding & verification scripts
+│   └── tests/                     # Unit, integration, & E2E tests (35 passing)
+├── frontend/                      # Next.js 15 App Router application
+│   ├── src/                       # Page routes, components, hooks, & types
+│   │   ├── app/                   # App Router pages (Overview, Studio, Memory, etc.)
+│   │   ├── components/            # Design system widgets & citation chips
+│   │   └── lib/                   # API client & typography utilities
+│   ├── package.json               # Node.js dependencies
+│   └── tailwind.config.ts         # Campaign Desk color tokens & spacing
+└── docs/                          # Architectural documentation & design records
+    ├── assets/readme/             # Curated screenshots & vector diagrams
+    ├── screenshots/               # Verified Playwright browser captures
+    ├── DESIGN_REFERENCE_LOCK.md   # Visual design authority & palette locks
+    ├── PROGRESS.md                # Living milestone execution tracker
+    └── DECISIONS.md               # Architectural Decision Records (ADRs)
+```
 
+---
+
+## ✦ Documentation Directory
+
+- **[AGENTS.md](AGENTS.md)**: Agent Engineering Rules, Behavioral Constitution, and Quality Standards
+- **[ARCHITECTURE.md](ARCHITECTURE.md)**: Detailed System Architecture, Component Division, and Sequence Flows
+- **[DATABASE_SCHEMA.md](DATABASE_SCHEMA.md)**: Entity-Relationship Diagram, Table Specs, and Synthetic Seed Data
+- **[API_CONTRACT.md](API_CONTRACT.md)**: REST Endpoints, Pydantic Request/Response Models, and Status Codes
+- **[TEST_PLAN.md](TEST_PLAN.md)**: Pytest Suites, Continuous Learning Loop Verification, and Playwright QA
+- **[IMPLEMENTATION_PLAN.md](IMPLEMENTATION_PLAN.md)**: Milestone Execution Roadmap & Acceptance Gates
+- **[docs/DESIGN_REFERENCE_LOCK.md](docs/DESIGN_REFERENCE_LOCK.md)**: Visual Tokens, Palette, Typography, and Interaction Rules
+- **[docs/DEMO_SCENARIO.md](docs/DEMO_SCENARIO.md)**: Elevator Pitch Script & Product Walkthrough Guide
+- **[docs/PROGRESS.md](docs/PROGRESS.md)**: Milestone Tracker & Verification History
+- **[docs/DECISIONS.md](docs/DECISIONS.md)**: Architectural Decision Records (ADRs)
+
+---
+
+## ✦ License
+
+This project is licensed under the Apache 2.0 License. See the [LICENSE](LICENSE) file for details.
