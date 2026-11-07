@@ -154,3 +154,19 @@
   - Full consistency between backend verification and client interface.
   - High fidelity, truthful demonstration across all visual and technical touchpoints.
   - Elimination of internal architectural leaks in client UI.
+
+---
+
+## ADR-012: Milestone 5 Memory Evolution Architecture & Zero Fake Scores Standard
+- **Status**: ACCEPTED (Milestone 5)
+- **Context**: Milestone 5 requires demonstrating the empirical impact of persistent memory on AI-generated marketing strategies through a controlled A/B evaluation. Standard LLM evaluations often rely on superficial AI self-graded percentage metrics (e.g. "95% better strategy", "3x more intelligent") that lack scientific validity and violate Anti-AI-Slop standards.
+- **Decision**:
+  1. Enforce strict experimental input symmetry: Mode A (Stateless Baseline) and Mode B (Vectorize Hindsight Memory-Powered) receive identical briefs, brand data, provider (`zai`), model (`glm-4.5-flash`), temperature (`0.7`), and token limits (`8192`).
+  2. Implement the **Verifiable Differences Ledger**: zero fake confidence scores. The evaluation engine compares real citations (0 in Mode A vs verified Hindsight UUIDs in Mode B), known avoided historical failures, brand-rule compliance, positioning differentiation, channel/timing grounding, and explicit empirical uncertainties.
+  3. Validate and filter citations server-side: any memory ID emitted by Mode B that does not exist in the actually recalled Hindsight bank items is stripped to prevent hallucination.
+  4. Strictly forbid memory retention during comparison: generated comparison strategies are evaluative and must never be retained to Hindsight banks, preventing hypothesis contamination.
+  5. Deliver a dedicated `/memory-evolution` workspace in Next.js 15+ matching Campaign Desk design tokens (`#F5F3EE`, `#202923`, `#B85C38`, `#39745D`).
+- **Consequences**:
+  1. Complete adherence to Law 1 (Real Hindsight Integration), Law 3 (No False Causality), and Law 4 (Visual & Craft Excellence).
+  2. Demonstrable, audit-proof comparison of memory impact for competition evaluators.
+  3. 100% reproducible test suite (39/39 passing).

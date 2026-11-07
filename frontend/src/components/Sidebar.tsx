@@ -10,6 +10,7 @@ import {
   History,
   BrainCircuit,
   Settings,
+  GitCompare,
   Menu,
   X,
 } from "lucide-react";
@@ -18,6 +19,7 @@ const navigation = [
   { name: "Overview", href: "/", icon: LayoutDashboard },
   { name: "Brands", href: "/brands", icon: Layers },
   { name: "Campaign Studio", href: "/campaign-studio", icon: FilePlus },
+  { name: "Memory Evolution", href: "/memory-evolution", icon: GitCompare },
   { name: "Campaign History", href: "/campaign-history", icon: History },
   { name: "Memory Explorer", href: "/memory-explorer", icon: BrainCircuit },
   { name: "Settings", href: "/settings", icon: Settings },

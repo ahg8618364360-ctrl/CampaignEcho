@@ -193,3 +193,66 @@ class LearningLoopClosedResponse(BaseModel):
     verified_retrieval_query: Optional[str] = None
     message: str
     timestamp: datetime
+
+
+class ComparisonDimensionCheck(BaseModel):
+    """Verifiable dimension comparison without fake percentage scores."""
+    dimension: str = Field(..., description="Evaluation dimension identifier")
+    label: str = Field(..., description="Human-readable dimension name")
+    mode_a_result: str = Field(..., description="Mode A (Zero Memory) result")
+    mode_b_result: str = Field(..., description="Mode B (Hindsight Memory) result")
+    detail: str = Field(..., description="Verifiable empirical difference")
+    is_grounded: bool = Field(True, description="Whether this difference is grounded in verifiable evidence")
+
+
+class ComparisonSummary(BaseModel):
+    """Structured verifiable comparison summary between Mode A (Zero Memory) and Mode B (Memory Powered)."""
+    retrieved_memories_count: int = Field(..., description="Number of real memories recalled for Mode B")
+    mode_a_citations_count: int = Field(0, description="Citations in Mode A (strictly 0)")
+    mode_b_citations_count: int = Field(..., description="Verified citations in Mode B mapped to Hindsight IDs")
+    avoided_past_mistakes: List[str] = Field(default_factory=list, description="Documented past failures avoided in Mode B")
+    brand_rule_compliance: List[str] = Field(default_factory=list, description="Brand restrictions explicitly observed")
+    strategic_differences: List[str] = Field(default_factory=list, description="Key concrete divergences between strategies")
+    uncertainties: List[str] = Field(default_factory=list, description="Questions left unestablished due to sparse data")
+    dimension_checks: List[ComparisonDimensionCheck] = Field(default_factory=list, description="Itemized comparison checks")
+    fairness_disclosure: str = Field(..., description="Methodological fairness and nondeterminism disclosure")
+
+
+class CampaignComparisonRequest(BaseModel):
+    """Request payload to execute a controlled Memory Evolution A/B comparison."""
+    brand_id: str = Field(..., description="Target brand identifier")
+    name: str = Field(..., min_length=2, max_length=255, description="Campaign title or brief name")
+    objective: str = Field(..., min_length=2, description="Primary campaign objective")
+    platform: str = Field(..., description="Target platform (e.g. Instagram Reels, TikTok)")
+    target_audience: Optional[str] = Field(None, description="Specific target segment")
+    budget: Optional[float] = Field(None, ge=0, description="Campaign budget")
+    offer_or_promotion: Optional[str] = Field(None, description="Incentive or offer mechanic")
+    constraints: Optional[str] = Field(None, description="Explicit creative constraints")
+    primary_kpi: Optional[str] = Field(None, description="Primary success metric")
+    content_language: str = Field("en", description="Campaign language")
+    geographic_market: Optional[str] = Field(None, description="Target market")
+    preferred_provider: Optional[str] = Field("zai", description="LLM provider (strictly identical for both modes)")
+
+
+class CampaignComparisonResponse(BaseModel):
+    """Complete record of a controlled Memory Evolution comparison."""
+    id: str
+    brand_id: str
+    brand_name: str
+    name: str
+    campaign_brief: Dict[str, Any]
+    provider: str
+    model: str
+    generation_parameters: Dict[str, Any]
+    prompt_version: str = "v1.0"
+    baseline_status: str = "COMPLETED"
+    memory_status: str = "COMPLETED"
+    baseline_strategy: CampaignStrategyOutput
+    memory_strategy: CampaignStrategyOutput
+    retrieved_memory_references: List[Dict[str, Any]] = Field(default_factory=list)
+    reflection_metadata: Optional[Dict[str, Any]] = None
+    comparison_summary: ComparisonSummary
+    created_at: datetime
+
+    model_config = ConfigDict(from_attributes=True)
+

@@ -52,6 +52,7 @@ class Brand(Base):
     campaigns = relationship("Campaign", back_populates="brand", cascade="all, delete-orphan")
     memory_logs = relationship("MemoryLog", back_populates="brand", cascade="all, delete-orphan")
     verification_runs = relationship("MemoryVerificationRun", back_populates="brand", cascade="all, delete-orphan")
+    comparisons = relationship("CampaignComparison", back_populates="brand", cascade="all, delete-orphan")
 
 
 class Campaign(Base):
@@ -173,4 +174,48 @@ class MemoryVerificationRun(Base):
 
     # Relationships
     brand = relationship("Brand", back_populates="verification_runs")
+
+
+class CampaignComparison(Base):
+    """Controlled A/B comparison between baseline strategy (Mode A) and memory-powered strategy (Mode B).
+    
+    Demonstrates CampaignEcho's signature feature: how Vectorize Hindsight memory changes
+    the generated campaign strategy when brief, model, and parameters are kept strictly identical.
+    """
+
+    __tablename__ = "campaign_comparisons"
+
+    id = Column(String(36), primary_key=True, default=generate_uuid)
+    brand_id = Column(String(36), ForeignKey("brands.id", ondelete="CASCADE"), nullable=False, index=True)
+    name = Column(String(255), nullable=False)
+    
+    # Input brief data
+    campaign_brief = Column(JSON, nullable=False)
+    
+    # Generated outputs
+    baseline_strategy = Column(JSON, nullable=False)  # Mode A: Without Historical Memory
+    memory_strategy = Column(JSON, nullable=False)    # Mode B: With Hindsight Memory
+    
+    # LLM execution provenance (strictly identical across both modes)
+    provider = Column(String(50), nullable=False)
+    model = Column(String(100), nullable=False)
+    generation_parameters = Column(JSON, nullable=False)
+    prompt_version = Column(String(50), default="v1.0", nullable=False)
+    
+    # Statuses
+    baseline_status = Column(String(30), default="COMPLETED", nullable=False)
+    memory_status = Column(String(30), default="COMPLETED", nullable=False)
+    
+    # Memory Context (retrieved Hindsight items & reflections)
+    retrieved_memory_references = Column(JSON, nullable=True)
+    reflection_metadata = Column(JSON, nullable=True)
+    
+    # Verifiable comparison differences (no fake percentage scores)
+    comparison_summary = Column(JSON, nullable=False)
+    
+    created_at = Column(DateTime, default=get_utc_now, nullable=False)
+
+    # Relationships
+    brand = relationship("Brand", back_populates="comparisons")
+
 

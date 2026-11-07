@@ -8,6 +8,8 @@ from backend.app.schemas.campaign import (
     CampaignResponse,
     CampaignResultSubmission,
     LearningLoopClosedResponse,
+    CampaignComparisonRequest,
+    CampaignComparisonResponse,
 )
 from backend.app.services.campaign_service import CampaignService, get_campaign_service
 
@@ -44,6 +46,50 @@ def list_campaigns(
 ) -> List[CampaignResponse]:
     campaigns = service.list_campaigns(db=db, brand_id=brand_id)
     return [CampaignResponse.model_validate(c) for c in campaigns]
+
+
+@router.post(
+    "/compare",
+    response_model=CampaignComparisonResponse,
+    status_code=status.HTTP_201_CREATED,
+    summary="Execute controlled Memory Evolution A/B comparison",
+    description="Generates Mode A (zero-memory baseline) and Mode B (Hindsight memory-powered) strategies "
+                "under identical model, prompt, and brief configurations, returning an empirical comparison ledger.",
+)
+async def compare_campaign_strategies(
+    request: CampaignComparisonRequest,
+    db: Session = Depends(get_db),
+    service: CampaignService = Depends(get_campaign_service),
+) -> CampaignComparisonResponse:
+    return await service.compare_strategies(db=db, request=request)
+
+
+@router.get(
+    "/compare",
+    response_model=List[CampaignComparisonResponse],
+    summary="List stored campaign comparisons",
+    description="Retrieve historical A/B comparison records with optional brand isolation filter.",
+)
+def list_campaign_comparisons(
+    brand_id: Optional[str] = Query(None, description="Filter comparisons by brand ID"),
+    db: Session = Depends(get_db),
+    service: CampaignService = Depends(get_campaign_service),
+) -> List[CampaignComparisonResponse]:
+    return service.list_comparisons(db=db, brand_id=brand_id)
+
+
+@router.get(
+    "/compare/{comparison_id}",
+    response_model=CampaignComparisonResponse,
+    summary="Get campaign comparison by ID",
+    description="Retrieve a stored Memory Evolution comparison record by its unique identifier.",
+)
+def get_campaign_comparison(
+    comparison_id: str,
+    db: Session = Depends(get_db),
+    service: CampaignService = Depends(get_campaign_service),
+) -> CampaignComparisonResponse:
+    return service.get_comparison(db=db, comparison_id=comparison_id)
 
 
 @router.get(

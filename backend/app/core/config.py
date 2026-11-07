@@ -48,7 +48,7 @@ class Settings(BaseSettings):
     ZAI_BASE_URL: str = "https://open.bigmodel.cn/api/paas/v4"
     ZAI_MODEL: str = "glm-4.5-flash"
     ZAI_TEMPERATURE: float = 0.7
-    ZAI_MAX_TOKENS: int = 4096
+    ZAI_MAX_TOKENS: int = 8192
 
     # Active LLM Provider: "zai" (verified working production provider)
     # Groq fallback is disabled until valid active credentials and model (openai/gpt-oss-120b) are verified.

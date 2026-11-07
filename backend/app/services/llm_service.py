@@ -176,7 +176,7 @@ class LLMService:
                 {"role": "user", "content": user_prompt},
             ],
             "temperature": settings.ZAI_TEMPERATURE,
-            "max_tokens": min(settings.ZAI_MAX_TOKENS, 3072),
+            "max_tokens": settings.ZAI_MAX_TOKENS,
         }
 
         async with httpx.AsyncClient(timeout=httpx.Timeout(self.timeout, connect=20.0)) as client:
@@ -225,6 +225,62 @@ class LLMService:
             model = data.get("model", settings.GROQ_MODEL)
             return content, "groq", model
 
+    def _repair_truncated_json(self, text: str) -> Optional[Dict[str, Any]]:
+        """Attempt to repair truncated JSON by trimming to last complete element and balancing brackets."""
+        start_idx = text.find("{")
+        if start_idx == -1:
+            return None
+        candidate = text[start_idx:]
+
+        for i in range(len(candidate), 10, -5):
+            sub = candidate[:i].rstrip()
+            sub = re.sub(r',\s*$', '', sub)
+            sub = re.sub(r',\s*"[^"]*":?\s*$', '', sub)
+            sub = re.sub(r':\s*"[^"]*$', '', sub)
+            sub = re.sub(r':\s*$', '', sub)
+
+            open_curlies = 0
+            open_squares = 0
+            in_str = False
+            escape = False
+            valid = True
+            for ch in sub:
+                if escape:
+                    escape = False
+                    continue
+                if ch == '\\':
+                    escape = True
+                    continue
+                if ch == '"':
+                    in_str = not in_str
+                    continue
+                if not in_str:
+                    if ch == '{':
+                        open_curlies += 1
+                    elif ch == '}':
+                        open_curlies -= 1
+                    elif ch == '[':
+                        open_squares += 1
+                    elif ch == ']':
+                        open_squares -= 1
+                    if open_curlies < 0 or open_squares < 0:
+                        valid = False
+                        break
+            if not valid:
+                continue
+
+            if in_str:
+                sub += '"'
+
+            trial = sub + (']' * max(0, open_squares)) + ('}' * max(0, open_curlies))
+            try:
+                parsed = json.loads(trial)
+                if isinstance(parsed, dict) and len(parsed) >= 3:
+                    return parsed
+            except Exception:
+                continue
+        return None
+
     def _clean_and_parse_json(self, raw_text: str) -> Dict[str, Any]:
         """Extract and parse clean JSON even if wrapped in markdown code blocks."""
         text = raw_text.strip()
@@ -244,6 +300,12 @@ class LLMService:
                     return json.loads(match.group(1))
                 except json.JSONDecodeError:
                     pass
+
+            repaired = self._repair_truncated_json(text)
+            if repaired is not None:
+                logger.warning("Repaired truncated JSON strategy output successfully.")
+                return repaired
+
             logger.error("Failed to parse LLM response into JSON: %s\nRaw output: %s", exc, raw_text)
             raise CampaignEchoException(f"LLM produced invalid JSON strategy output: {exc}", status_code=502)
 
