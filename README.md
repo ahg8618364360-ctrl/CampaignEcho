@@ -60,6 +60,10 @@ The CampaignEcho workspace is designed around the **Campaign Desk** design syste
 *Verifiable runtime telemetry connecting Hindsight Cloud, Z.ai inference, and SQLite persistence.*
 ![Settings & Telemetry](docs/assets/readme/settings.png)
 
+### 7. Memory Evolution (Controlled A/B Strategy Audit)
+*Controlled side-by-side strategy audit comparing stateless baseline generation against Vectorize Hindsight memory grounding with a 6-dimension verifiable differences ledger and zero fake percentage scores.*
+![Memory Evolution](docs/screenshots/m6-memory-evolution-desktop.png)
+
 ---
 
 ## ✦ The Core Cognitive Learning Loop

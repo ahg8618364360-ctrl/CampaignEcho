@@ -1,8 +1,8 @@
 # CampaignEcho — Release Checklist & Evaluation Runbook
 
-**Version**: 1.0.0-rc2 (Milestone 3.2 UI Consistency & Release Patch)  
-**Status**: Ready for Final Demonstration & Submission  
-**Target Date**: November 7, 2026
+**Version**: 1.0.0 (Milestone 6 Production Verification & Engineering Audit)  
+**Status**: Ready for Final Demonstration & Evaluator Walkthrough  
+**Target Date**: November 8, 2026
 
 ---
 
@@ -15,7 +15,7 @@ Before recording demonstration videos or conducting evaluator walkthroughs, ensu
 # In c:\CampaignEcho
 .\venv\Scripts\uvicorn.exe backend.app.main:app --host 127.0.0.1 --port 8000
 ```
-- Verify: `curl http://127.0.0.1:8000/api/v1/health/ready` returns `{"status":"ready","database":"connected"}`.
+- Verify: `curl http://127.0.0.1:8000/api/v1/health/ready` returns `{"status":"ready","database":"connected","version":"0.1.0"}`.
 
 ### Step 2: Start Frontend Next.js Server
 ```powershell
@@ -30,7 +30,7 @@ npm.cmd start
 # In c:\CampaignEcho
 .\venv\Scripts\pytest.exe -v --tb=short backend/tests
 ```
-- Expected: **35 passed, 0 skipped, 0 failed** (including all 5 live Hindsight Cloud integration tests and live continuous learning loop).
+- Expected: **39 passed, 0 skipped, 0 failed, 0 warnings** (including all 5 live Hindsight Cloud integration tests and live continuous learning loop).
 
 ---
 
@@ -58,6 +58,11 @@ Follow [docs/VIDEO_SCRIPT.md](file:///c:/CampaignEcho/docs/VIDEO_SCRIPT.md) for 
    - Enter synthetic performance observations (e.g. 48,200 impressions, 389 redemptions, peak conversion between 11 PM and 1 AM).
    - Submit. Watch the status transition to `COMPLETED`.
    - Point out that Hindsight retained the postmortem (`aretain`) and created episodic cognitive memory facts in the brand bank.
+5. **Memory Evolution Controlled A/B Audit (`/memory-evolution`)**:
+   - Signature capability: Click "Load Demo Brief" or select a brand.
+   - Click "Compare Strategies".
+   - View the side-by-side deck: Mode A (Stateless Baseline with 0 citations) vs Mode B (Vectorize Hindsight Powered with verified citations).
+   - Walk through the Verifiable Differences Ledger: 6 concrete dimensions, zero fake percentage scores, grounded citations, and avoided past historical mistakes.
 5. **Memory Explorer Verification (`/memory-explorer`)**:
    - Open Memory Explorer.
    - Switch between **[Live Hindsight Cloud Bank]** (14 real recalled records with cloud UUIDs) and **[Demonstration Fixtures]** (baseline fixtures).

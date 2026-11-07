@@ -202,8 +202,10 @@ export default function MemoryEvolutionPage() {
         <div className="p-4 rounded-xl bg-surface border border-hairline shadow-xs space-y-4">
           <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-3 border-b border-hairline">
             <div className="flex items-center gap-3">
-              <label className="text-xs font-semibold text-ink uppercase tracking-wider">Brand:</label>
+              <label htmlFor="brand-select" className="text-xs font-semibold text-ink uppercase tracking-wider">Brand:</label>
               <select
+                id="brand-select"
+                aria-label="Select Brand"
                 value={selectedBrandId}
                 onChange={(e) => setSelectedBrandId(e.target.value)}
                 className="px-3 py-1.5 rounded-lg bg-surface-subtle border border-hairline text-xs font-medium text-ink focus:outline-none focus:border-terracotta cursor-pointer"
@@ -242,8 +244,9 @@ export default function MemoryEvolutionPage() {
           {showFormDetails && (
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4 text-xs font-sans pt-1">
               <div className="space-y-1">
-                <label className="font-medium text-ink block">Campaign Name</label>
+                <label htmlFor="campaign-name-input" className="font-medium text-ink block">Campaign Name</label>
                 <input
+                  id="campaign-name-input"
                   type="text"
                   value={campaignTitle}
                   onChange={(e) => setCampaignTitle(e.target.value)}
@@ -252,8 +255,9 @@ export default function MemoryEvolutionPage() {
               </div>
 
               <div className="space-y-1">
-                <label className="font-medium text-ink block">Primary Objective</label>
+                <label htmlFor="primary-objective-input" className="font-medium text-ink block">Primary Objective</label>
                 <input
+                  id="primary-objective-input"
                   type="text"
                   value={objective}
                   onChange={(e) => setObjective(e.target.value)}
@@ -262,8 +266,10 @@ export default function MemoryEvolutionPage() {
               </div>
 
               <div className="space-y-1">
-                <label className="font-medium text-ink block">Platform</label>
+                <label htmlFor="platform-select" className="font-medium text-ink block">Platform</label>
                 <select
+                  id="platform-select"
+                  aria-label="Platform"
                   value={platform}
                   onChange={(e) => setPlatform(e.target.value)}
                   className="w-full px-3 py-2 rounded-lg bg-surface-subtle border border-hairline text-ink focus:outline-none focus:border-terracotta transition-colors cursor-pointer"
@@ -275,8 +281,9 @@ export default function MemoryEvolutionPage() {
               </div>
 
               <div className="space-y-1">
-                <label className="font-medium text-ink block">Target Audience</label>
+                <label htmlFor="target-audience-input" className="font-medium text-ink block">Target Audience</label>
                 <input
+                  id="target-audience-input"
                   type="text"
                   value={targetAudience}
                   onChange={(e) => setTargetAudience(e.target.value)}
@@ -285,8 +292,9 @@ export default function MemoryEvolutionPage() {
               </div>
 
               <div className="space-y-1">
-                <label className="font-medium text-ink block">Offer or Promotion</label>
+                <label htmlFor="offer-promotion-input" className="font-medium text-ink block">Offer or Promotion</label>
                 <input
+                  id="offer-promotion-input"
                   type="text"
                   value={offerOrPromotion}
                   onChange={(e) => setOfferOrPromotion(e.target.value)}
@@ -295,8 +303,9 @@ export default function MemoryEvolutionPage() {
               </div>
 
               <div className="space-y-1">
-                <label className="font-medium text-ink block">Explicit Restrictions</label>
+                <label htmlFor="restrictions-input" className="font-medium text-ink block">Explicit Restrictions</label>
                 <input
+                  id="restrictions-input"
                   type="text"
                   value={constraints}
                   onChange={(e) => setConstraints(e.target.value)}
