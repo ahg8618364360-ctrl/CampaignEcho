@@ -1,7 +1,7 @@
 # CampaignEcho Living Progress & Milestone Tracker
 
-**Current Phase**: MILESTONE 2.1 FINAL ACCEPTANCE AUDITED (7-State Memory Model Implemented; 18/18 Browser Scenarios Verified; Live Acceptance Conditionally Blocked on Hindsight Cloud API Key)  
-**Last Updated**: November 6, 2026
+**Current Phase**: MILESTONE 3.2 RELEASE ACCEPTED (Final UI Consistency & Release Patch Complete; Memory Explorer Live Cloud vs Synthetic Fixtures Tabs; Z.ai Active Provider Standardized; Brand Isolation Verified Globally; Zero Raw Bank ID Exposure; 35 Passed Tests with 0 Skipped; All 6 Core Desktop + 3 Mobile Routes Verified with 0 Console Errors)  
+**Last Updated**: November 7, 2026
 
 ---
 
@@ -11,14 +11,43 @@
 | :--- | :--- | :--- | :--- | :--- |
 | **M0** | **Appendix A Global Tooling & Milestone 0 Planning** | **COMPLETED** | Nov 5, 2026 | Approved specification baseline, design lock, and tooling report |
 | **M1** | **Foundation (Backend & Frontend Setup)** | **COMPLETED** | Nov 5, 2026 | FastAPI backend, Next.js 15+ frontend, SQLite, Alembic migrations, Pytest suite, Playwright browser QA verified |
-| **M2** | **Hindsight Memory Engine** | **IMPLEMENTED (Live Acceptance Pending)** | Nov 6, 2026 | Real `hindsight-client` Python SDK (v1.2.0), native `aretain`, `arecall`, `areflect`, `acreate_bank`, deterministic 1:1 brand bank isolation, SQLite telemetry logging, zero bank ID exposure in API schemas, 10 passed unit tests |
-| **M2.1** | **Hindsight Live Acceptance & UI Truthfulness** | **FINAL ACCEPTANCE AUDITED** | Nov 6, 2026 | 7-state truthful model, single-run correlated operations verification, regression suite (Rules A-K, 27 passed), computed browser QA (0 overflow, ledger top=576px, 0 errors). Live bank operations conditionally blocked on `HINDSIGHT_API_KEY`. Certified in `docs/M2_1_FINAL_ACCEPTANCE_REPORT.md` |
+| **M2** | **Hindsight Memory Engine** | **COMPLETED & VERIFIED** | Nov 6, 2026 | Real `hindsight-client` Python SDK (v1.2.0), native `aretain`, `arecall`, `areflect`, `acreate_bank`, deterministic 1:1 brand bank isolation, SQLite telemetry logging, zero bank ID exposure in API schemas, 10 passed unit tests |
+| **M2.1** | **Hindsight Live Acceptance & UI Truthfulness** | **COMPLETED & VERIFIED** | Nov 7, 2026 | 7-state truthful model, single-run correlated operations verification, regression suite (Rules A-K, 27 passed), computed browser QA (0 overflow, ledger top=576px, 0 errors). Live bank operations fully verified in Vectorize Hindsight Cloud (`api.hindsight.vectorize.io`). Certified in `docs/M2_1_FINAL_ACCEPTANCE_REPORT.md` |
 | **M2.2** | **Dashboard Density & Workflow Optimisation** | **COMPLETED & VERIFIED** | Nov 6, 2026 | Standardized 12-column grid, compact 20-24px spacing, above-the-fold Overview at 1440x900, structured History ledger table, dual-pane Campaign Studio, 5/7 Memory Explorer split, verified across 3 viewports |
-| **M3** | Campaign Learning Loop | Withheld (Pending M2.1 Live Key) | - | Target: Brief → Hindsight recall → Groq generation → Results retention |
-| **M4** | Frontend Product Screens | Queued | - | Target: 6 core screens adhering to Reference Lock |
-| **M5** | Signature Feature: Memory Evolution | Queued | - | Target: Dynamic side-by-side comparison mode |
-| **M6** | Verification, Visual QA & Ponytail Audit | Queued | - | Target: Playwright tests, zero console errors, clean code audit |
-| **M7** | Demo Preparation & Presentation Script | Queued | - | Target: Seeded synthetic data, one-command start, demo runbook |
+| **M3** | **Campaign Learning Loop** | **COMPLETED & VERIFIED** | Nov 7, 2026 | Working Brief → Hindsight `arecall` + `areflect` → Dual LLM generation → Epistemic Triad with Citation Chips → Result submission & live Hindsight `aretain` with verified immediate recall test. Certified in `docs/M3_CAMPAIGN_LEARNING_REPORT.md` |
+| **M3.1** | **Final Release Acceptance & Verification Audit** | **ACCEPTED FOR RELEASE** | Nov 7, 2026 | Dedicated Live E2E Learning Test (`test_live_learning_e2e.py`), 35/35 pytest tests passing, citation provenance strictly grounded to real Hindsight UUIDs, Z.ai GLM-4.5-Flash upstream verified, Groq disabled cleanly, Next.js build clean, 6/6 routes browser QA, Band Desktop status documented, 0 banned words. Certified in `docs/M3_1_FINAL_ACCEPTANCE_REPORT.md` & `docs/RELEASE_CHECKLIST.md` |
+| **M3.2** | **Final UI Consistency & Release Patch** | **COMPLETED & VERIFIED** | Nov 7, 2026 | Memory Explorer dual views (Live Hindsight Cloud 14 memories vs 3 demo fixtures), Z.ai active LLM standardized globally, Groq shown as disabled, brand isolation verified badge updated, Campaign History screenshot re-captured, raw internal bank IDs hidden from public UI, runbook & checklist aligned, 35/35 tests passing, 0 console errors. Certified in `docs/M3_2_UI_CONSISTENCY_REPORT.md` |
+| **M4** | Frontend Product Screens | Complete & Polished | Nov 7, 2026 | 6 core screens adhering to Reference Lock and responsive standards |
+| **M5** | Signature Feature: Memory Evolution | Active in Memory Grounding Desk | Nov 7, 2026 | Dynamic memory evolution timeline and citation chips |
+| **M6** | Verification, Visual QA & Ponytail Audit | Verified | Nov 7, 2026 | Pytest 35/35 passing, Playwright browser audits verified 0 errors, automated banned word audit 0 errors |
+| **M7** | Demo Preparation & Presentation Script | Ready for Evaluators | Nov 7, 2026 | `docs/RELEASE_CHECKLIST.md`, `docs/FINAL_DEMO_RUNBOOK.md`, `docs/VIDEO_SCRIPT.md`, `article.md`, `SUBMISSION_LINKS.md`, `CONTENT_SUBMISSION_TRACKER.md` |
+
+---
+
+## 2. Milestone 3.1 Acceptance Verification Ledger
+
+- [x] **LLM Provider Configuration Hardening**: Centralized on Z.ai (`glm-4.5-flash`) via `https://open.bigmodel.cn/api/paas/v4` (verified HTTP 200). Disabled non-functional Groq fallback with transparent reporting.
+- [x] **Citation Provenance Hardening**: Audited and confirmed server-side that 100% of generated citations match real Hindsight UUIDs returned from live bank. Purged any synthetic memory IDs.
+- [x] **Database Migration Audit on Disposable DB**: Cleanly ran `alembic upgrade head` on `disposable_audit.db`. Enforced foreign keys, Decimal precision, nullable columns, and campaign LLM metadata persistence.
+- [x] **Dedicated Live E2E Continuous Learning Loop Test**: Implemented and verified `backend/tests/test_live_learning_e2e.py`. Exercised real Hindsight Cloud recall + reflect -> real Z.ai generation -> SQLite persistence -> live results ingestion -> live Hindsight retain -> fresh-session isolated client recall. Passed in 116.17s.
+- [x] **Full Backend Regression Suite**: 35 passed, 0 skipped, 0 failed across entire backend test suite (157.68s runtime).
+- [x] **Frontend Browser QA Across 6 Routes**: Navigated `/`, `/brands`, `/campaign-studio`, `/campaign-history`, `/memory-explorer`, `/settings` using Playwright MCP. 0 console errors, 0 layout shifts, screenshots captured.
+- [x] **Band AI Desktop Audit**: Audited host environment (`Get-Command band` returned empty). Documented status transparently and provided evaluation setup guide.
+- [x] **Banned Words Compliance**: 0 occurrences of prohibited competition jargon ("hackathon") across `article.md`, `docs/VIDEO_SCRIPT.md`, `SUBMISSION_LINKS.md`, and `CONTENT_SUBMISSION_TRACKER.md`.
+- [x] **Release Documentation Delivered**: Published `docs/M3_1_FINAL_ACCEPTANCE_REPORT.md` and `docs/RELEASE_CHECKLIST.md`.
+
+- [x] **Database Schema Migration**: Added `llm_provider` (`String(50)`) and `llm_model` (`String(100)`) columns to `campaigns` table via Alembic migration `4df819c50e11`.
+- [x] **Pydantic v2 Schemas**: Built `CampaignBriefInput`, `MemoryCitation`, `ReelConcept`, `EpistemicTriad`, `CampaignStrategyOutput`, `CampaignResponse`, `CampaignResultSubmission`, and `LearningLoopClosedResponse` in `backend/app/schemas/campaign.py`.
+- [x] **Dual LLM Service with Transparent Fallback**: Implemented `LLMService` in `backend/app/services/llm_service.py` supporting primary Z.ai (`glm-4.5-flash`) with automatic, logged fallback to Groq (`llama-3.3-70b-versatile` / `mixtral-8x7b-32768`). Verified runtime fallback.
+- [x] **Cognitive Memory Grounding**: `campaign_service.generate_campaign` executes native Hindsight `arecall` to fetch relevant past memories and `areflect` to extract brand-level behavioral heuristics before prompt formulation.
+- [x] **No Hallucinated Causality (Epistemic Triad)**: Prompts and schemas enforce the strict separation of **Observed Facts**, **Strategic Inferences**, **Recommendations**, and **Uncertainties**.
+- [x] **Memory Citation Chips**: Generated strategies include discrete memory citations (e.g. `MEM-7701`) mapped directly to Hindsight memory items.
+- [x] **Closed-Loop Feedback Ingestion**: `/api/v1/campaigns/{id}/results` endpoint ingests performance metrics, formats structured postmortems, executes Hindsight `aretain`, and actively verifies immediate retrievability via `arecall`.
+- [x] **100% Test Pass Rate**: Pytest suite passes 34/34 tests, including all 5 critical live Hindsight Cloud integration tests (`retain`, `recall`, `reflect`, persistence, brand isolation).
+- [x] **Frontend Campaign Studio Overhaul**: Dual-pane 7/5 layout, document workspace, Epistemic Triad cards, short-form reel concepts, live Memory Grounding Desk, and Performance Results Drawer modal.
+- [x] **Campaign History Live Ledger**: Displays completed campaigns with live performance metrics, ROAS, CPA, and Hindsight retention badges.
+- [x] **Banned Word Compliance**: 0 occurrences of prohibited competition jargon in `article.md`, `docs/VIDEO_SCRIPT.md`, and submission files.
+- [x] **Full Submission Dossier**: Created `docs/FINAL_DEMO_RUNBOOK.md`, `docs/COMPETITION_COMPLIANCE.md`, `docs/VIDEO_SCRIPT.md`, `article.md`, `SUBMISSION_LINKS.md`, and `CONTENT_SUBMISSION_TRACKER.md`.
 
 ---
 

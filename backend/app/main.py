@@ -7,6 +7,7 @@ from backend.app.core.exceptions import CampaignEchoException, app_exception_han
 from backend.app.api.v1.health import router as health_router
 from backend.app.api.v1.brands import router as brands_router
 from backend.app.api.v1.memory import router as memory_router
+from backend.app.api.v1.campaigns import router as campaigns_router
 
 
 @asynccontextmanager
@@ -49,6 +50,7 @@ def create_app() -> FastAPI:
     app.include_router(health_router, prefix="/api/v1")
     app.include_router(brands_router, prefix="/api/v1")
     app.include_router(memory_router, prefix="/api/v1")
+    app.include_router(campaigns_router, prefix="/api/v1")
 
     @app.get("/", tags=["Root"])
     def root():

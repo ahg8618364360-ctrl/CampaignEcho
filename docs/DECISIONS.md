@@ -98,4 +98,59 @@
   5. Brand isolation language lock: "Application-level brand isolation is implemented through deterministic bank mapping. Live Hindsight isolation verification is pending." Prohibit claiming empirical multi-tenant bank isolation until live authenticated tests pass.
 - **Consequences**:
   - UI never deceptively indicates functional memory operations when unauthenticated.
-  - Full transparency for hackathon evaluators and enterprise users regarding memory provenance and live readiness.
+  - Full transparency for technical evaluators and enterprise users regarding memory provenance and live readiness.
+
+---
+
+## ADR-009: Dual-Engine LLM Router with Transparent Failover & Cognitive Learning Loop
+- **Status**: SUPERSEDED BY ADR-010 (Refined in M3.1)
+- **Context**: Relying on a single third-party LLM provider creates a single point of failure in production. In addition, campaign generation must be grounded in verified Hindsight memories, enforce the Epistemic Triad (Observed Facts, Inferences, Recommendations, Uncertainties), and close the continuous learning loop upon campaign completion.
+- **Decision**:
+  1. Implement a resilient `LLMService` supporting primary Z.ai (`glm-4.5-flash`).
+  2. Persist `llm_provider`, `llm_model`, and `fallback_used` on the `Campaign` model and expose them transparently in client responses.
+  3. Ground strategy generation in Hindsight `arecall` (semantic memory retrieval) and `areflect` (brand-level behavioral heuristics).
+  4. Enforce the Epistemic Triad in Pydantic schemas and system prompts to prevent hallucinated causality.
+  5. Close the loop via `/api/v1/campaigns/{id}/results`, which saves metrics into SQLite, formulates an executive postmortem, retains it directly to Vectorize Hindsight Cloud via `aretain`, and verifies immediate retrievability via `arecall`.
+- **Consequences**:
+  - Provable continuous learning loop where past postmortems directly steer subsequent campaign strategies.
+  - Zero hallucinated causality with complete data provenance.
+
+---
+
+## ADR-010: LLM Provider Hardening, Real Citation Grounding & Reasoning Model Calibration
+- **Status**: ACCEPTED (Milestone 3.1)
+- **Context**: Milestone 3.1 audit identified three production concerns:
+  1. The configured Groq fallback returned HTTP 401 with deprecated model names (`llama-3.3-70b-versatile`, `mixtral-8x7b-32768`), creating a misleading impression of failover capability.
+  2. Citation parsing in `LLMService` could produce ungrounded or synthetic memory references if not strictly bounded server-side.
+  3. Z.ai GLM-4.5-Flash is a reasoning model that emits both extensive chain-of-thought (`reasoning_content`) and structured JSON (`content`), requiring ~75s generation time and a calibrated 180s timeout window.
+- **Decision**:
+  1. Set `LLM_PROVIDER = "zai"` and `LLM_FALLBACK_ENABLED = False`. In `llm_service.py`, `_call_groq` immediately rejects dummy or unconfigured keys with status 500 without attempting failed HTTP calls. Zero false claims of multi-provider failover are made.
+  2. Direct Z.ai API traffic to the responsive upstream endpoint `https://open.bigmodel.cn/api/paas/v4` via `effective_zai_url`.
+  3. Enforce server-side citation validation: Every visible citation ID must strictly match an actual Hindsight UUID present in the retrieved memory set. Synthetic or hallucinated IDs are eliminated. When no memories exist, citation lists remain empty.
+  4. Calibrate `LLMService` client timeout to 180.0s and handle both `content` and `reasoning_content` to guarantee reliability across deep cognitive reflections.
+- **Consequences**:
+  - 100% truthful architecture report: Z.ai GLM-4.5-Flash is verified as the sole active production provider.
+  - Provable epistemic provenance for all citations rendered in the UI.
+  - Zero timeout failures during extensive campaign generation and E2E verification.
+
+---
+
+## ADR-011: UI Truthfulness Alignment, Dual Memory Views & Public Bank ID Protection
+- **Status**: ACCEPTED (Milestone 3.2)
+- **Context**: Post-M3.1 evaluation identified visual and architectural inconsistencies between backend telemetry and frontend presentations:
+  1. Memory Explorer retained obsolete warning banners claiming authentication was required, despite backend reporting `OPERATIONS_VERIFIED`.
+  2. The UI globally referenced Groq and "Auto (Dual-Engine)", contradicting ADR-010's standardization on Z.ai.
+  3. Brand isolation verification was marked pending in the UI even though live isolation tests passed.
+  4. Raw internal deterministic bank IDs (`campaignecho-brand-{brand_id}`) were exposed in public client views, violating Law 2 (Server-side bank ownership).
+  5. The previous M3.1 screenshot for Campaign History was captured prematurely while still displaying Campaign Studio.
+- **Decision**:
+  1. Implement a dedicated `/explore` endpoint in `backend/app/api/v1/memory.py` returning canonical `service_state`, live recalled memory records, and telemetry logs.
+  2. Refactor `frontend/src/app/memory-explorer/page.tsx` with dual tabs: `[Live Hindsight Cloud Bank]` (rendering 14 real recalled records with cloud UUIDs and provenance) and `[Demonstration Fixtures]` (3 baseline fixtures). Render verified green banner when `OPERATIONS_VERIFIED`.
+  3. Standardize global UI to display `Z.ai — GLM-4.5-Flash (Active Production Provider)` and mark Groq as `Disabled (No valid credentials configured)`. Remove the `Auto (Dual-Engine)` selector.
+  4. Update brand isolation banners to `Live Hindsight Brand Isolation Verified`.
+  5. Replace exposed internal bank IDs across all screens with user-friendly security labels like `Dedicated Brand Memory Bank (Managed Server-Side)`.
+  6. Re-capture all 6 desktop and 3 mobile screens with verified URL, heading, and content assertions.
+- **Consequences**:
+  - Full consistency between backend verification and client interface.
+  - High fidelity, truthful demonstration across all visual and technical touchpoints.
+  - Elimination of internal architectural leaks in client UI.

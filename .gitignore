@@ -24,6 +24,8 @@ campaignecho.db
 test-results/
 playwright-report/
 .pytest_cache/
+scratch/
+/m32-*.png
 
 # IDE & OS
 .vscode/

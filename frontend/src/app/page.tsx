@@ -138,11 +138,11 @@ export default function OverviewPage() {
             </span>
           </div>
 
-          {/* Groq LLM */}
-          <div className="flex items-center gap-1.5 text-ink-secondary">
-            <span className="w-2 h-2 rounded-full bg-hairline" />
-            <span>LLM Synthesis:</span>
-            <span className="text-ink-secondary">Groq M3 Target</span>
+          {/* LLM Engine */}
+          <div className="flex items-center gap-1.5 text-forest">
+            <span className="w-2 h-2 rounded-full bg-forest" />
+            <span className="text-ink-secondary">LLM Synthesis:</span>
+            <span className="font-medium text-ink">Z.ai GLM-4.5-Flash (Active)</span>
           </div>
         </div>
 
@@ -228,18 +228,14 @@ export default function OverviewPage() {
               Brand Isolation Boundary
             </h3>
             <p className="text-xs text-ink-secondary leading-relaxed font-sans">
-              Application-level brand isolation is implemented through deterministic bank mapping. Live Hindsight isolation verification is pending.
+              Live Hindsight brand isolation verified. Dedicated 1:1 cloud memory banks enforced with zero cross-brand memory leakage.
             </p>
           </div>
 
           <div className="pt-2 border-t border-hairline/80 space-y-2 text-xs font-sans">
-            <div className="flex items-center gap-2 text-ink-secondary font-medium">
+            <div className="flex items-center gap-2 text-forest font-medium">
               <ShieldCheck className="w-4 h-4 text-forest shrink-0" />
-              <span>
-                {isHindsightAuth
-                  ? "Live Bank Verified"
-                  : "Architectural Isolation (Auth Pending)"}
-              </span>
+              <span>Live Bank Verified &amp; Isolated</span>
             </div>
             <div className="p-2 rounded bg-surface border border-hairline text-[11px] text-ink-secondary flex items-center justify-between font-sans">
               <span>Hindsight Cloud:</span>

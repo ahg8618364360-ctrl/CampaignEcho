@@ -51,3 +51,22 @@ def client(db_session):
     with TestClient(app) as test_client:
         yield test_client
 
+
+@pytest.fixture(scope="function")
+def test_brand(db_session):
+    """Provide a seeded test brand."""
+    from backend.app.db.models import Brand
+    brand = Brand(
+        name="The Taco Syndicate Test",
+        industry="Dining",
+        description="Fast-casual street taco establishment in Austin",
+        target_audience="UT Austin college students",
+        market_region="Austin, TX",
+        brand_voice="Casual, witty",
+        is_synthetic=True,
+    )
+    db_session.add(brand)
+    db_session.commit()
+    db_session.refresh(brand)
+    return brand
+

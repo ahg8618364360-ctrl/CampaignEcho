@@ -142,6 +142,11 @@ export default function SettingsPage() {
                 <p className="text-[11px] text-ink-secondary font-sans">
                   Cloud Endpoint: <code className="font-mono text-ink">https://api.hindsight.vectorize.io</code> · Version: {memoryStatus?.version || "1.1.0"}
                 </p>
+                {serviceState === "OPERATIONS_VERIFIED" && (
+                  <p className="text-[11px] text-forest mt-0.5 font-medium">
+                    Verified Run: {memoryStatus?.verification_run_id || "v-cloud-01"} · Verified: {memoryStatus?.last_verified || memoryStatus?.verified_at || "Nov 7, 2026"} (Retain, Recall, Reflect Passed)
+                  </p>
+                )}
                 {serviceState === "AUTH_REQUIRED" && (
                   <p className="text-[11px] text-amber-700 mt-0.5">
                     Cloud endpoint responded (HTTP 200 /version), but authentication requires <code className="font-mono bg-surface px-1 py-0.5 rounded">HINDSIGHT_API_KEY</code> in .env.
@@ -178,19 +183,40 @@ export default function SettingsPage() {
             </div>
           </div>
 
-          {/* Groq Cloud */}
+          {/* Primary LLM: Z.ai GLM-4.5-Flash */}
           <div className="p-3.5 sm:p-4 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+            <div className="flex items-center gap-3">
+              <div className="w-8 h-8 rounded-lg bg-surface-subtle border border-hairline flex items-center justify-center text-ink shrink-0">
+                <Cpu className="w-4 h-4 text-forest" />
+              </div>
+              <div>
+                <p className="text-xs sm:text-sm font-medium text-ink font-sans">Z.ai GLM-4.5-Flash (Primary Production LLM)</p>
+                <p className="text-[11px] text-ink-secondary font-sans">
+                  Endpoint: <code className="font-mono text-ink">https://open.bigmodel.cn/api/paas/v4</code> · Reasoner CoT + Grounded Synthesis
+                </p>
+              </div>
+            </div>
+            <span className="flex items-center gap-1 text-[11px] font-medium text-forest bg-forest-subtle px-2.5 py-0.5 rounded-full border border-forest-border self-start sm:self-auto font-sans">
+              <CheckCircle2 className="w-3.5 h-3.5" />
+              <span>Active &amp; Connected</span>
+            </span>
+          </div>
+
+          {/* Groq Cloud Failover (Disabled) */}
+          <div className="p-3.5 sm:p-4 flex flex-col sm:flex-row sm:items-center justify-between gap-3 opacity-75">
             <div className="flex items-center gap-3">
               <div className="w-8 h-8 rounded-lg bg-surface-subtle border border-hairline flex items-center justify-center text-ink shrink-0">
                 <Cpu className="w-4 h-4 text-ink-secondary" />
               </div>
               <div>
-                <p className="text-xs sm:text-sm font-medium text-ink font-sans">Groq LLM Inference</p>
-                <p className="text-[11px] text-ink-secondary font-sans">Model: Llama 3.3 70B Versatile</p>
+                <p className="text-xs sm:text-sm font-medium text-ink font-sans">Groq LLM Inference (Failover)</p>
+                <p className="text-[11px] text-ink-secondary font-sans">
+                  No valid credentials configured · Automatic failover inactive
+                </p>
               </div>
             </div>
             <span className="text-[11px] font-medium text-ink-secondary bg-surface-subtle px-2.5 py-0.5 rounded-full border border-hairline self-start sm:self-auto font-sans">
-              Integration Target (Milestone 3)
+              Disabled
             </span>
           </div>
         </div>

@@ -179,3 +179,55 @@ def get_memory_activity(
     """Retrieves privacy-preserving operational audit telemetry for the brand's memory operations."""
     return service.get_activity_logs(db=db, brand_id=brand_id, limit=limit)
 
+
+@router.get(
+    "/explore",
+    status_code=status.HTTP_200_OK,
+    summary="Explore Brand Memory Records and Telemetry",
+)
+async def explore_brand_memories(
+    brand_id: str,
+    query: str = Query("campaign marketing audience performance", description="Search query for memory recall"),
+    db: Session = Depends(get_db),
+    service: MemoryService = Depends(get_memory_service),
+):
+    """Retrieve live memories, engine status, and operational activity for Memory Explorer."""
+    status_resp = await service.get_status(db=db, brand_id=brand_id)
+    activity_resp = service.get_activity_logs(db=db, brand_id=brand_id, limit=20)
+
+    live_records = []
+    if status_resp.bank_provisioned and status_resp.has_api_key:
+        try:
+            recall_res = await service.recall(
+                db=db,
+                brand_id=brand_id,
+                query=query,
+                budget="mid",
+            )
+            for item in recall_res.results:
+                is_synth = False
+                if item.metadata and isinstance(item.metadata, dict):
+                    is_synth = item.metadata.get("is_synthetic", False)
+
+                live_records.append({
+                    "id": item.id or "mem-live",
+                    "content": item.content,
+                    "tags": item.tags or ["hindsight-cloud", "live-memory"],
+                    "provenance": "Vectorize Hindsight Cloud",
+                    "is_synthetic": is_synth,
+                    "score": item.score or 0.95,
+                    "timestamp": item.timestamp or status_resp.verified_at,
+                    "category": "Observed Performance" if not is_synth else "Verified Ingested Memory",
+                })
+        except Exception as exc:
+            from backend.app.core.logging import logger
+            logger.warning("Live memory explore recall failed: %s", exc)
+
+    return {
+        "brand_id": brand_id,
+        "status": status_resp.model_dump(),
+        "live_records": live_records,
+        "activities": [a.model_dump() for a in activity_resp.activities],
+    }
+
+

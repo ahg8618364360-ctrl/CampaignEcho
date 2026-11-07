@@ -1,4 +1,5 @@
 import time
+import uuid
 from datetime import datetime, timezone
 from typing import Any, Dict, List, Optional, Tuple
 from sqlalchemy.orm import Session
@@ -23,6 +24,9 @@ from backend.app.schemas.memory import (
 )
 
 
+_UNSET = object()
+
+
 class MemoryService:
     """Enterprise Memory Service interfacing with Vectorize Hindsight.
 
@@ -33,12 +37,13 @@ class MemoryService:
     def __init__(
         self,
         hindsight_client: Optional[Hindsight] = None,
-        api_key: Optional[str] = None,
+        api_key: Any = _UNSET,
         base_url: Optional[str] = None,
+        api_url: Optional[str] = None,
         is_live: Optional[bool] = None,
     ):
-        self.api_key = api_key if api_key is not None else settings.HINDSIGHT_API_KEY
-        self.base_url = base_url or settings.effective_hindsight_url
+        self.api_key = settings.HINDSIGHT_API_KEY if api_key is _UNSET else api_key
+        self.base_url = base_url or api_url or settings.effective_hindsight_url
         self.is_live = is_live if is_live is not None else bool(self.api_key)
         if hindsight_client:
             self._client = hindsight_client
@@ -295,7 +300,12 @@ class MemoryService:
             )
             latency_ms = int((time.perf_counter() - t0) * 1000)
 
-            op_id = getattr(resp, "operation_id", None) or getattr(resp, "id", None)
+            op_id = (
+                getattr(resp, "operation_id", None)
+                or getattr(resp, "id", None)
+                or getattr(resp, "task_id", None)
+                or f"ret-{uuid.uuid4().hex[:12]}"
+            )
 
             self._log_telemetry(
                 db=db,
@@ -779,4 +789,12 @@ class MemoryService:
             activities=activities,
             total_count=len(activities),
         )
+
+
+_default_memory_service = MemoryService()
+
+
+def get_memory_service() -> MemoryService:
+    """Dependency injector for MemoryService."""
+    return _default_memory_service
 

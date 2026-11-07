@@ -71,6 +71,8 @@ class Campaign(Base):
 
     concept_data = Column(JSON, nullable=True)
     strategy_output = Column(JSON, nullable=True)
+    llm_provider = Column(String(50), nullable=True)
+    llm_model = Column(String(100), nullable=True)
 
     start_date = Column(DateTime, nullable=True)
     end_date = Column(DateTime, nullable=True)

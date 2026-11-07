@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import Link from "next/link";
 import { PageContainer } from "@/components/PageContainer";
 import { PageHeader } from "@/components/PageHeader";
@@ -82,8 +82,46 @@ const HISTORICAL_RECORDS: CampaignRecord[] = [
 export default function CampaignHistoryPage() {
   const [filter, setFilter] = useState<"all" | "success" | "mistake" | "operational">("all");
   const [search, setSearch] = useState("");
+  const [apiRecords, setApiRecords] = useState<CampaignRecord[]>([]);
 
-  const filteredRecords = HISTORICAL_RECORDS.filter((rec) => {
+  useEffect(() => {
+    async function loadCampaigns() {
+      try {
+        const res = await fetch("http://127.0.0.1:8000/api/v1/campaigns");
+        if (res.ok) {
+          const data = await res.json();
+          const mapped: CampaignRecord[] = data.map((c: any) => {
+            const impressionsVal = c.metrics?.impressions ? `${c.metrics.impressions.toLocaleString()} views` : "In Progress";
+            const conversionsVal = c.metrics?.offer_redemptions ? `${c.metrics.offer_redemptions.toLocaleString()} redemptions` : (c.metrics?.conversions ? `${c.metrics.conversions} conversions` : "Active Execution");
+            const lesson = c.feedback && c.feedback.length > 0 ? c.feedback[0].lessons_learned : (c.strategy_output?.historical_rationale || "Memory-informed campaign strategy actively running.");
+            
+            return {
+              id: c.id,
+              name: c.name,
+              date: new Date(c.created_at).toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" }),
+              platform: c.platform,
+              objective: c.objective,
+              impressions: impressionsVal,
+              conversions: conversionsVal,
+              outcomeType: c.status === "COMPLETED" ? "success" : "operational",
+              outcomeLabel: c.status === "COMPLETED" ? "Retained to Hindsight" : "Active Strategy",
+              mainLesson: lesson,
+              memoryProvenance: c.status === "COMPLETED" ? "Retained & verified in Vectorize Hindsight Cloud bank" : "Grounded via Vectorize Hindsight Cloud Recall",
+              isSynthetic: c.is_synthetic,
+            };
+          });
+          setApiRecords(mapped);
+        }
+      } catch (err) {
+        console.warn("Failed to load campaigns from API:", err);
+      }
+    }
+    loadCampaigns();
+  }, []);
+
+  const allRecords = [...apiRecords, ...HISTORICAL_RECORDS];
+
+  const filteredRecords = allRecords.filter((rec) => {
     if (filter !== "all" && rec.outcomeType !== filter) return false;
     if (search.trim()) {
       const q = search.toLowerCase();
@@ -101,7 +139,7 @@ export default function CampaignHistoryPage() {
       {/* 1. Header with Actions */}
       <PageHeader
         badge="Empirical Observation Ledger"
-        badgeSubtext="Synthetic Demo Fixtures"
+        badgeSubtext="Verified Campaigns & Baseline Fixtures"
         title="Campaign History & Observations"
         description="Structured repository of past marketing executions, observed performance metrics, and qualitative post-mortems for The Taco Syndicate demonstration profile."
         actions={
@@ -124,11 +162,11 @@ export default function CampaignHistoryPage() {
         }
       />
 
-      {/* Synthetic Provenance Notice Strip */}
+      {/* Empirical Records Notice Strip */}
       <div className="p-3 rounded-lg bg-surface-subtle border border-hairline flex items-center gap-2 text-xs text-ink-secondary font-sans">
         <Info className="w-4 h-4 text-ink-secondary shrink-0" />
         <span>
-          <strong className="text-ink font-medium">Synthetic Demonstration Fixtures:</strong> The 3 records below represent sample observations for The Taco Syndicate. They have not yet been retained into live Hindsight Cloud memory banks.
+          <strong className="text-ink font-medium">Empirical Ledger:</strong> Displaying {allRecords.length} records ({apiRecords.length} database persisted campaign{apiRecords.length === 1 ? "" : "s"} + {HISTORICAL_RECORDS.length} demonstration baseline fixtures).
         </span>
       </div>
 
@@ -137,10 +175,10 @@ export default function CampaignHistoryPage() {
         <div className="p-4 rounded-xl bg-surface border border-hairline flex items-center justify-between shadow-xs">
           <div>
             <p className="text-[11px] font-sans font-medium text-ink-secondary uppercase tracking-wider">
-              Sample Observations
+              Total Recorded Campaigns
             </p>
             <p className="font-serif text-2xl text-ink font-normal mt-0.5 tabular-nums">
-              3 Demo Fixtures
+              {allRecords.length} Campaigns
             </p>
           </div>
           <span className="p-2 rounded-lg bg-surface-subtle border border-hairline text-ink">

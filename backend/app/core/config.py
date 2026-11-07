@@ -42,6 +42,24 @@ class Settings(BaseSettings):
     GROQ_TEMPERATURE: float = 0.7
     GROQ_MAX_TOKENS: int = 4096
 
+    # Z.ai LLM Configuration (OpenAI-compatible)
+    ZAI_API_KEY: Optional[str] = None
+    LLM_BASE_URL: Optional[str] = None
+    ZAI_BASE_URL: str = "https://open.bigmodel.cn/api/paas/v4"
+    ZAI_MODEL: str = "glm-4.5-flash"
+    ZAI_TEMPERATURE: float = 0.7
+    ZAI_MAX_TOKENS: int = 4096
+
+    # Active LLM Provider: "zai" (verified working production provider)
+    # Groq fallback is disabled until valid active credentials and model (openai/gpt-oss-120b) are verified.
+    LLM_PROVIDER: str = "zai"
+    LLM_FALLBACK_ENABLED: bool = False
+
+    @property
+    def effective_zai_url(self) -> str:
+        """Canonical Z.ai API URL, prioritizing LLM_BASE_URL if set."""
+        return self.LLM_BASE_URL or self.ZAI_BASE_URL
+
     @property
     def effective_hindsight_url(self) -> str:
         """Canonical Hindsight API URL, supporting HINDSIGHT_API_URL with HINDSIGHT_BASE_URL fallback."""

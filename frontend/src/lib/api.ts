@@ -50,6 +50,24 @@ export interface MemoryActivityResponse {
   total_count: number;
 }
 
+export interface LiveMemoryRecord {
+  id: string;
+  content: string;
+  tags: string[];
+  provenance: string;
+  is_synthetic: boolean;
+  score?: number;
+  timestamp?: string;
+  category: string;
+}
+
+export interface MemoryExploreResponse {
+  brand_id: string;
+  status: MemoryStatusResponse;
+  live_records: LiveMemoryRecord[];
+  activities: MemoryActivityItem[];
+}
+
 const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL || "http://localhost:8000/api/v1";
 
 export async function checkLiveness(): Promise<HealthLiveResponse> {
@@ -137,6 +155,27 @@ export async function fetchMemoryActivity(brandId: string): Promise<MemoryActivi
       cache: "no-store",
       headers: { Accept: "application/json" },
     });
+    if (res.ok) {
+      return await res.json();
+    }
+    return null;
+  } catch {
+    return null;
+  }
+}
+
+export async function fetchMemoryExplore(
+  brandId: string,
+  query: string = "campaign marketing audience performance"
+): Promise<MemoryExploreResponse | null> {
+  try {
+    const res = await fetch(
+      `${API_BASE_URL}/brands/${brandId}/memory/explore?query=${encodeURIComponent(query)}`,
+      {
+        cache: "no-store",
+        headers: { Accept: "application/json" },
+      }
+    );
     if (res.ok) {
       return await res.json();
     }
