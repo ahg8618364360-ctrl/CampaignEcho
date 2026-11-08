@@ -1,7 +1,7 @@
 # CampaignEcho Living Progress & Milestone Tracker
 
-**Current Phase**: MILESTONE 7.1 (RELEASE CORRECTIONS & HARDENING) COMPLETE (Setuptools CI discovery fixed; check-demo.ps1 & start-demo.ps1 hardened with deep verification; stop-demo.ps1 hardened with process ownership inspection; seed_demo.py protected against non-synthetic brand collisions with 3 unit tests; synthetic provenance truthfully disclosed; 42/42 passing pytest suite; zero prohibited terms).  
-**Last Updated**: November 8, 2026 — 08:45 IST
+**Current Phase**: MILESTONE 7.2 (SECURITY GATE, UAT & REPOSITORY HYGIENE) COMPLETE (Strict PID, executable, token, and project root process ownership; foreign process adoption refused with rollback; deep readiness diagnostic validating Python >= 3.11, Node >= 20, 8 DB tables, masked live API auth; 8/8 automated security regression tests passed; 41 CI unit/contract tests passing; 47 full tests local; Playwright UAT across 21 responsive routes with 0 console errors and 0 overflow violations; 5/5 user journey steps passed; tsconfig untracked; duplicate screenshots cleaned; repository cleanup ledger published).  
+**Last Updated**: November 8, 2026 — 14:50 IST
 
 ---
 
@@ -23,6 +23,7 @@
 | **M6** | **Production Verification, Visual QA & Ponytail Audit** | **COMPLETED & VERIFIED** | Nov 8, 2026 | 39/39 passing pytest suite, 0 warnings, 0 console errors across 7 routes desktop & mobile, OWASP ASVS 5.0 security verified, WCAG 2.2 AA verified, Alembic URL fix, GitHub Actions CI added. Certified in `docs/M6_PRODUCTION_AUDIT_REPORT.md` |
 | **M7** | **Final Demonstration & Evaluator Submission Package** | **COMPLETED & VERIFIED** | Nov 8, 2026 | One-command demo scripts (`check-demo.ps1`, `start-demo.ps1`, `stop-demo.ps1`), idempotent seed script (`seed_demo.py`), 9-slide presentation deck (`docs/EVALUATOR_PRESENTATION.md`), judge guide (`docs/EVALUATOR_GUIDE.md`), team submission guide (`docs/SUBMISSION_GUIDE.md`), video script & shot list (`docs/VIDEO_SCRIPT.md`, `docs/VIDEO_SHOT_LIST.md`), 1,480-word technical article (`article.md`), master submission ledger (`SUBMISSION_LINKS.md`), certified in `docs/M7_FINAL_RELEASE_REPORT.md` |
 | **M7.1** | **Release Corrections & Re-certification** | **COMPLETED & VERIFIED** | Nov 8, 2026 | Fixed setuptools package discovery in CI (`pyproject.toml`); hardened `check-demo.ps1`, `start-demo.ps1`, and `stop-demo.ps1` with verified process ownership; hardened `seed_demo.py` with collision refusal and 3 unit tests (`test_seed_demo.py`); verified synthetic provenance disclosure; certified in `docs/M7_1_RELEASE_CORRECTIONS_REPORT.md` |
+| **M7.2** | **Security Gate, UAT & Repository Hygiene** | **COMPLETED & VERIFIED** | Nov 8, 2026 | Strict PID/executable/token/root verification in `stop-demo.ps1`; foreign process adoption refusal and rollback in `start-demo.ps1`; 8 DB schema tables & masked auth in `check-demo.ps1` & `verify_readiness.py`; 8/8 security regression tests; 41 CI / 47 local pytest tests; Playwright UAT across 21 routes with 0 console errors & 0 overflow; tsconfig untracked; duplicate screenshots cleaned; certified in `docs/M7_2_SECURITY_UAT_REPORT.md` |
 
 ---
 

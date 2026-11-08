@@ -12,9 +12,10 @@
 [![License: Apache 2.0](https://img.shields.io/badge/License-Apache_2.0-blue.svg)](LICENSE)
 [![Memory Engine: Vectorize Hindsight](https://img.shields.io/badge/Memory-Vectorize_Hindsight-39745D.svg)](https://hindsight.vectorize.io)
 [![LLM: Z.ai GLM-4.5-Flash](https://img.shields.io/badge/LLM-Z.ai_GLM--4.5--Flash-B85C38.svg)](https://z.ai)
-[![Next.js: 15.0.3](https://img.shields.io/badge/Frontend-Next.js_15_App_Router-000000.svg)](https://nextjs.org)
+[![Next.js: 15.1.7](https://img.shields.io/badge/Frontend-Next.js_15.1.7_App_Router-000000.svg)](https://nextjs.org)
 [![FastAPI: 0.115](https://img.shields.io/badge/Backend-FastAPI_Python_3.11+-009688.svg)](https://fastapi.tiangolo.com)
-[![Tests: 39/39 Passing](https://img.shields.io/badge/Tests-39%2F39_Passing-brightgreen.svg)](docs/PROGRESS.md)
+[![CI Tests: 41 Passing](https://img.shields.io/badge/CI_Tests-41%2F41_Passing-brightgreen.svg)](docs/PROGRESS.md)
+[![Local Suite: 47 Passing](https://img.shields.io/badge/Total_Tests-47%2F47_Passing-brightgreen.svg)](docs/PROGRESS.md)
 
 </div>
 
@@ -206,22 +207,25 @@ For competition judges and evaluators, CampaignEcho provides fully automated Pow
 > **Synthetic Data & Provenance Disclosure**: *The Taco Syndicate* brand profile and seeded performance metrics (e.g. 48,200 impressions, 389 redemptions) are synthetic evaluation fixtures (`is_synthetic = True`). All Vectorize Hindsight Cloud operations (`aretain`, `arecall`, `areflect`) and Z.ai model inferences are real live cloud operations.
 
 ```powershell
-# 1. Run environment diagnostics (validates Python, Node, live Hindsight Cloud & Z.ai gateway)
+# 1. Run environment diagnostics (validates Python >= 3.11, Node >= 20, 8 DB tables, live Hindsight Cloud & Z.ai gateway)
 .\scripts\check-demo.ps1
 
-# 2. Seed demonstration fixtures (idempotent; seeds "The Taco Syndicate")
-.\venv\Scripts\python.exe scripts\seed_demo.py
+# 2. Apply database migrations to current schema
+alembic upgrade head
 
-# 3. Launch both backend (:8000) and frontend (:3000) in one command
+# 3. Seed demonstration fixtures (idempotent; seeds "The Taco Syndicate")
+python scripts/seed_demo.py
+
+# 4. Launch both backend (:8000) and frontend (:3000) with strict process tracking
 .\scripts\start-demo.ps1
 
-# 4. Open in your browser:
+# 5. Open in your browser:
 #    Main Dashboard:    http://localhost:3000
 #    Memory Evolution:  http://localhost:3000/memory-evolution
 #    Memory Explorer:   http://localhost:3000/memory-explorer
 #    Interactive Docs:  http://127.0.0.1:8000/docs
 
-# 5. Cleanly shut down when finished
+# 6. Cleanly shut down when finished (verifies PID, token, and releases ports 8000 & 3000)
 .\scripts\stop-demo.ps1
 ```
 
@@ -266,10 +270,13 @@ LLM_MODEL=glm-4.5-flash
 python -m venv venv
 .\venv\Scripts\Activate.ps1
 
-# Install dependencies
-pip install -r backend/requirements.txt
+# Install backend package in editable mode via pyproject.toml
+pip install -e .
 
-# Run migrations and seed verified demo brands
+# Apply Alembic schema migrations
+alembic upgrade head
+
+# Seed verified demonstration brand and historical campaigns
 python scripts/seed_demo.py
 
 # Launch FastAPI development server (port 8000)
@@ -299,16 +306,27 @@ Open `http://localhost:3000` in your browser.
 
 CampaignEcho adheres to a strict **Verification Before Completion** standard. All claims are grounded in verifiable execution evidence:
 
-- **Pytest Suite**: **39 passed, 0 skipped, 0 failed** in `backend/tests/` (including 5 live Vectorize Hindsight Cloud integration tests, the end-to-end continuous learning test `test_live_learning_e2e.py`, and 6 Memory Evolution comparison tests).
+- **CI Test Suite**: **41 unit, contract, and security tests passed** in CI (6 live cloud integration tests excluded in CI via `-k "not test_critical_ and not test_live_continuous_learning_loop_e2e"`).
+- **Full Local Pytest Suite**: **47 total tests passed** in `backend/tests/` (including all 6 live Vectorize Hindsight Cloud integration and continuous learning loop tests).
+- **Security Regression Suite**: **8/8 automated security regression tests passed** (`scripts/test_security_regressions.ps1`).
+- **User Acceptance Testing (UAT)**: **21/21 responsive routes passed** across Desktop (1440x900), Tablet (768x1024), and Mobile (390x844) with **zero console errors** and **zero horizontal overflow violations**, plus **5/5 end-to-end strategic user journey steps passed**.
 - **Frontend Typecheck**: `tsc --noEmit` exits with **0 errors**.
 - **Frontend Lint**: `next lint` reports **0 warnings, 0 errors**.
 - **Production Build**: `next build` compiles all application routes statically without hydration issues.
-- **Cross-Viewport Testing**: Verified via Playwright at Desktop (1440px), Tablet (768px), and Mobile (390px) viewports with **zero console errors**.
 
 To run the complete verification suite locally:
 ```powershell
-# Run backend tests
+# Run CI backend tests
+pytest backend/tests/ -v -k "not test_critical_ and not test_live_continuous_learning_loop_e2e"
+
+# Run full backend test suite (including live cloud operations)
 pytest backend/tests/ -v
+
+# Run security regression tests
+powershell -ExecutionPolicy Bypass -File scripts\test_security_regressions.ps1
+
+# Run integrated demo and browser UAT suite
+powershell -ExecutionPolicy Bypass -File scripts\run_integrated_uat.ps1
 
 # Run frontend checks
 cd frontend
@@ -343,7 +361,7 @@ CampaignEcho/
 │   │   └── services/              # Hindsight memory & Z.ai adapters
 │   ├── requirements.txt           # Python backend dependencies
 │   ├── scripts/                   # Database seeding & verification scripts
-│   └── tests/                     # Unit, integration, & E2E tests (35 passing)
+│   └── tests/                     # Unit, integration, & E2E tests (47 tests: 41 CI / 6 live cloud)
 ├── frontend/                      # Next.js 15 App Router application
 │   ├── src/                       # Page routes, components, hooks, & types
 │   │   ├── app/                   # App Router pages (Overview, Studio, Memory, etc.)

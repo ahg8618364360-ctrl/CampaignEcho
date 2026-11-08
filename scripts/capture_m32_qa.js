@@ -2,7 +2,7 @@ const { chromium } = require("playwright");
 const fs = require("fs");
 const path = require("path");
 
-const ARTIFACT_DIR = "C:\\Users\\Admin\\.gemini\\antigravity\\brain\\4fccdab8-02c3-49b3-b545-7ae8618e256d";
+const ARTIFACT_DIR = process.env.ARTIFACT_DIR || path.resolve(__dirname, "..", "docs", "screenshots");
 const SCREENSHOT_DIR = path.resolve(__dirname, "..", "docs", "screenshots");
 
 const DESKTOP_ROUTES = [

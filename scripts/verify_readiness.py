@@ -1,14 +1,27 @@
-"""CampaignEcho - Deep System & API Readiness Verifier.
+"""CampaignEcho - Deep System, Runtime & API Readiness Verifier.
 
-Truthfully verifies environment variables, database schema,
-Vectorize Hindsight Cloud authentication, and Z.ai API gateway.
+Truthfully verifies:
+1. Python runtime (>= 3.11)
+2. Node.js runtime (>= 20)
+3. Frontend package installation and dependencies
+4. Database connectivity and all 8 SQLAlchemy schema tables
+5. API credentials (non-empty, non-placeholder, secure handling)
+6. Live Vectorize Hindsight Cloud authentication (via SDK)
+7. Live Z.ai BigModel API authentication (via HTTP GET /models)
+
 Returns exit code 0 if all mandatory checks pass, 1 if any fail.
 """
 import sys
 import asyncio
 import os
+import subprocess
 from typing import Dict, Any, List, Tuple
+from pathlib import Path
 import httpx
+
+ROOT_DIR = Path(__file__).resolve().parent.parent
+if str(ROOT_DIR) not in sys.path:
+    sys.path.insert(0, str(ROOT_DIR))
 
 # Reject known placeholder strings
 PLACEHOLDERS = [
@@ -21,6 +34,65 @@ PLACEHOLDERS = [
     "xxxx",
     "todo",
 ]
+
+REQUIRED_TABLES = {
+    "brands",
+    "campaigns",
+    "campaign_metrics",
+    "campaign_feedback",
+    "campaign_comparisons",
+    "memory_logs",
+    "memory_verification_runs",
+    "alembic_version",
+}
+
+
+def check_python_runtime() -> Tuple[bool, str]:
+    major, minor, micro = sys.version_info[:3]
+    version_str = f"{major}.{minor}.{micro}"
+    if sys.version_info < (3, 11):
+        return False, f"Python {version_str} is below required minimum (>= 3.11)"
+    return True, f"Python {version_str} (>= 3.11 verified)"
+
+
+def check_node_runtime() -> Tuple[bool, str]:
+    try:
+        proc = subprocess.run(
+            ["node", "-v"],
+            capture_output=True,
+            text=True,
+            timeout=5,
+            check=False,
+        )
+        if proc.returncode != 0:
+            return False, f"node -v failed with exit code {proc.returncode}"
+        version_raw = proc.stdout.strip()
+        # Expect format v20.x.x
+        if not version_raw.startswith("v"):
+            return False, f"Unrecognized Node.js version output: '{version_raw}'"
+        major = int(version_raw[1:].split(".")[0])
+        if major < 20:
+            return False, f"Node.js {version_raw} is below required minimum (>= 20)"
+        return True, f"Node.js {version_raw} (>= 20 verified)"
+    except FileNotFoundError:
+        return False, "Node.js executable ('node') not found in PATH"
+    except Exception as exc:
+        return False, f"Node.js check failed: {exc}"
+
+
+def check_frontend_dependencies() -> Tuple[bool, str]:
+    frontend_dir = ROOT_DIR / "frontend"
+    node_modules = frontend_dir / "node_modules"
+    if not node_modules.is_dir():
+        return False, "frontend/node_modules directory missing. Run 'npm install' in frontend."
+
+    # Verify critical dependencies are present in node_modules
+    core_pkgs = ["next", "react", "lucide-react", "tailwindcss"]
+    missing_pkgs = [p for p in core_pkgs if not (node_modules / p).exists()]
+    if missing_pkgs:
+        return False, f"Missing critical npm packages: {', '.join(missing_pkgs)}"
+
+    return True, f"frontend/node_modules verified (all critical packages present)"
 
 
 def check_env_keys() -> Tuple[bool, str]:
@@ -39,7 +111,7 @@ def check_env_keys() -> Tuple[bool, str]:
     if any(p in zai_key.lower() for p in PLACEHOLDERS):
         return False, "ZAI_API_KEY contains a placeholder value"
 
-    return True, "API keys configured and non-placeholder"
+    return True, "API keys configured and verified non-placeholder (secrets masked)"
 
 
 def check_database() -> Tuple[bool, str]:
@@ -50,14 +122,19 @@ def check_database() -> Tuple[bool, str]:
         with engine.connect() as conn:
             conn.execute(text("SELECT 1"))
         inspector = inspect(engine)
-        tables = inspector.get_table_names()
-        required = {"brands", "campaigns", "memory_logs"}
-        missing = required - set(tables)
+        tables = set(inspector.get_table_names())
+        missing = REQUIRED_TABLES - tables
         if missing:
-            return False, f"Missing required database tables: {missing}. Run migrations."
-        return True, f"SQLite connected; verified tables: {', '.join(sorted(tables))}"
+            return False, (
+                f"Missing required database tables ({len(missing)} missing: "
+                f"{', '.join(sorted(missing))}). Run 'alembic upgrade head'."
+            )
+        return True, (
+            f"8/8 required database tables verified: "
+            f"{', '.join(sorted(REQUIRED_TABLES))}"
+        )
     except Exception as exc:
-        return False, f"Database check failed: {exc}"
+        return False, f"Database connectivity/schema check failed: {exc}"
 
 
 async def check_hindsight_cloud() -> Tuple[bool, str]:
@@ -66,7 +143,8 @@ async def check_hindsight_cloud() -> Tuple[bool, str]:
         ms = MemoryService()
         is_live, status, version = await ms.check_engine_health()
         try:
-            await ms._client.aclose()
+            if hasattr(ms, "_client") and hasattr(ms._client, "aclose"):
+                await ms._client.aclose()
         except Exception:
             pass
         if is_live and status == "CONNECTED":
@@ -102,62 +180,57 @@ async def check_zai_gateway() -> Tuple[bool, str]:
         return False, f"Z.ai check exception: {exc}"
 
 
-async def run_all_checks() -> int:
-    from typing import Tuple
+async def main_async() -> int:
     print("=" * 60)
-    print("  CampaignEcho — Genuine Verification Diagnostic")
+    print("  CampaignEcho - System, Runtime & Cloud Readiness Diagnostic")
     print("=" * 60)
+
+    checks = [
+        ("Python Runtime (>= 3.11)", check_python_runtime()),
+        ("Node.js Runtime (>= 20)", check_node_runtime()),
+        ("Frontend npm Dependencies", check_frontend_dependencies()),
+        ("API Configuration Keys", check_env_keys()),
+        ("SQLite Database Schema", check_database()),
+    ]
 
     all_passed = True
 
-    # 1. Environment Keys
-    print("\n[Check 1/4] Environment Key Validation...")
-    ok, msg = check_env_keys()
-    if ok:
-        print(f"  --> PASS: {msg}")
-    else:
-        print(f"  --> FAIL: {msg}")
-        all_passed = False
+    for name, (passed, msg) in checks:
+        status_tag = "[OK]  " if passed else "[FAIL]"
+        print(f" {status_tag} {name}: {msg}")
+        if not passed:
+            all_passed = False
 
-    # 2. Database & Schema
-    print("\n[Check 2/4] Database & Schema Verification...")
-    ok, msg = check_database()
-    if ok:
-        print(f"  --> PASS: {msg}")
-    else:
-        print(f"  --> FAIL: {msg}")
-        all_passed = False
-
-    # 3. Vectorize Hindsight Cloud
-    print("\n[Check 3/4] Vectorize Hindsight Cloud Authentication...")
-    ok, msg = await check_hindsight_cloud()
-    if ok:
-        print(f"  --> PASS: {msg}")
-    else:
-        print(f"  --> FAIL: {msg}")
-        all_passed = False
-
-    # 4. Z.ai Inference Gateway
-    print("\n[Check 4/4] Z.ai BigModel API Authentication...")
-    ok, msg = await check_zai_gateway()
-    if ok:
-        print(f"  --> PASS: {msg}")
-    else:
-        print(f"  --> FAIL: {msg}")
-        all_passed = False
-
-    print("\n" + "=" * 60)
+    # Async external network checks only if config keys pass
     if all_passed:
-        print("  VERIFICATION RESULT: ALL MANDATORY CHECKS PASSED")
+        hindsight_passed, hindsight_msg = await check_hindsight_cloud()
+        status_tag = "[OK]  " if hindsight_passed else "[FAIL]"
+        print(f" {status_tag} Vectorize Hindsight Cloud: {hindsight_msg}")
+        if not hindsight_passed:
+            all_passed = False
+
+        zai_passed, zai_msg = await check_zai_gateway()
+        status_tag = "[OK]  " if zai_passed else "[FAIL]"
+        print(f" {status_tag} Z.ai BigModel API Gateway: {zai_msg}")
+        if not zai_passed:
+            all_passed = False
+    else:
+        print(" [SKIP] External cloud API checks skipped due to earlier prerequisite failures.")
+
+    print("=" * 60)
+    if all_passed:
+        print("  VERDICT: ALL READINESS CRITERIA VERIFIED (Exit Code 0)")
         print("=" * 60)
         return 0
     else:
-        print("  VERIFICATION RESULT: ONE OR MORE MANDATORY CHECKS FAILED")
+        print("  VERDICT: ONE OR MORE CHECKS FAILED (Exit Code 1)")
         print("=" * 60)
         return 1
 
 
+def main() -> int:
+    return asyncio.run(main_async())
+
+
 if __name__ == "__main__":
-    from typing import Tuple
-    exit_code = asyncio.run(run_all_checks())
-    sys.exit(exit_code)
+    sys.exit(main())

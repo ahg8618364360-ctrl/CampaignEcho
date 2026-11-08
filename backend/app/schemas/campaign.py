@@ -72,25 +72,23 @@ class CampaignStrategyOutput(BaseModel):
     """Full marketing intelligence strategy generated with grounded memory synthesis."""
     campaign_concept: str = Field(..., description="Core overarching campaign hook and thesis")
     main_objective: str = Field(..., description="Revalidated strategic objective")
-    target_audience: str = Field(..., description="Refined audience profile for this execution")
-    campaign_positioning: str = Field(..., description="Market positioning vs competitive alternatives")
-    creative_direction: str = Field(..., description="Visual aesthetic, tone, color palette, pacing")
+    target_audience: Optional[str] = Field(None, description="Refined audience profile for this execution")
+    campaign_positioning: Optional[str] = Field(None, description="Market positioning vs competitive alternatives")
+    creative_direction: Optional[str] = Field(None, description="Visual aesthetic, tone, color palette, pacing")
     reel_concepts: List[ReelConcept] = Field(
-        ...,
-        min_length=1,
-        max_length=5,
+        default_factory=list,
         description="Detailed short-form video execution concepts"
     )
     content_formats: List[str] = Field(default_factory=list, description="Recommended production formats")
     caption_directions: List[str] = Field(default_factory=list, description="Copywriting frameworks and caption guidelines")
     suggested_hooks: List[str] = Field(default_factory=list, description="Standout copy hooks for headlines and ads")
-    platform_specific_execution: str = Field(..., description="Platform native mechanics (audio, hashtags, algorithms)")
-    offer_recommendations: str = Field(..., description="Pricing, promotion, or offer structure")
-    call_to_action: str = Field(..., description="Primary conversion driver")
+    platform_specific_execution: Optional[str] = Field(None, description="Platform native mechanics (audio, hashtags, algorithms)")
+    offer_recommendations: Optional[str] = Field(None, description="Pricing, promotion, or offer structure")
+    call_to_action: Optional[str] = Field(None, description="Primary conversion driver")
     kpi_recommendations: List[str] = Field(default_factory=list, description="Primary and secondary metrics to track")
     execution_timeline: List[str] = Field(default_factory=list, description="Phased launch timeline")
     potential_risks: List[str] = Field(default_factory=list, description="Identified failure modes to mitigate")
-    historical_rationale: str = Field(..., description="How past Hindsight experiences shaped this strategy")
+    historical_rationale: Optional[str] = Field(None, description="How past Hindsight experiences shaped this strategy")
     memory_citations: List[MemoryCitation] = Field(
         default_factory=list,
         description="Explicit memory items cited in this strategy"
@@ -103,8 +101,8 @@ class CampaignStrategyOutput(BaseModel):
         None,
         description="Summary of Vectorize Hindsight reflect operation that informed this strategy"
     )
-    llm_provider: str = Field(..., description="Actual LLM provider used (e.g. zai, groq)")
-    llm_model: str = Field(..., description="Specific model utilized (e.g. glm-4.5-flash)")
+    llm_provider: Optional[str] = Field("zai", description="Actual LLM provider used (e.g. zai, groq)")
+    llm_model: Optional[str] = Field("glm-4.5-flash", description="Specific model utilized (e.g. glm-4.5-flash)")
     fallback_used: bool = Field(False, description="Whether automatic provider fallback occurred")
     generated_at: datetime = Field(default_factory=lambda: datetime.now())
 

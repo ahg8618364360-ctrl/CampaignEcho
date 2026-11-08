@@ -229,7 +229,7 @@ export default function BrandsPage() {
             </p>
             <div className="pt-1 flex items-center justify-between text-[11px] text-ink-secondary">
               <span>Architectural Bank Scheme:</span>
-              <span className="text-forest font-medium">Dedicated brand memory bank (Managed Server-Side)</span>
+              <span className="text-forest font-mono text-[10px] bg-forest/10 px-2 py-0.5 rounded border border-forest/20 font-semibold">{selectedBrand.bankId}</span>
             </div>
           </div>
         </section>

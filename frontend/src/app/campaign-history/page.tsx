@@ -87,7 +87,8 @@ export default function CampaignHistoryPage() {
   useEffect(() => {
     async function loadCampaigns() {
       try {
-        const res = await fetch("http://127.0.0.1:8000/api/v1/campaigns");
+        const apiBase = process.env.NEXT_PUBLIC_API_BASE_URL || "http://127.0.0.1:8000/api/v1";
+        const res = await fetch(`${apiBase}/campaigns`);
         if (res.ok) {
           const data = await res.json();
           const mapped: CampaignRecord[] = data.map((c: any) => {

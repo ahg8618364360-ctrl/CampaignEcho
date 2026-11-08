@@ -42,7 +42,24 @@ CANONICAL_FIXTURES = [
         "strategy_output": {
             "campaign_concept": "Midnight Queso Drop: ASMR Sensory Late-Night Run",
             "main_objective": "Drive peak walk-in traffic between 11 PM and 1 AM",
+            "target_audience": "UT Austin Undergrads & West Campus Nocturnal Study Groups",
+            "campaign_positioning": "Authentic late-night street food fuel",
+            "creative_direction": "Sensory close-ups of sizzling carnitas and bubbling queso",
+            "reel_concepts": [
+                {
+                    "concept_title": "The 11:30 PM Meltdown",
+                    "hook": "Study group hit a wall? Watch this queso pour.",
+                    "visual_direction": "Close-up cheese pull with ambient sizzle audio.",
+                    "script_or_caption": "Free loaded queso with any 2-taco box after 10 PM. Show student ID.",
+                    "call_to_action": "Show up at 24th & Guadalupe before 1 AM.",
+                }
+            ],
+            "platform_specific_execution": "Instagram Reels 9:16 vertical video with trending late-night audio.",
+            "offer_recommendations": "Free loaded queso with any 2-taco box after 10 PM (code QUESO22).",
+            "call_to_action": "Flash code QUESO22 at register.",
             "historical_rationale": "High-performing historical benchmark for late-night student acquisition.",
+            "llm_provider": "zai",
+            "llm_model": "glm-4.5-flash",
         },
         "metrics": {
             "budget": Decimal("1200.00"),
@@ -77,7 +94,24 @@ CANONICAL_FIXTURES = [
         "strategy_output": {
             "campaign_concept": "Artisanal Elegance: Elevated Street Food Experience",
             "main_objective": "Test luxury market viability",
+            "target_audience": "Gourmet food enthusiasts in Greater Austin",
+            "campaign_positioning": "Upscale fusion street cuisine",
+            "creative_direction": "Slow-motion drizzle on slate tableware with classical score",
+            "reel_concepts": [
+                {
+                    "concept_title": "Truffle Meets Taco",
+                    "hook": "Who said tacos can't be fine dining?",
+                    "visual_direction": "Macro camera panning across shaved black truffles on corn tortilla.",
+                    "script_or_caption": "Introducing our limited artisanal truffle tasting flight. Experience luxury street dining.",
+                    "call_to_action": "Reserve your flight at the counter.",
+                }
+            ],
+            "platform_specific_execution": "Aesthetic food photography and slow-motion video.",
+            "offer_recommendations": "$18 Truffle Taco Tasting Flight.",
+            "call_to_action": "Order the flight while supplies last.",
             "historical_rationale": "Exploratory campaign testing upscale menu items.",
+            "llm_provider": "zai",
+            "llm_model": "glm-4.5-flash",
         },
         "metrics": {
             "budget": Decimal("1400.00"),
@@ -112,7 +146,24 @@ CANONICAL_FIXTURES = [
         "strategy_output": {
             "campaign_concept": "Taco Tuesday Study Break Fuel",
             "main_objective": "Fill afternoon capacity between lunch and dinner",
+            "target_audience": "UT Austin Undergrads with Tuesday afternoon gaps",
+            "campaign_positioning": "Hyper-affordable high-speed student lunch break",
+            "creative_direction": "Snappy handheld footage of quick counter assembly and happy students",
+            "reel_concepts": [
+                {
+                    "concept_title": "The $1 Tuesday Dash",
+                    "hook": "Your mid-week study break taco fix is literally $1.",
+                    "visual_direction": "High energy quick cuts of al pastor meat on grill and taco plating.",
+                    "script_or_caption": "Show student badge between 2 PM and 5 PM on Tuesdays for $1 street tacos.",
+                    "call_to_action": "Tap your ID at checkout.",
+                }
+            ],
+            "platform_specific_execution": "High-velocity vertical video with on-screen text overlays.",
+            "offer_recommendations": "$1 al pastor tacos with valid student badge.",
+            "call_to_action": "Show student badge at counter.",
             "historical_rationale": "Volume-driven afternoon activation.",
+            "llm_provider": "zai",
+            "llm_model": "glm-4.5-flash",
         },
         "metrics": {
             "budget": Decimal("800.00"),

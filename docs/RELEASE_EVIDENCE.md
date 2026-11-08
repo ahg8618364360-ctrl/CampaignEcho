@@ -157,3 +157,18 @@
   - Participant 2 Article/LinkedIn/Reddit: `PENDING_PUBLICATION`
   - Participant 3 Article/LinkedIn/Reddit: `PENDING_PUBLICATION`
   - Team YouTube Demo Video: `PENDING_PUBLICATION`
+
+---
+
+## 6. Milestone 7.2 Security Gate & Browser UAT Evidence
+
+- **Security Regression Test Suite (`scripts/test_security_regressions.ps1`)**: 8/8 PASSED.
+- **Strict Process Ownership**: Evaluates PID, executable name, root path containment, command-line arguments, and GUID launch token.
+- **Port Listener Adoption**: Startup refuses to adopt unrelated listeners on port 8000/3000; safely aborts with code 1.
+- **Atomic Rollback**: Cleanly terminates backend if frontend fails during launch.
+- **Browser User Acceptance Testing (`scripts/run_integrated_uat.ps1`)**:
+  - 21 route checks across Desktop, Tablet, and Mobile: 100% PASS, 0 console errors, 0 overflow violations.
+  - 5/5 strategic user journey steps: 100% PASS.
+  - Comprehensive evidence captured in `docs/uat_evidence.json` and `docs/screenshots/uat/`.
+- **Repository Hygiene**: Untracked `frontend/tsconfig.tsbuildinfo`, purged 4 duplicate screenshot captures, documented in `docs/REPOSITORY_CLEANUP_LEDGER.md`.
+

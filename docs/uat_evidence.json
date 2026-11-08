@@ -1,0 +1,182 @@
+{
+  "started_at": "2026-11-08T09:09:43.458Z",
+  "routes": [
+    {
+      "route": "overview",
+      "path": "/",
+      "viewport": "desktop",
+      "overflow": false,
+      "screenshot": "overview-desktop.png"
+    },
+    {
+      "route": "brands",
+      "path": "/brands",
+      "viewport": "desktop",
+      "overflow": false,
+      "screenshot": "brands-desktop.png"
+    },
+    {
+      "route": "campaign-studio",
+      "path": "/campaign-studio",
+      "viewport": "desktop",
+      "overflow": false,
+      "screenshot": "campaign-studio-desktop.png"
+    },
+    {
+      "route": "campaign-history",
+      "path": "/campaign-history",
+      "viewport": "desktop",
+      "overflow": false,
+      "screenshot": "campaign-history-desktop.png"
+    },
+    {
+      "route": "memory-evolution",
+      "path": "/memory-evolution",
+      "viewport": "desktop",
+      "overflow": false,
+      "screenshot": "memory-evolution-desktop.png"
+    },
+    {
+      "route": "memory-explorer",
+      "path": "/memory-explorer",
+      "viewport": "desktop",
+      "overflow": false,
+      "screenshot": "memory-explorer-desktop.png"
+    },
+    {
+      "route": "settings",
+      "path": "/settings",
+      "viewport": "desktop",
+      "overflow": false,
+      "screenshot": "settings-desktop.png"
+    },
+    {
+      "route": "overview",
+      "path": "/",
+      "viewport": "tablet",
+      "overflow": false,
+      "screenshot": "overview-tablet.png"
+    },
+    {
+      "route": "brands",
+      "path": "/brands",
+      "viewport": "tablet",
+      "overflow": false,
+      "screenshot": "brands-tablet.png"
+    },
+    {
+      "route": "campaign-studio",
+      "path": "/campaign-studio",
+      "viewport": "tablet",
+      "overflow": false,
+      "screenshot": "campaign-studio-tablet.png"
+    },
+    {
+      "route": "campaign-history",
+      "path": "/campaign-history",
+      "viewport": "tablet",
+      "overflow": false,
+      "screenshot": "campaign-history-tablet.png"
+    },
+    {
+      "route": "memory-evolution",
+      "path": "/memory-evolution",
+      "viewport": "tablet",
+      "overflow": false,
+      "screenshot": "memory-evolution-tablet.png"
+    },
+    {
+      "route": "memory-explorer",
+      "path": "/memory-explorer",
+      "viewport": "tablet",
+      "overflow": false,
+      "screenshot": "memory-explorer-tablet.png"
+    },
+    {
+      "route": "settings",
+      "path": "/settings",
+      "viewport": "tablet",
+      "overflow": false,
+      "screenshot": "settings-tablet.png"
+    },
+    {
+      "route": "overview",
+      "path": "/",
+      "viewport": "mobile",
+      "overflow": false,
+      "screenshot": "overview-mobile.png"
+    },
+    {
+      "route": "brands",
+      "path": "/brands",
+      "viewport": "mobile",
+      "overflow": false,
+      "screenshot": "brands-mobile.png"
+    },
+    {
+      "route": "campaign-studio",
+      "path": "/campaign-studio",
+      "viewport": "mobile",
+      "overflow": false,
+      "screenshot": "campaign-studio-mobile.png"
+    },
+    {
+      "route": "campaign-history",
+      "path": "/campaign-history",
+      "viewport": "mobile",
+      "overflow": false,
+      "screenshot": "campaign-history-mobile.png"
+    },
+    {
+      "route": "memory-evolution",
+      "path": "/memory-evolution",
+      "viewport": "mobile",
+      "overflow": false,
+      "screenshot": "memory-evolution-mobile.png"
+    },
+    {
+      "route": "memory-explorer",
+      "path": "/memory-explorer",
+      "viewport": "mobile",
+      "overflow": false,
+      "screenshot": "memory-explorer-mobile.png"
+    },
+    {
+      "route": "settings",
+      "path": "/settings",
+      "viewport": "mobile",
+      "overflow": false,
+      "screenshot": "settings-mobile.png"
+    }
+  ],
+  "journey_steps": [
+    {
+      "step": "Brand Inspection & Isolation",
+      "passed": true,
+      "details": "The Taco Syndicate loaded with isolated bank mapping"
+    },
+    {
+      "step": "Settings Diagnostics",
+      "passed": true,
+      "details": "System settings and service status rendered cleanly"
+    },
+    {
+      "step": "Memory Explorer Inspection",
+      "passed": true,
+      "details": "Memory Explorer rendered observations and retrieval controls"
+    },
+    {
+      "step": "Memory Evolution Mode A vs Mode B Inspection",
+      "passed": true,
+      "details": "Mode A Stateless Baseline and Mode B Memory-Grounded cards displayed"
+    },
+    {
+      "step": "Campaign History & Observations",
+      "passed": true,
+      "details": "Historical campaigns and observed metrics rendered"
+    }
+  ],
+  "console_errors": [],
+  "overflow_violations": [],
+  "all_passed": true
+}
