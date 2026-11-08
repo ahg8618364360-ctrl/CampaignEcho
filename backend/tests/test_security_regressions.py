@@ -112,3 +112,4 @@ def test_strict_brand_isolation_in_memory_service():
 
     # Brand 1 cannot access Brand 2 bank
     assert service.get_bank_id_for_brand(brand_1_id) != service.get_bank_id_for_brand(brand_2_id)
+

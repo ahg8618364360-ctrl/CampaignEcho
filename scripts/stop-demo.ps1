@@ -57,6 +57,10 @@ function Test-ProcessStrictOwnership {
         if ($Proc.Name -notmatch '^(node|next)\.exe$') { return $false }
         # Must reference frontend directory
         if (-not $normCmd.Contains("$normalizedRoot\frontend")) { return $false }
+        # If token was recorded, verify token presence
+        if (-not [string]::IsNullOrWhiteSpace($ExpectedToken)) {
+            if (-not $cmd.Contains($ExpectedToken)) { return $false }
+        }
         return $true
     }
 
@@ -83,10 +87,10 @@ function Stop-StrictVerifiedProcess {
     if ($isOwned) {
         Write-Host "  - $Role (PID $ProcessId; verified '$($proc.Name)'): Terminating..." -NoNewline
         try {
-            # Stop any child processes that also match project root
+            # Stop any verified child processes (must be python, uvicorn, node, or next AND reference project root)
             $children = Get-CimInstance Win32_Process -Filter "ParentProcessId=$ProcessId" -ErrorAction SilentlyContinue
             foreach ($child in $children) {
-                if ($child.CommandLine -and $child.CommandLine.Replace('/','\').Contains($normalizedRoot)) {
+                if ($child.Name -match '^(python|uvicorn|node|next)\.exe$' -and $child.CommandLine -and $child.CommandLine.Replace('/','\').Contains($normalizedRoot)) {
                     Stop-Process -Id $child.ProcessId -Force -ErrorAction SilentlyContinue
                 }
             }

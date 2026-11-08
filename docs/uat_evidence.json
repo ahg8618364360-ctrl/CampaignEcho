@@ -1,152 +1,236 @@
 {
-  "started_at": "2026-11-08T09:09:43.458Z",
+  "started_at": "2026-11-08T15:38:29.984Z",
   "routes": [
     {
       "route": "overview",
       "path": "/",
       "viewport": "desktop",
+      "status": 200,
+      "expected_text": "CampaignEcho",
+      "text_found": true,
       "overflow": false,
-      "screenshot": "overview-desktop.png"
+      "screenshot": "overview-desktop.png",
+      "passed": true
     },
     {
       "route": "brands",
       "path": "/brands",
       "viewport": "desktop",
+      "status": 200,
+      "expected_text": "The Taco Syndicate",
+      "text_found": true,
       "overflow": false,
-      "screenshot": "brands-desktop.png"
+      "screenshot": "brands-desktop.png",
+      "passed": true
     },
     {
       "route": "campaign-studio",
       "path": "/campaign-studio",
       "viewport": "desktop",
+      "status": 200,
+      "expected_text": "Campaign",
+      "text_found": true,
       "overflow": false,
-      "screenshot": "campaign-studio-desktop.png"
+      "screenshot": "campaign-studio-desktop.png",
+      "passed": true
     },
     {
       "route": "campaign-history",
       "path": "/campaign-history",
       "viewport": "desktop",
+      "status": 200,
+      "expected_text": "History",
+      "text_found": true,
       "overflow": false,
-      "screenshot": "campaign-history-desktop.png"
+      "screenshot": "campaign-history-desktop.png",
+      "passed": true
     },
     {
       "route": "memory-evolution",
       "path": "/memory-evolution",
       "viewport": "desktop",
+      "status": 200,
+      "expected_text": "Evolution",
+      "text_found": true,
       "overflow": false,
-      "screenshot": "memory-evolution-desktop.png"
+      "screenshot": "memory-evolution-desktop.png",
+      "passed": true
     },
     {
       "route": "memory-explorer",
       "path": "/memory-explorer",
       "viewport": "desktop",
+      "status": 200,
+      "expected_text": "Memory",
+      "text_found": true,
       "overflow": false,
-      "screenshot": "memory-explorer-desktop.png"
+      "screenshot": "memory-explorer-desktop.png",
+      "passed": true
     },
     {
       "route": "settings",
       "path": "/settings",
       "viewport": "desktop",
+      "status": 200,
+      "expected_text": "Settings",
+      "text_found": true,
       "overflow": false,
-      "screenshot": "settings-desktop.png"
+      "screenshot": "settings-desktop.png",
+      "passed": true
     },
     {
       "route": "overview",
       "path": "/",
       "viewport": "tablet",
+      "status": 200,
+      "expected_text": "CampaignEcho",
+      "text_found": true,
       "overflow": false,
-      "screenshot": "overview-tablet.png"
+      "screenshot": "overview-tablet.png",
+      "passed": true
     },
     {
       "route": "brands",
       "path": "/brands",
       "viewport": "tablet",
+      "status": 200,
+      "expected_text": "The Taco Syndicate",
+      "text_found": true,
       "overflow": false,
-      "screenshot": "brands-tablet.png"
+      "screenshot": "brands-tablet.png",
+      "passed": true
     },
     {
       "route": "campaign-studio",
       "path": "/campaign-studio",
       "viewport": "tablet",
+      "status": 200,
+      "expected_text": "Campaign",
+      "text_found": true,
       "overflow": false,
-      "screenshot": "campaign-studio-tablet.png"
+      "screenshot": "campaign-studio-tablet.png",
+      "passed": true
     },
     {
       "route": "campaign-history",
       "path": "/campaign-history",
       "viewport": "tablet",
+      "status": 200,
+      "expected_text": "History",
+      "text_found": true,
       "overflow": false,
-      "screenshot": "campaign-history-tablet.png"
+      "screenshot": "campaign-history-tablet.png",
+      "passed": true
     },
     {
       "route": "memory-evolution",
       "path": "/memory-evolution",
       "viewport": "tablet",
+      "status": 200,
+      "expected_text": "Evolution",
+      "text_found": true,
       "overflow": false,
-      "screenshot": "memory-evolution-tablet.png"
+      "screenshot": "memory-evolution-tablet.png",
+      "passed": true
     },
     {
       "route": "memory-explorer",
       "path": "/memory-explorer",
       "viewport": "tablet",
+      "status": 200,
+      "expected_text": "Memory",
+      "text_found": true,
       "overflow": false,
-      "screenshot": "memory-explorer-tablet.png"
+      "screenshot": "memory-explorer-tablet.png",
+      "passed": true
     },
     {
       "route": "settings",
       "path": "/settings",
       "viewport": "tablet",
+      "status": 200,
+      "expected_text": "Settings",
+      "text_found": true,
       "overflow": false,
-      "screenshot": "settings-tablet.png"
+      "screenshot": "settings-tablet.png",
+      "passed": true
     },
     {
       "route": "overview",
       "path": "/",
       "viewport": "mobile",
+      "status": 200,
+      "expected_text": "CampaignEcho",
+      "text_found": true,
       "overflow": false,
-      "screenshot": "overview-mobile.png"
+      "screenshot": "overview-mobile.png",
+      "passed": true
     },
     {
       "route": "brands",
       "path": "/brands",
       "viewport": "mobile",
+      "status": 200,
+      "expected_text": "The Taco Syndicate",
+      "text_found": true,
       "overflow": false,
-      "screenshot": "brands-mobile.png"
+      "screenshot": "brands-mobile.png",
+      "passed": true
     },
     {
       "route": "campaign-studio",
       "path": "/campaign-studio",
       "viewport": "mobile",
+      "status": 200,
+      "expected_text": "Campaign",
+      "text_found": true,
       "overflow": false,
-      "screenshot": "campaign-studio-mobile.png"
+      "screenshot": "campaign-studio-mobile.png",
+      "passed": true
     },
     {
       "route": "campaign-history",
       "path": "/campaign-history",
       "viewport": "mobile",
+      "status": 200,
+      "expected_text": "History",
+      "text_found": true,
       "overflow": false,
-      "screenshot": "campaign-history-mobile.png"
+      "screenshot": "campaign-history-mobile.png",
+      "passed": true
     },
     {
       "route": "memory-evolution",
       "path": "/memory-evolution",
       "viewport": "mobile",
+      "status": 200,
+      "expected_text": "Evolution",
+      "text_found": true,
       "overflow": false,
-      "screenshot": "memory-evolution-mobile.png"
+      "screenshot": "memory-evolution-mobile.png",
+      "passed": true
     },
     {
       "route": "memory-explorer",
       "path": "/memory-explorer",
       "viewport": "mobile",
+      "status": 200,
+      "expected_text": "Memory",
+      "text_found": true,
       "overflow": false,
-      "screenshot": "memory-explorer-mobile.png"
+      "screenshot": "memory-explorer-mobile.png",
+      "passed": true
     },
     {
       "route": "settings",
       "path": "/settings",
       "viewport": "mobile",
+      "status": 200,
+      "expected_text": "Settings",
+      "text_found": true,
       "overflow": false,
-      "screenshot": "settings-mobile.png"
+      "screenshot": "settings-mobile.png",
+      "passed": true
     }
   ],
   "journey_steps": [
@@ -166,6 +250,11 @@
       "details": "Memory Explorer rendered observations and retrieval controls"
     },
     {
+      "step": "Campaign Studio Inspection",
+      "passed": true,
+      "details": "Campaign Studio loaded with active brand strategy generator"
+    },
+    {
       "step": "Memory Evolution Mode A vs Mode B Inspection",
       "passed": true,
       "details": "Mode A Stateless Baseline and Mode B Memory-Grounded cards displayed"
@@ -174,9 +263,16 @@
       "step": "Campaign History & Observations",
       "passed": true,
       "details": "Historical campaigns and observed metrics rendered"
+    },
+    {
+      "step": "Cross-Session Database & Memory Readiness",
+      "passed": true,
+      "details": "Backend reported ready with SQLite persistence intact"
     }
   ],
   "console_errors": [],
+  "page_errors": [],
+  "failed_requests": [],
   "overflow_violations": [],
   "all_passed": true
 }

@@ -52,3 +52,4 @@ The following canonical screenshot assets in `docs/screenshots/` are retained an
 - **M5 Memory Evolution Proofs**: `m5-memory-evolution-desktop.png`, `m5-memory-evolution-mobile.png`
 - **M6 Production Audit Proofs**: 14 breakpoint screenshots covering 7 core routes on Desktop (1440px) and Mobile (390px).
 - **M7.2 User Acceptance Test (UAT) Proofs**: 21 responsive route screenshots located in `docs/screenshots/uat/` spanning Desktop (1440x900), Tablet (768x1024), and Mobile (390x844).
+

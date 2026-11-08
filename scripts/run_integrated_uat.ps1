@@ -1,7 +1,7 @@
 $ErrorActionPreference = "Stop"
 $root = Split-Path -Parent $PSScriptRoot
 
-$env:NODE_PATH = "C:\Users\Admin\AppData\Local\npm-cache\_npx\9833c18b2d85bc59\node_modules;$root\frontend\node_modules"
+$env:NODE_PATH = "$root\frontend\node_modules"
 
 Write-Host "=== 1. Starting Demo Server ==="
 & "$PSScriptRoot\start-demo.ps1"
@@ -35,3 +35,4 @@ if ($uatPassed -and ($stopExit -eq 0)) {
     Write-Error "Integrated UAT run failed."
     exit 1
 }
+

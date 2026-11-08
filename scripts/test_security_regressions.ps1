@@ -8,7 +8,9 @@
 # 6. Safety refusal for unrelated/misleading processes (refuses to terminate)
 # 7. Metadata preservation on shutdown safety refusal
 # 8. Unrelated listener on port 8000 adoption refusal in start-demo.ps1
-# 9. Rollback of newly started backend when frontend fails
+# 9. Unrelated listener on port 3000 adoption refusal in start-demo.ps1
+# 10. Strict Frontend token verification & safety refusal in stop-demo.ps1
+# 11. Startup rollback verification when frontend fails
 
 $ErrorActionPreference = "Continue"
 $rootPath = (Resolve-Path "$PSScriptRoot\..").Path
@@ -154,6 +156,89 @@ try {
     Report-Test -TestName "Unrelated Port 8000 Listener Adoption Refusal" -Passed $t8Passed -Details "Adoption refused=$refusedAdoption; Dummy alive=$dummyStillAlive; Exit Code=$t8Exit"
 } finally {
     Stop-Process -Id $p8000Pid -Force -ErrorAction SilentlyContinue
+    Start-Sleep -Seconds 1
+}
+
+# --- TEST 9: Adoption Refusal on Port 3000 in start-demo.ps1 ---
+Write-Host "`n[Test 9] Testing adoption refusal when port 3000 has an unrelated listener..."
+$port3000Dummy = Start-Process -FilePath $pythonExe -ArgumentList "-m", "http.server", "3000" -PassThru -WindowStyle Hidden
+$p3000Pid = $port3000Dummy.Id
+
+try {
+    Start-Sleep -Seconds 2
+    $t9Output = & powershell.exe -ExecutionPolicy Bypass -File "$rootPath\scripts\start-demo.ps1" 2>&1
+    $t9Exit = $LASTEXITCODE
+
+    $refused3000 = ($t9Output -match "Port 3000 is occupied by an unverified process") -or ($t9Output -match "Refusing to adopt")
+    $dummy3000Alive = (Get-Process -Id $p3000Pid -ErrorAction SilentlyContinue) -ne $null
+
+    $t9Passed = $refused3000 -and $dummy3000Alive -and ($t9Exit -eq 1)
+    Report-Test -TestName "Unrelated Port 3000 Listener Adoption Refusal" -Passed $t9Passed -Details "Adoption refused=$refused3000; Dummy alive=$dummy3000Alive; Exit Code=$t9Exit"
+} finally {
+    Stop-Process -Id $p3000Pid -Force -ErrorAction SilentlyContinue
+    Start-Sleep -Seconds 1
+}
+
+# --- TEST 10: Strict Frontend Token Verification & Safety Refusal in stop-demo.ps1 ---
+Write-Host "`n[Test 10] Testing strict Frontend token verification & safety refusal in stop-demo.ps1..."
+$dummyNodeProc = Start-Process -FilePath "powershell.exe" -ArgumentList "-NoProfile", "-Command", "Start-Sleep -Seconds 45" -PassThru -WindowStyle Hidden
+$dummyNodePid = $dummyNodeProc.Id
+
+try {
+    @{
+        version = "2.0"
+        project_root = $rootPath
+        launch_token = "token-frontend-alpha"
+        frontend = @{
+            pid = $dummyNodePid
+            port = 3000
+            launch_token = "token-frontend-alpha"
+        }
+    } | ConvertTo-Json -Depth 4 | Out-File $ownershipFile -Encoding ascii
+
+    $t10Output = & powershell.exe -ExecutionPolicy Bypass -File "$rootPath\scripts\stop-demo.ps1" 2>&1
+    $t10Exit = $LASTEXITCODE
+
+    $procStillAlive = (Get-Process -Id $dummyNodePid -ErrorAction SilentlyContinue) -ne $null
+    $metaPreserved = Test-Path $ownershipFile
+
+    $t10Passed = ($t10Output -match "SAFETY REFUSAL") -and $procStillAlive -and $metaPreserved -and ($t10Exit -eq 1)
+    Report-Test -TestName "Strict Frontend Token Verification & Safety Refusal" -Passed $t10Passed -Details "Safety refusal triggered=$($t10Output -match 'SAFETY REFUSAL'); Process alive=$procStillAlive; Meta preserved=$metaPreserved"
+} finally {
+    Stop-Process -Id $dummyNodePid -Force -ErrorAction SilentlyContinue
+    Remove-Item $ownershipFile -Force -ErrorAction SilentlyContinue
+}
+
+# --- TEST 11: Startup Rollback Verification ---
+Write-Host "`n[Test 11] Testing backend rollback when frontend fails during startup..."
+# Occupy port 3000 with a foreign server to trigger frontend startup abort
+$blocker3000 = Start-Process -FilePath $pythonExe -ArgumentList "-m", "http.server", "3000" -PassThru -WindowStyle Hidden
+$blockerPid = $blocker3000.Id
+
+try {
+    Start-Sleep -Seconds 2
+    # Ensure port 8000 is clean
+    $p8000Initial = Get-NetTCPConnection -LocalPort 8000 -State Listen -ErrorAction SilentlyContinue
+    if ($p8000Initial) {
+        Stop-Process -Id $p8000Initial[0].OwningProcess -Force -ErrorAction SilentlyContinue
+        Start-Sleep -Seconds 1
+    }
+
+    $t11Output = & powershell.exe -ExecutionPolicy Bypass -File "$rootPath\scripts\start-demo.ps1" 2>&1
+    $t11Exit = $LASTEXITCODE
+
+    # Check if rollback message appeared
+    $rollbackTriggered = ($t11Output -match "Rolling back newly launched backend process")
+    # Verify port 8000 is NOT listening (backend rolled back)
+    Start-Sleep -Seconds 1
+    $p8000After = Get-NetTCPConnection -LocalPort 8000 -State Listen -ErrorAction SilentlyContinue
+    $backendRolledBack = (-not $p8000After)
+    $pidCleaned = (-not (Test-Path "$PSScriptRoot\backend.pid"))
+
+    $t11Passed = $rollbackTriggered -and $backendRolledBack -and ($t11Exit -eq 1)
+    Report-Test -TestName "Startup Rollback Verification" -Passed $t11Passed -Details "Rollback triggered=$rollbackTriggered; Port 8000 clean=$backendRolledBack; Exit Code=$t11Exit"
+} finally {
+    Stop-Process -Id $blockerPid -Force -ErrorAction SilentlyContinue
     Start-Sleep -Seconds 1
 }
 

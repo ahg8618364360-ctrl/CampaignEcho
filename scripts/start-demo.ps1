@@ -105,19 +105,25 @@ if (-not $port8000) {
     $proc = Get-CimInstance Win32_Process -Filter "ProcessId=$existingPid" -ErrorAction SilentlyContinue
     
     # Strict verification before reusing an already-running instance:
-    # Must match project root, python/uvicorn, and backend.app.main
+    # Must match project root, python/uvicorn, backend.app.main:app, AND must match recorded launch_token from demo-ownership.json
     $normCmd = if ($proc -and $proc.CommandLine) { $proc.CommandLine.Replace('/','\') } else { "" }
-    $isVerifiedBackend = $proc -and ($proc.Name -match '^(python|uvicorn)\.exe$') -and $normCmd.Contains($normalizedRoot) -and ($proc.CommandLine -match 'backend\.app\.main:app')
+    $recordedToken = if ($existingOwnership -and $existingOwnership.backend -and $existingOwnership.backend.pid -eq $existingPid) { $existingOwnership.backend.launch_token } else { $null }
+
+    $isVerifiedBackend = $proc -and ($proc.Name -match '^(python|uvicorn)\.exe$') -and `
+        $normCmd.Contains($normalizedRoot) -and `
+        ($proc.CommandLine -match 'backend\.app\.main:app') -and `
+        (-not [string]::IsNullOrWhiteSpace($recordedToken)) -and `
+        ($proc.CommandLine.Contains($recordedToken))
 
     if ($isVerifiedBackend) {
-        Write-Host "`n[2/3] FastAPI Backend already running under verified CampaignEcho ownership (PID $existingPid)" -ForegroundColor Green
+        Write-Host "`n[2/3] FastAPI Backend already running under verified CampaignEcho ownership (PID $existingPid, Token $recordedToken)" -ForegroundColor Green
         $ownership["backend"] = @{
             "pid" = $existingPid
             "port" = 8000
             "executable" = $proc.ExecutablePath
             "command" = $proc.CommandLine
-            "launch_token" = if ($existingOwnership -and $existingOwnership.backend) { $existingOwnership.backend.launch_token } else { "existing-verified" }
-            "started_at" = (Get-Date).ToString("o")
+            "launch_token" = $recordedToken
+            "started_at" = if ($existingOwnership.backend.started_at) { $existingOwnership.backend.started_at } else { (Get-Date).ToString("o") }
         }
         $existingPid | Out-File "$PSScriptRoot\backend.pid" -Encoding ascii
     } else {
@@ -153,8 +159,8 @@ if (-not $port3000) {
     $nodeExe = (Get-Command node).Source
     $nextCli = "$frontendDir\node_modules\next\dist\bin\next"
 
-    # Launch node directly with next start and exact frontend directory
-    $frontendProcess = Start-Process -FilePath $nodeExe -ArgumentList "`"$nextCli`"", "start", "`"$frontendDir`"", "-p", "3000" -WorkingDirectory $frontendDir -PassThru -WindowStyle Hidden
+    # Launch node directly with title token, next start and exact frontend directory
+    $frontendProcess = Start-Process -FilePath $nodeExe -ArgumentList "--title=CampaignEcho-$launchToken", "`"$nextCli`"", "start", "`"$frontendDir`"", "-p", "3000" -WorkingDirectory $frontendDir -PassThru -WindowStyle Hidden
     $startedFrontendInThisRun = $true
 
     # Wait for genuine frontend HTTP response
@@ -183,7 +189,7 @@ if (-not $port3000) {
             "started_at" = (Get-Date).ToString("o")
         }
         $activePid | Out-File "$PSScriptRoot\frontend.pid" -Encoding ascii
-        Write-Host " [ONLINE] (PID $activePid, HTTP 200 on port 3000)" -ForegroundColor Green
+        Write-Host " [ONLINE] (PID $activePid, HTTP 200 on port 3000, Token verified)" -ForegroundColor Green
     } else {
         Write-Host " [FAIL] Frontend server failed to respond on http://localhost:3000 within 25s." -ForegroundColor Red
         # Roll back frontend AND backend started in this run
@@ -199,19 +205,24 @@ if (-not $port3000) {
     $existingPid = $port3000[0].OwningProcess
     $proc = Get-CimInstance Win32_Process -Filter "ProcessId=$existingPid" -ErrorAction SilentlyContinue
     
-    # Strict verification before reusing: must be node.exe and command line must contain project frontend dir
+    # Strict verification before reusing: must be node.exe, project frontend dir, AND must match recorded launch_token from demo-ownership.json
     $normCmd = if ($proc -and $proc.CommandLine) { $proc.CommandLine.Replace('/','\') } else { "" }
-    $isVerifiedFrontend = $proc -and ($proc.Name -eq "node.exe") -and $normCmd.Contains("$normalizedRoot\frontend")
+    $recordedToken = if ($existingOwnership -and $existingOwnership.frontend -and $existingOwnership.frontend.pid -eq $existingPid) { $existingOwnership.frontend.launch_token } else { $null }
+
+    $isVerifiedFrontend = $proc -and ($proc.Name -eq "node.exe") -and `
+        $normCmd.Contains("$normalizedRoot\frontend") -and `
+        (-not [string]::IsNullOrWhiteSpace($recordedToken)) -and `
+        ($proc.CommandLine.Contains($recordedToken))
 
     if ($isVerifiedFrontend) {
-        Write-Host "`n[3/3] Next.js Frontend already running under verified CampaignEcho ownership (PID $existingPid)" -ForegroundColor Green
+        Write-Host "`n[3/3] Next.js Frontend already running under verified CampaignEcho ownership (PID $existingPid, Token $recordedToken)" -ForegroundColor Green
         $ownership["frontend"] = @{
             "pid" = $existingPid
             "port" = 3000
             "executable" = $proc.ExecutablePath
             "command" = $proc.CommandLine
-            "launch_token" = if ($existingOwnership -and $existingOwnership.frontend) { $existingOwnership.frontend.launch_token } else { "existing-verified" }
-            "started_at" = (Get-Date).ToString("o")
+            "launch_token" = $recordedToken
+            "started_at" = if ($existingOwnership.frontend.started_at) { $existingOwnership.frontend.started_at } else { (Get-Date).ToString("o") }
         }
         $existingPid | Out-File "$PSScriptRoot\frontend.pid" -Encoding ascii
     } else {

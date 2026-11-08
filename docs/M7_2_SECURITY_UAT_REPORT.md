@@ -152,3 +152,4 @@ powershell -ExecutionPolicy Bypass -File scripts\run_integrated_uat.ps1
 Milestone 7.2 satisfies all engineering laws, architectural standards, and security mandates. The demonstration lifecycle is reliable, safe, and verifiable across all supported environments.
 
 **Certification Verdict**: **M7.2 HARDENED & CERTIFIED FOR MERGE REVIEW**.
+
