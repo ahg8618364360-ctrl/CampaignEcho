@@ -31,12 +31,14 @@ To be submitted once by Adarsh via `https://forms.gle/7eSw5D2zoT2MhymX7`:
 | **Project Title** | `CampaignEcho: Memory-Powered AI Marketing Intelligence Platform` | Venture-grade AI agent platform | `READY` |
 | **Problem Statement Category** | `AI Agents That Learn Using Hindsight` | Vectorize Hindsight Core Track | `VERIFIED` |
 | **Short Description** | `CampaignEcho equips autonomous marketing agents with continuous episodic and reflective memory using Vectorize Hindsight, turning campaign postmortems into compounding strategic wisdom.` | 24 words, zero prohibited terms | `READY` |
-| **Primary Technology Stack** | `Vectorize Hindsight Cloud (hindsight-client), FastAPI, Python 3.11+, Next.js 15+ App Router, TypeScript, Tailwind CSS, SQLite, Z.ai GLM-4.5-Flash` | Verified runtime stack (39/39 passing tests) | `VERIFIED` |
+| **Primary Technology Stack** | `Vectorize Hindsight Cloud (hindsight-client), FastAPI, Python 3.11+, Next.js 15+ App Router, TypeScript, Tailwind CSS, SQLite, Z.ai GLM-4.5-Flash` | Verified runtime stack (42/42 passing tests) | `VERIFIED` |
 | **Code Repository Link (GitHub)** | `https://github.com/ahg8618364360-ctrl/CampaignEcho` | Public repository | `VERIFIED` |
+| **Pull Request #1 (M7.1 Release Candidate)** | `https://github.com/ahg8618364360-ctrl/CampaignEcho/pull/1` | Open PR into `main` (commit `76c241b`) | `VERIFIED` |
+| **GitHub Actions CI Pipeline** | `https://github.com/ahg8618364360-ctrl/CampaignEcho/actions/runs/42443788731` | 100% Green (Backend + Frontend jobs passed) | `VERIFIED` |
 | **Demonstration Video Link (YouTube)** | `https://youtu.be/CampaignEcho-Demo-Hindsight` *(Placeholder URL)* | 4-minute screencast adhering to `docs/VIDEO_SCRIPT.md` (1080p) | `PENDING_PUBLICATION` |
 | **Lead Technical Article Link** | `https://dev.to/campaignecho/building-continuous-ai-marketing-agents-with-vectorize-hindsight` *(Placeholder URL)* | 1,480-word article (`article.md`), 8-word title, 0 banned words | `READY_TO_PUBLISH` |
-| **Evaluator Demo Runbook** | `https://github.com/ahg8618364360-ctrl/CampaignEcho/blob/main/docs/FINAL_DEMO_RUNBOOK.md` | 5-minute judge runbook & automated scripts | `VERIFIED` |
-| **Engineering & Test Verification** | `https://github.com/ahg8618364360-ctrl/CampaignEcho/blob/main/docs/M7_1_RELEASE_CORRECTIONS_REPORT.md` | 39 passed tests (5 live cloud integration tests) | `VERIFIED` |
+| **Evaluator Demo Runbook** | `https://github.com/ahg8618364360-ctrl/CampaignEcho/blob/feature/m7-final-release/docs/FINAL_DEMO_RUNBOOK.md` | 5-minute judge runbook & automated scripts | `VERIFIED` |
+| **Engineering & Test Verification** | `https://github.com/ahg8618364360-ctrl/CampaignEcho/blob/feature/m7-final-release/docs/M7_1_RELEASE_CORRECTIONS_REPORT.md` | 42 passed tests (36 unit/contract, 6 live cloud) | `VERIFIED` |
 
 ---
 

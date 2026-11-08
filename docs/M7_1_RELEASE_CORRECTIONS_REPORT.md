@@ -118,7 +118,12 @@ Detailed execution proof is documented in [`docs/RELEASE_EVIDENCE.md`](file:///c
 
 ---
 
-## 5. Status & Next Action
+## 5. Certification & Release Evidence
 
-Milestone 7.1 is **READY FOR PUSH AND PULL REQUEST CREATION**.  
-Commit changes to `feature/m7-final-release`, push to origin, verify CI pipeline execution on GitHub, and open the Pull Request into `main`.
+- **Branch**: `feature/m7-final-release`
+- **Head Commit SHA**: `76c241b34ec74fb844b0067682b96205a5107223`
+- **Pull Request #1**: [PR #1 on GitHub](https://github.com/ahg8618364360-ctrl/CampaignEcho/pull/1) (Target: `main`)
+- **GitHub Actions CI Pipeline**: [Run 42443788731](https://github.com/ahg8618364360-ctrl/CampaignEcho/actions/runs/42443788731) (**100% GREEN**)
+  - `Backend Unit & Contract Tests`: `SUCCESS` (36 passed, 6 deselected)
+  - `Frontend Typecheck, Lint & Build`: `SUCCESS` (Typecheck + Lint + Build)
+- **Certification Verdict**: **ACCEPTED & CERTIFIED FOR FINAL SUBMISSION**
