@@ -27,6 +27,7 @@ import {
   BarChart2,
   Lock,
 } from "lucide-react";
+import { useAuth } from "@/lib/auth-context";
 
 interface Brand {
   id: string;
@@ -118,10 +119,18 @@ interface MemoryStatus {
 }
 
 export default function CampaignStudioPage() {
+  const { brands: authBrands, activeBrandId, setActiveBrandId, token } = useAuth();
   const [brands, setBrands] = useState<Brand[]>([]);
   const [selectedBrandId, setSelectedBrandId] = useState<string>("");
   const [memoryStatus, setMemoryStatus] = useState<MemoryStatus | null>(null);
   const [memoryActivities, setMemoryActivities] = useState<any[]>([]);
+
+  // Keep studio in sync with global workspace selector
+  useEffect(() => {
+    if (activeBrandId && activeBrandId !== selectedBrandId) {
+      setSelectedBrandId(activeBrandId);
+    }
+  }, [activeBrandId, selectedBrandId]);
 
   // Composer Form Inputs
   const [campaignName, setCampaignName] = useState("Midnight Taco Stash Run");
@@ -165,16 +174,21 @@ export default function CampaignStudioPage() {
 
   const API_BASE = "http://127.0.0.1:8000/api/v1";
 
-  // Load brands on mount
+  // Load brands on mount and when authBrands changes
   useEffect(() => {
     async function loadBrands() {
       try {
-        const res = await fetch(`${API_BASE}/brands`);
+        const headers: Record<string, string> = { Accept: "application/json" };
+        if (token) {
+          headers["Authorization"] = `Bearer ${token}`;
+        }
+        const res = await fetch(`${API_BASE}/brands`, { headers });
         if (res.ok) {
           const data: Brand[] = await res.json();
           setBrands(data);
           if (data.length > 0) {
-            setSelectedBrandId(data[0].id);
+            const initialId = activeBrandId || data[0].id;
+            setSelectedBrandId(initialId);
           }
         }
       } catch (err) {
@@ -182,7 +196,7 @@ export default function CampaignStudioPage() {
       }
     }
     loadBrands();
-  }, []);
+  }, [token, authBrands, activeBrandId]);
 
   // Load memory status and activity whenever selected brand changes
   useEffect(() => {

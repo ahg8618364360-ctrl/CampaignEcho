@@ -62,15 +62,28 @@ class LLMService:
         retrieved_memories: List[Dict[str, Any]],
         hindsight_reflection: Optional[str],
     ) -> str:
+        biz_extras = ""
+        if brand_data.get("products_or_services"):
+            biz_extras += f"- Core Products/Services: {brand_data['products_or_services']}\n"
+        if brand_data.get("unique_selling_points"):
+            biz_extras += f"- Unique Selling Points: {brand_data['unique_selling_points']}\n"
+        if brand_data.get("price_range"):
+            biz_extras += f"- Price Range: {brand_data['price_range']}\n"
+        if brand_data.get("key_offers"):
+            biz_extras += f"- Key Value Offers: {brand_data['key_offers']}\n"
+        if brand_data.get("competitors"):
+            biz_extras += f"- Competitor Landscape: {brand_data['competitors']}\n"
+
         prompt_parts = [
-            f"BRAND PROFILE:\n"
+            f"BRAND / BUSINESS PROFILE:\n"
             f"- Name: {brand_data.get('name')}\n"
             f"- Industry: {brand_data.get('industry')}\n"
             f"- Market Region: {brand_data.get('market_region')}\n"
             f"- Brand Voice: {brand_data.get('brand_voice')}\n"
             f"- Description: {brand_data.get('description')}\n"
             f"- Target Audience: {brand_data.get('target_audience')}\n"
-            f"- Restrictions: {brand_data.get('restrictions') or 'None'}\n",
+            f"- Restrictions: {brand_data.get('restrictions') or 'None'}\n"
+            f"{biz_extras}",
             
             f"CAMPAIGN BRIEF:\n"
             f"- Campaign Title: {brief.name}\n"

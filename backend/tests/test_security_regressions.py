@@ -70,10 +70,11 @@ def test_env_keys_rejects_missing_or_empty():
             assert "missing or empty" in msg
 
 
-def test_database_schema_verifies_all_8_tables():
-    """Verify check_database verifies exactly all 8 required tables."""
-    assert len(REQUIRED_TABLES) == 8
+def test_database_schema_verifies_all_9_tables():
+    """Verify check_database verifies exactly all 9 required tables."""
+    assert len(REQUIRED_TABLES) == 9
     expected = {
+        "users",
         "brands",
         "campaigns",
         "campaign_metrics",

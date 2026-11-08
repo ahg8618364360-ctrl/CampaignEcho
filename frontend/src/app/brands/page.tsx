@@ -1,10 +1,11 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useEffect, useMemo } from "react";
 import Link from "next/link";
 import { PageContainer } from "@/components/PageContainer";
 import { PageHeader } from "@/components/PageHeader";
 import { Button } from "@/components/Button";
+import { useAuth, BrandWorkspace } from "@/lib/auth-context";
 import {
   Layers,
   ShieldCheck,
@@ -17,65 +18,85 @@ import {
   Building2,
   Lock,
   Info,
+  Tag,
+  Target,
+  Globe,
+  Instagram,
 } from "lucide-react";
 
-interface BrandItem {
-  id: string;
-  name: string;
-  category: string;
-  status: "active" | "demo";
-  market: string;
-  bankId: string;
-  audience: string;
-  voice: string;
-  negativeConstraints: string[];
-}
-
-const BRANDS: BrandItem[] = [
-  {
-    id: "9d215d96-2695-41ee-8625-64be3e547504",
-    name: "The Taco Syndicate",
-    category: "Fast-Casual Restaurant",
-    status: "demo",
-    market: "Austin, TX (West Campus Corridor)",
-    bankId: "campaignecho-brand-b0f7",
-    audience: "University students (18–24), value-conscious, nocturnal study schedules.",
-    voice: "High-energy, witty, culturally authentic street food utility. Zero corporate fluff.",
-    negativeConstraints: [
-      "No fine-dining or luxury gourmet aesthetics (e.g. truffle oil, white-tablecloth tropes).",
-      "No alcohol promotions targeting undergraduate campus accounts.",
-      "Never present speculative AI estimates as verified historical campaign metrics.",
-    ],
-  },
-];
+const DEMO_FALLBACK: BrandWorkspace = {
+  id: "9d215d96-2695-41ee-8625-64be3e547504",
+  name: "The Taco Syndicate",
+  industry: "Fast-Casual Restaurant",
+  description: "Late-night urban street tacos with fiery salsa and loaded queso.",
+  market_region: "Austin, TX (West Campus Corridor)",
+  hindsight_bank_id: "campaignecho-brand-b0f7",
+  target_audience: "University students (18–24), value-conscious, nocturnal study schedules.",
+  brand_voice: "High-energy, witty, culturally authentic street food utility. Zero corporate fluff.",
+  is_synthetic: true,
+  restrictions: "No fine-dining tropes. No alcohol promotions targeting undergraduate accounts. Never present speculative AI estimates as verified historical metrics.",
+  products_or_services: "Late-night street tacos, loaded queso, grilled quesadillas",
+  unique_selling_points: "Made-to-order midnight service, secret family salsa roja",
+  price_range: "$3.50 - $9.00",
+  key_offers: "Buy 2 Tacos Get Free Loaded Queso after 10 PM",
+  competitors: "Torchy's Tacos, Velvet Taco",
+};
 
 export default function BrandsPage() {
-  const [selectedBrandId, setSelectedBrandId] = useState(BRANDS[0].id);
+  const { brands: authBrands, activeBrandId, setActiveBrandId, user } = useAuth();
   const [search, setSearch] = useState("");
 
-  const selectedBrand = BRANDS.find((b) => b.id === selectedBrandId) || BRANDS[0];
+  const brandList = useMemo(() => (authBrands.length > 0 ? authBrands : [DEMO_FALLBACK]), [authBrands]);
+  const [selectedId, setSelectedId] = useState<string>(activeBrandId || brandList[0].id);
+
+  useEffect(() => {
+    if (activeBrandId && brandList.some((b) => b.id === activeBrandId)) {
+      setSelectedId(activeBrandId);
+    }
+  }, [activeBrandId, brandList]);
+
+  const filteredBrands = brandList.filter(
+    (b) =>
+      b.name.toLowerCase().includes(search.toLowerCase()) ||
+      b.industry.toLowerCase().includes(search.toLowerCase()) ||
+      b.market_region.toLowerCase().includes(search.toLowerCase())
+  );
+
+  const selectedBrand =
+    brandList.find((b) => b.id === selectedId) || brandList[0];
+
+  const bankDisplayId = selectedBrand.hindsight_bank_id || `campaignecho-brand-${selectedBrand.id.slice(0, 8)}`;
 
   return (
     <PageContainer size="wide">
       {/* 1. Header */}
       <PageHeader
         badge="Multi-Brand Workspaces"
-        badgeSubtext="Demonstration Profile"
+        badgeSubtext={selectedBrand.is_synthetic ? "Demonstration Benchmark" : "Authenticated Business"}
         title="Brand Management & Tenant Boundaries"
         description="Configure brand identity guidelines, voice parameters, and review architectural 1:1 Hindsight memory bank isolation across client accounts."
         actions={
-          <Button
-            variant="primary"
-            href="/campaign-studio"
-            icon={<Plus className="w-3.5 h-3.5" />}
-          >
-            Launch Campaign Studio
-          </Button>
+          <div className="flex items-center gap-2">
+            <Button
+              variant="secondary"
+              href="/onboarding"
+              icon={<Plus className="w-3.5 h-3.5 text-primary" />}
+            >
+              New Business Workspace
+            </Button>
+            <Button
+              variant="primary"
+              href="/campaign-studio"
+              icon={<ArrowRight className="w-3.5 h-3.5" />}
+            >
+              Launch Studio
+            </Button>
+          </div>
         }
       />
 
-      {/* 2. 12-Column Grid: 4 cols Directory + 8 cols Profile Inspector */}
-      <div className="grid grid-cols-1 lg:grid-cols-12 gap-5 items-start">
+      {/* 2. 12-Column Grid */}
+      <div className="grid grid-cols-1 lg:grid-cols-12 gap-5 items-start mt-6">
         {/* Left Pane: 4 cols Brand Directory */}
         <section className="lg:col-span-4 p-4 rounded-xl bg-surface border border-hairline shadow-xs space-y-3">
           <div className="flex items-center justify-between pb-2 border-b border-hairline">
@@ -84,11 +105,11 @@ export default function BrandsPage() {
                 Brand Directory
               </span>
               <h2 className="font-serif text-lg text-ink font-normal mt-0.5">
-                Workspaces
+                Workspaces ({brandList.length})
               </h2>
             </div>
             <span className="text-[11px] font-medium px-2 py-0.5 rounded-full bg-surface-subtle text-ink-secondary border border-hairline font-sans">
-              1 Demo Profile
+              {user ? user.full_name : "Demo Mode"}
             </span>
           </div>
 
@@ -105,13 +126,16 @@ export default function BrandsPage() {
           </div>
 
           {/* Brand Cards List */}
-          <div className="space-y-2 pt-1">
-            {BRANDS.map((brand) => {
-              const isSelected = brand.id === selectedBrandId;
+          <div className="space-y-2 pt-1 max-h-[460px] overflow-y-auto">
+            {filteredBrands.map((brand) => {
+              const isSelected = brand.id === selectedBrand.id;
               return (
                 <button
                   key={brand.id}
-                  onClick={() => setSelectedBrandId(brand.id)}
+                  onClick={() => {
+                    setSelectedId(brand.id);
+                    setActiveBrandId(brand.id);
+                  }}
                   className={`w-full text-left p-3 rounded-lg border transition-all cursor-pointer ${
                     isSelected
                       ? "bg-surface-subtle border-terracotta ring-1 ring-terracotta/30 shadow-xs"
@@ -119,19 +143,19 @@ export default function BrandsPage() {
                   }`}
                 >
                   <div className="flex items-center justify-between mb-1">
-                    <p className="text-xs font-semibold text-ink font-sans">
+                    <p className="text-xs font-semibold text-ink font-sans truncate">
                       {brand.name}
                     </p>
-                    <span className="text-[10px] font-medium px-1.5 py-0.2 rounded-full bg-surface-subtle text-ink-secondary border border-hairline">
-                      Synthetic Fixture
+                    <span className="text-[10px] font-medium px-1.5 py-0.2 rounded-full bg-surface-subtle text-ink-secondary border border-hairline shrink-0 ml-1">
+                      {brand.is_synthetic ? "Synthetic Demo" : "Authentic Workspace"}
                     </span>
                   </div>
-                  <p className="text-[11px] text-ink-secondary font-sans">
-                    {brand.category}
+                  <p className="text-[11px] text-ink-secondary font-sans truncate">
+                    {brand.industry}
                   </p>
                   <div className="mt-2 pt-2 border-t border-hairline/60 flex items-center justify-between text-[10px] text-ink-secondary font-sans">
-                    <span>{brand.market.split("(")[0]}</span>
-                    <span className="text-ink-secondary">Bank Scoped</span>
+                    <span className="truncate max-w-[140px]">{brand.market_region}</span>
+                    <span className="text-forest font-mono text-[9px] shrink-0">1:1 Isolated</span>
                   </div>
                 </button>
               );
@@ -139,13 +163,13 @@ export default function BrandsPage() {
           </div>
 
           <div className="pt-2 border-t border-hairline/80">
-            <button
-              disabled
-              className="w-full py-2 px-3 rounded-lg border border-dashed border-hairline text-ink-secondary text-xs font-medium flex items-center justify-center gap-1.5 opacity-60 cursor-not-allowed"
+            <Link
+              href="/onboarding"
+              className="w-full py-2 px-3 rounded-lg border border-dashed border-terracotta/40 hover:border-terracotta text-terracotta text-xs font-medium flex items-center justify-center gap-1.5 transition-colors"
             >
               <Plus className="w-3.5 h-3.5" />
-              <span>Add Workspace (Enterprise)</span>
-            </button>
+              <span>+ Create Business Workspace</span>
+            </Link>
           </div>
         </section>
 
@@ -154,14 +178,25 @@ export default function BrandsPage() {
           {/* Brand Header */}
           <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-4 pb-4 border-b border-hairline">
             <div>
-              <span className="text-[10px] font-sans font-semibold uppercase tracking-wider text-ink-secondary block">
-                Brand Intelligence Profile
-              </span>
+              <div className="flex items-center gap-2">
+                <span className="text-[10px] font-sans font-semibold uppercase tracking-wider text-ink-secondary block">
+                  Brand Intelligence Profile
+                </span>
+                {selectedBrand.is_synthetic ? (
+                  <span className="px-2 py-0.5 rounded text-[10px] font-mono bg-amber-500/10 text-amber-500 border border-amber-500/20 font-medium">
+                    The Taco Syndicate (Benchmark)
+                  </span>
+                ) : (
+                  <span className="px-2 py-0.5 rounded text-[10px] font-mono bg-emerald-500/10 text-emerald-500 border border-emerald-500/20 font-medium">
+                    Private Business Profile
+                  </span>
+                )}
+              </div>
               <h2 className="font-serif text-2xl text-ink font-normal mt-0.5">
                 {selectedBrand.name}
               </h2>
               <p className="text-xs text-ink-secondary font-sans mt-1">
-                Operational Market: <strong className="text-ink font-medium">{selectedBrand.market}</strong>
+                Operational Market: <strong className="text-ink font-medium">{selectedBrand.market_region}</strong>
               </p>
             </div>
 
@@ -171,7 +206,7 @@ export default function BrandsPage() {
                 href="/memory-explorer"
                 icon={<BrainCircuit className="w-3.5 h-3.5 text-ink-secondary" />}
               >
-                Inspect Fixtures
+                Inspect Memory Bank
               </Button>
             </div>
           </div>
@@ -183,7 +218,7 @@ export default function BrandsPage() {
                 Target Demographic Corridor
               </span>
               <p className="text-ink leading-relaxed">
-                {selectedBrand.audience}
+                {selectedBrand.target_audience}
               </p>
             </div>
 
@@ -192,31 +227,54 @@ export default function BrandsPage() {
                 Brand Voice Guidelines
               </span>
               <p className="text-ink leading-relaxed">
-                {selectedBrand.voice}
+                {selectedBrand.brand_voice}
               </p>
             </div>
           </div>
 
-          {/* Negative Constraints Ledger */}
-          <div className="space-y-2 text-xs font-sans">
-            <div className="flex items-center gap-1.5 text-ink font-semibold">
-              <AlertTriangle className="w-4 h-4 text-terracotta shrink-0" />
-              <span className="uppercase text-[11px] tracking-wider">
-                Negative Operational Constraints
+          {/* Commercial Offerings & Positioning Grid */}
+          {(selectedBrand.products_or_services || selectedBrand.unique_selling_points || selectedBrand.key_offers) && (
+            <div className="p-4 rounded-lg bg-surface-subtle border border-hairline space-y-3 text-xs font-sans">
+              <span className="text-[10px] font-semibold text-ink uppercase tracking-wider block">
+                Commercial Profile &amp; Value Propositions
               </span>
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                {selectedBrand.products_or_services && (
+                  <div>
+                    <span className="text-[10px] text-ink-secondary block font-mono uppercase">Products / Services</span>
+                    <p className="text-ink font-medium mt-0.5">{selectedBrand.products_or_services}</p>
+                  </div>
+                )}
+                {selectedBrand.unique_selling_points && (
+                  <div>
+                    <span className="text-[10px] text-ink-secondary block font-mono uppercase">Unique Value Hook</span>
+                    <p className="text-ink font-medium mt-0.5">{selectedBrand.unique_selling_points}</p>
+                  </div>
+                )}
+                {selectedBrand.price_range && (
+                  <div>
+                    <span className="text-[10px] text-ink-secondary block font-mono uppercase">Price Range</span>
+                    <p className="text-ink font-medium mt-0.5">{selectedBrand.price_range}</p>
+                  </div>
+                )}
+              </div>
             </div>
-            <div className="space-y-1.5">
-              {selectedBrand.negativeConstraints.map((constraint, idx) => (
-                <div
-                  key={idx}
-                  className="p-2.5 rounded-lg bg-terracotta-subtle/50 border border-terracotta-border/40 text-ink leading-relaxed flex items-start gap-2"
-                >
-                  <span className="text-terracotta font-bold text-xs mt-0.5">·</span>
-                  <span>{constraint}</span>
-                </div>
-              ))}
+          )}
+
+          {/* Operational Constraints */}
+          {selectedBrand.restrictions && (
+            <div className="space-y-2 text-xs font-sans">
+              <div className="flex items-center gap-1.5 text-ink font-semibold">
+                <AlertTriangle className="w-4 h-4 text-terracotta shrink-0" />
+                <span className="uppercase text-[11px] tracking-wider">
+                  Operational Constraints &amp; Guardrails
+                </span>
+              </div>
+              <div className="p-2.5 rounded-lg bg-terracotta-subtle/50 border border-terracotta-border/40 text-ink leading-relaxed">
+                {selectedBrand.restrictions}
+              </div>
             </div>
-          </div>
+          )}
 
           {/* Strict Tenant Isolation Guarantee Strip */}
           <div className="p-4 rounded-xl bg-surface-subtle border border-hairline space-y-2 text-xs font-sans">
@@ -225,11 +283,13 @@ export default function BrandsPage() {
               <span>Live Hindsight Brand Isolation Verified</span>
             </div>
             <p className="text-ink-secondary leading-relaxed">
-              Live Hindsight brand isolation verified. Separate 1:1 cloud memory banks enforced with zero cross-brand memory leakage (Verified Nov 7, 2026).
+              Live Hindsight brand isolation verified. Dedicated 1:1 cloud memory banks enforced with zero cross-tenant memory leakage.
             </p>
             <div className="pt-1 flex items-center justify-between text-[11px] text-ink-secondary">
               <span>Architectural Bank Scheme:</span>
-              <span className="text-forest font-mono text-[10px] bg-forest/10 px-2 py-0.5 rounded border border-forest/20 font-semibold">{selectedBrand.bankId}</span>
+              <span className="text-forest font-mono text-[10px] bg-forest/10 px-2 py-0.5 rounded border border-forest/20 font-semibold">
+                {bankDisplayId}
+              </span>
             </div>
           </div>
         </section>

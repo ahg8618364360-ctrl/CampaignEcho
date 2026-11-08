@@ -25,12 +25,31 @@ def get_utc_now() -> datetime:
     return datetime.now(timezone.utc)
 
 
+class User(Base):
+    """User account entity for multi-user authentication."""
+
+    __tablename__ = "users"
+
+    id = Column(String(36), primary_key=True, default=generate_uuid)
+    email = Column(String(255), unique=True, index=True, nullable=False)
+    hashed_password = Column(String(255), nullable=False)
+    full_name = Column(String(255), nullable=False)
+    is_active = Column(Boolean, default=True, nullable=False)
+
+    created_at = Column(DateTime, default=get_utc_now, nullable=False)
+    updated_at = Column(DateTime, default=get_utc_now, onupdate=get_utc_now, nullable=False)
+
+    # Relationships
+    brands = relationship("Brand", back_populates="user", cascade="all, delete-orphan")
+
+
 class Brand(Base):
-    """Brand profile entity."""
+    """Brand profile / business workspace entity."""
 
     __tablename__ = "brands"
 
     id = Column(String(36), primary_key=True, default=generate_uuid)
+    user_id = Column(String(36), ForeignKey("users.id", ondelete="CASCADE"), nullable=True)
     name = Column(String(255), nullable=False)
     industry = Column(String(100), nullable=False)
     description = Column(Text, nullable=False)
@@ -39,6 +58,16 @@ class Brand(Base):
     brand_voice = Column(String(100), nullable=False)
     preferred_language = Column(String(20), default="en", nullable=False)
     restrictions = Column(Text, nullable=True)
+
+    # Extended business profile metadata
+    is_archived = Column(Boolean, default=False, nullable=False)
+    website = Column(String(255), nullable=True)
+    instagram_handle = Column(String(100), nullable=True)
+    products_or_services = Column(Text, nullable=True)
+    unique_selling_points = Column(Text, nullable=True)
+    price_range = Column(String(50), nullable=True)
+    key_offers = Column(Text, nullable=True)
+    competitors = Column(Text, nullable=True)
     
     # Internal backend Hindsight bank identifier (campaignecho-brand-{id})
     # Nullable in M1, populated during M2 bank provisioning
@@ -49,6 +78,7 @@ class Brand(Base):
     updated_at = Column(DateTime, default=get_utc_now, onupdate=get_utc_now, nullable=False)
 
     # Relationships
+    user = relationship("User", back_populates="brands")
     campaigns = relationship("Campaign", back_populates="brand", cascade="all, delete-orphan")
     memory_logs = relationship("MemoryLog", back_populates="brand", cascade="all, delete-orphan")
     verification_runs = relationship("MemoryVerificationRun", back_populates="brand", cascade="all, delete-orphan")

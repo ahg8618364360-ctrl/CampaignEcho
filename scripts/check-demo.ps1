@@ -68,7 +68,7 @@ if ($allPassed) {
         Write-Host " [FAIL] Diagnostic detected invalid configuration, missing tables, or unreachable APIs." -ForegroundColor Red
         $allPassed = $false
     } else {
-        Write-Host " [OK] Deep configuration, 8/8 DB schema tables, and API authentications verified." -ForegroundColor Green
+        Write-Host " [OK] Deep configuration, 9/9 DB schema tables, and API authentications verified." -ForegroundColor Green
     }
 } else {
     Write-Host " [SKIPPED] Skipping API checks due to missing runtime prerequisites." -ForegroundColor Yellow

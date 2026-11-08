@@ -1,6 +1,7 @@
 import React from "react";
 import Link from "next/link";
 import { ChevronRight, SlidersHorizontal } from "lucide-react";
+import { WorkspaceSwitcher } from "@/components/WorkspaceSwitcher";
 
 interface WorkspaceHeaderProps {
   currentSection?: string;
@@ -16,6 +17,8 @@ export function WorkspaceHeader({ currentSection = "The Campaign Desk" }: Worksp
       </div>
 
       <div className="flex items-center gap-3 sm:gap-4 shrink-0">
+        <WorkspaceSwitcher />
+        <div className="h-4 w-px bg-hairline" />
         <Link
           href="/settings"
           className="flex items-center gap-1.5 text-xs text-ink-secondary hover:text-ink transition-colors"
@@ -23,11 +26,6 @@ export function WorkspaceHeader({ currentSection = "The Campaign Desk" }: Worksp
           <SlidersHorizontal className="w-3.5 h-3.5" />
           <span className="hidden sm:inline">Diagnostics &amp; Status</span>
         </Link>
-        <div className="h-4 w-px bg-hairline" />
-        <div className="flex items-center gap-2">
-          <span className="w-2 h-2 rounded-full bg-forest" />
-          <span className="text-xs text-ink-secondary font-medium whitespace-nowrap">Local Session</span>
-        </div>
       </div>
     </header>
   );

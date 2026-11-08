@@ -104,6 +104,13 @@ class CampaignService:
             "market_region": brand.market_region,
             "brand_voice": brand.brand_voice,
             "restrictions": brand.restrictions,
+            "website": getattr(brand, "website", None),
+            "instagram_handle": getattr(brand, "instagram_handle", None),
+            "products_or_services": getattr(brand, "products_or_services", None),
+            "unique_selling_points": getattr(brand, "unique_selling_points", None),
+            "price_range": getattr(brand, "price_range", None),
+            "key_offers": getattr(brand, "key_offers", None),
+            "competitors": getattr(brand, "competitors", None),
         }
 
         strategy = await self.llm_service.generate_strategy(
@@ -329,6 +336,13 @@ class CampaignService:
             "market_region": brand.market_region,
             "brand_voice": brand.brand_voice,
             "restrictions": brand.restrictions,
+            "website": getattr(brand, "website", None),
+            "instagram_handle": getattr(brand, "instagram_handle", None),
+            "products_or_services": getattr(brand, "products_or_services", None),
+            "unique_selling_points": getattr(brand, "unique_selling_points", None),
+            "price_range": getattr(brand, "price_range", None),
+            "key_offers": getattr(brand, "key_offers", None),
+            "competitors": getattr(brand, "competitors", None),
         }
 
         preferred_provider = request.preferred_provider or "zai"

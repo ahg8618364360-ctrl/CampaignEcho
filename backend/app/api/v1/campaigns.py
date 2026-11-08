@@ -1,8 +1,10 @@
 from typing import List, Optional
 from fastapi import APIRouter, Depends, Query, status
 from sqlalchemy.orm import Session
+from sqlalchemy import or_
 
 from backend.app.db.session import get_db
+from backend.app.db.models import Brand, Campaign, User
 from backend.app.schemas.campaign import (
     CampaignBriefInput,
     CampaignResponse,
@@ -12,8 +14,23 @@ from backend.app.schemas.campaign import (
     CampaignComparisonResponse,
 )
 from backend.app.services.campaign_service import CampaignService, get_campaign_service
+from backend.app.core.exceptions import ResourceNotFoundException
+from backend.app.core.security import get_current_user_optional
 
 router = APIRouter(prefix="/campaigns", tags=["Campaigns & Learning Loop"])
+
+
+def _verify_brand_access(db: Session, brand_id: str, current_user: Optional[User]) -> Brand:
+    brand = db.query(Brand).filter(Brand.id == brand_id).first()
+    if not brand:
+        raise ResourceNotFoundException("Brand", brand_id)
+    if current_user:
+        if brand.user_id != current_user.id and not brand.is_synthetic:
+            raise ResourceNotFoundException("Brand", brand_id)
+    else:
+        if not brand.is_synthetic:
+            raise ResourceNotFoundException("Brand", brand_id)
+    return brand
 
 
 @router.post(
@@ -28,8 +45,10 @@ async def generate_campaign(
     brief: CampaignBriefInput,
     preferred_provider: Optional[str] = Query(None, description="Preferred LLM provider: 'zai', 'groq', or 'auto'"),
     db: Session = Depends(get_db),
+    current_user: Optional[User] = Depends(get_current_user_optional),
     service: CampaignService = Depends(get_campaign_service),
 ) -> CampaignResponse:
+    _verify_brand_access(db, brief.brand_id, current_user)
     return await service.generate_campaign(db=db, brief=brief, preferred_provider=preferred_provider)
 
 
@@ -37,14 +56,27 @@ async def generate_campaign(
     "",
     response_model=List[CampaignResponse],
     summary="List campaigns",
-    description="Retrieve all stored campaigns with optional brand isolation filtering.",
+    description="Retrieve stored campaigns with strict tenant isolation filtering.",
 )
 def list_campaigns(
     brand_id: Optional[str] = Query(None, description="Filter campaigns by brand ID"),
     db: Session = Depends(get_db),
+    current_user: Optional[User] = Depends(get_current_user_optional),
     service: CampaignService = Depends(get_campaign_service),
 ) -> List[CampaignResponse]:
-    campaigns = service.list_campaigns(db=db, brand_id=brand_id)
+    if brand_id:
+        _verify_brand_access(db, brand_id, current_user)
+        campaigns = service.list_campaigns(db=db, brand_id=brand_id)
+        return [CampaignResponse.model_validate(c) for c in campaigns]
+
+    # If no brand_id specified, filter campaigns belonging to user's brands (or synthetic demo)
+    query = db.query(Campaign).join(Brand, Campaign.brand_id == Brand.id)
+    if current_user:
+        query = query.filter(or_(Brand.user_id == current_user.id, Brand.is_synthetic == True))
+    else:
+        query = query.filter(Brand.is_synthetic == True)
+
+    campaigns = query.order_by(Campaign.created_at.desc()).all()
     return [CampaignResponse.model_validate(c) for c in campaigns]
 
 
@@ -59,8 +91,10 @@ def list_campaigns(
 async def compare_campaign_strategies(
     request: CampaignComparisonRequest,
     db: Session = Depends(get_db),
+    current_user: Optional[User] = Depends(get_current_user_optional),
     service: CampaignService = Depends(get_campaign_service),
 ) -> CampaignComparisonResponse:
+    _verify_brand_access(db, request.brand_id, current_user)
     return await service.compare_strategies(db=db, request=request)
 
 
@@ -73,8 +107,11 @@ async def compare_campaign_strategies(
 def list_campaign_comparisons(
     brand_id: Optional[str] = Query(None, description="Filter comparisons by brand ID"),
     db: Session = Depends(get_db),
+    current_user: Optional[User] = Depends(get_current_user_optional),
     service: CampaignService = Depends(get_campaign_service),
 ) -> List[CampaignComparisonResponse]:
+    if brand_id:
+        _verify_brand_access(db, brand_id, current_user)
     return service.list_comparisons(db=db, brand_id=brand_id)
 
 

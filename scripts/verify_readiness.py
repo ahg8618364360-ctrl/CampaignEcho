@@ -36,6 +36,7 @@ PLACEHOLDERS = [
 ]
 
 REQUIRED_TABLES = {
+    "users",
     "brands",
     "campaigns",
     "campaign_metrics",
@@ -130,7 +131,7 @@ def check_database() -> Tuple[bool, str]:
                 f"{', '.join(sorted(missing))}). Run 'alembic upgrade head'."
             )
         return True, (
-            f"8/8 required database tables verified: "
+            f"{len(REQUIRED_TABLES)}/{len(REQUIRED_TABLES)} required database tables verified: "
             f"{', '.join(sorted(REQUIRED_TABLES))}"
         )
     except Exception as exc:
