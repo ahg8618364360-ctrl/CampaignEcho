@@ -246,6 +246,7 @@ def test_comparison_rejects_hallucinated_citations(db_session, test_brand, mock_
 
 def test_comparison_brand_not_found(db_session):
     """Test 404 response when brand ID does not exist."""
+    app.dependency_overrides[get_db] = lambda: db_session
     client = TestClient(app)
     payload = {
         "brand_id": "nonexistent-brand-id-999",
@@ -255,6 +256,7 @@ def test_comparison_brand_not_found(db_session):
     }
     response = client.post("/api/v1/campaigns/compare", json=payload)
     assert response.status_code == 404
+    app.dependency_overrides.clear()
 
 
 def test_comparison_mode_a_never_calls_hindsight(db_session, test_brand, mock_baseline_strategy, mock_memory_strategy):
