@@ -10,6 +10,9 @@
 
 ## 1. Quick-Start (One-Command Startup)
 
+> [!NOTE]
+> **Synthetic Data Provenance Note**: *The Taco Syndicate* brand profile and its seeded campaign metrics (e.g. 48,200 impressions, 389 redemptions, $1,150 spend) are synthetic evaluation fixtures (`is_synthetic = True`). All Vectorize Hindsight operations (`aretain`, `arecall`, `areflect`) and Z.ai inferences shown during the demo are real live cloud API operations.
+
 Open PowerShell in `C:\CampaignEcho`:
 ```powershell
 # Pre-flight check & one-command demonstration launch

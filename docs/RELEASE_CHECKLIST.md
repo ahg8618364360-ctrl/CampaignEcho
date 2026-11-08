@@ -8,29 +8,32 @@
 
 ## 1. Local Runtime Verification
 
-Before recording demonstration videos or conducting evaluator walkthroughs, ensure both application daemons and databases are online:
+Before recording demonstration videos or conducting evaluator walkthroughs, ensure both application daemons and databases are online using the automated runner:
 
-### Step 1: Start Backend Daemon
+### Step 1: Run Pre-Flight Diagnostics
 ```powershell
-# In c:\CampaignEcho
-.\venv\Scripts\uvicorn.exe backend.app.main:app --host 127.0.0.1 --port 8000
+# In C:\CampaignEcho
+powershell -ExecutionPolicy Bypass -File scripts\check-demo.ps1
 ```
-- Verify: `curl http://127.0.0.1:8000/api/v1/health/ready` returns `{"status":"ready","database":"connected","version":"0.1.0"}`.
+- Verify: Python, Node, database schema, live Vectorize Hindsight Cloud, and live Z.ai API are confirmed.
 
-### Step 2: Start Frontend Next.js Server
+### Step 2: One-Command Demonstration Startup
 ```powershell
-# In c:\CampaignEcho\frontend
-npm.cmd start
-# (Or npm.cmd run dev for development mode)
+powershell -ExecutionPolicy Bypass -File scripts\start-demo.ps1
 ```
-- Verify: Access `http://localhost:3000` in Chrome/Edge.
+- Automatically applies migrations, checks backend `/api/v1/health/ready`, checks Next.js `http://localhost:3000`, and records process ownership safely.
 
 ### Step 3: Run Full Automated Verification Suite
 ```powershell
-# In c:\CampaignEcho
 .\venv\Scripts\pytest.exe -v --tb=short backend/tests
 ```
-- Expected: **39 passed, 0 skipped, 0 failed, 0 warnings** (including all 5 live Hindsight Cloud integration tests and live continuous learning loop).
+- Expected: **42 passed, 0 skipped, 0 failed, 0 warnings** (including all 5 live Hindsight Cloud integration tests, live continuous learning loop, and 3 seeder safety tests).
+
+### Step 4: Safe Demonstration Shutdown
+```powershell
+powershell -ExecutionPolicy Bypass -File scripts\stop-demo.ps1
+```
+- Verifies process ownership and terminates only CampaignEcho processes.
 
 ---
 

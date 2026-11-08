@@ -16,6 +16,9 @@ CampaignEcho is an enterprise marketing intelligence platform that equips genera
 
 This guide provides judges and technical evaluators with a 5-minute walkthrough to verify every claim made in our submission.
 
+> [!NOTE]
+> **Synthetic Data & Provenance Disclosure**: *The Taco Syndicate* brand profile and seeded performance metrics (e.g. 48,200 impressions, 389 redemptions, $1,150 spend) are synthetic evaluation fixtures (`is_synthetic = True`). All Vectorize Hindsight Cloud operations (`aretain`, `arecall`, `areflect`) and Z.ai model inferences demonstrated in the platform are real live cloud API operations.
+
 ---
 
 ## 2. Quick-Start (One-Command Launch)
@@ -137,7 +140,7 @@ bank_id = f"campaignecho-brand-{str(brand_id).lower()}"
 
 To verify that Brand B cannot read Brand A's memory bank:
 1. Examine `backend/tests/test_memory_cloud.py::test_brand_isolation_real`.
-2. This test creates a memory in `campaignecho-brand-test-isolation-a`, queries `campaignecho-brand-test-isolation-b`, and asserts with 100% mathematical certainty that zero records cross the tenant boundary.
+2. This test creates a memory in `campaignecho-brand-test-isolation-a`, queries `campaignecho-brand-test-isolation-b`, and verifies that zero records cross the tenant boundary in the cloud response.
 
 ---
 

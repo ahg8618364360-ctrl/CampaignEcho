@@ -120,7 +120,7 @@ Evaluators can witness the direct effect of persistent memory live at `/memory-e
 | **Epistemic Trace** | Uncited generative speculation | Explicit citation chips linking to Hindsight memory items |
 
 > [!NOTE]
-> Scientific Honesty: Two LLM outputs do not establish statistically significant causal uplift; this controlled comparison demonstrates qualitative and contextual grounding enabled by persistent memory.
+> **Scientific Honesty & Synthetic Data Disclosure**: *The Taco Syndicate* brand and seeded metrics are synthetic evaluation fixtures. Two LLM outputs do not establish statistically significant causal uplift; this controlled comparison demonstrates qualitative and contextual grounding enabled by persistent memory.
 
 ---
 
@@ -156,7 +156,7 @@ Designed in strict compliance with `docs/DESIGN_REFERENCE_LOCK.md`:
 ## Slide 6: Continuous Learning Loop In Action
 
 ```
-  Step 1: Marketer inputs results for completed campaign:
+  Step 1: Marketer inputs results for completed campaign (sample demonstration metrics):
           • Impressions: 54,200  • Clicks: 2,190  • Redemptions: 412  • Spend: $1,150
           
   Step 2: Backend formats comprehensive postmortem payload.

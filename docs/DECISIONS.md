@@ -206,3 +206,23 @@
   - Full end-to-end evaluation flow reproducible in under 5 minutes with zero manual configuration.
   - Complete compliance with all behavioral rules, memory isolation laws, and submission requirements.
   - Ready for release branch pull request against `main`.
+
+
+---
+
+## ADR-015: Milestone 7.1 Release Candidate Corrections & CI/Script Hardening
+- **Status**: ACCEPTED (Milestone 7.1)
+- **Context**: Independent review of Milestone 7 identified a setuptools flat-layout packaging defect in GitHub Actions backend CI (`pip install -e .` failing due to discovering both backend and frontend), permissive/catch-all reporting in `scripts/check-demo.ps1`, unverified PID termination in `scripts/stop-demo.ps1`, lack of non-synthetic brand collision protection in `scripts/seed_demo.py`, and imprecise claims regarding synthetic demo data vs live cloud memory operations.
+- **Decision**:
+  1. Fix Python packaging in `pyproject.toml`: Add `[tool.setuptools.packages.find]` explicitly including `backend*` and excluding `frontend*` and `scratch*`. Declare explicit dependencies including `hindsight-client>=1.2.0`.
+  2. Implement genuine diagnostic runner `scripts/verify_readiness.py` with strict rejection of placeholder keys, schema table verification, live Hindsight Cloud authentication check (`aget_version`), and live Z.ai API authentication check (`GET /models`).
+  3. Harden `scripts/check-demo.ps1` to exit with code 1 whenever prerequisites or API checks fail, with zero catch-block masking.
+  4. Harden `scripts/start-demo.ps1` to halt on diagnostic failure, check Alembic exit codes, poll health endpoints until genuinely online, and persist verified ownership metadata in `scripts/demo-ownership.json`.
+  5. Harden `scripts/stop-demo.ps1` with process command-line verification (`Stop-VerifiedProcess`), terminating only CampaignEcho-owned processes and refusing to touch stale/reused PIDs belonging to other applications.
+  6. Harden `scripts/seed_demo.py` with provenance checks refusing to seed into authentic (`is_synthetic = False`) brands, and add automated unit tests in `backend/tests/test_seed_demo.py`.
+  7. Audit all submission documentation: Disclose synthetic provenance for *The Taco Syndicate*, use truthful publication statuses (`READY_TO_PUBLISH`, `PENDING_PUBLICATION`), separate Form 1 (Individual Profile Review) from Form 2 (Team Lead Final Submission), and honestly report Band Desktop usage as `PENDING`.
+- **Consequences**:
+  - GitHub Actions CI backend packaging is resolved.
+  - Demo automation scripts are fail-safe, truthful, and safe to execute on any host.
+  - Zero risk of synthetic fixtures contaminating real brand data.
+  - Compliance documentation reflects genuine evaluator standards without exaggeration.

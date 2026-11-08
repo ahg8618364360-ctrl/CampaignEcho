@@ -2,7 +2,11 @@
 """
 CampaignEcho -- Deterministic Demonstration Data Seeding Script
 Populates canonical demo fixtures for 'The Taco Syndicate' with explicit synthetic provenance.
-Idempotent: safe to run multiple times without duplicating data or wiping records.
+Guarantees:
+- Idempotent: safe to run multiple times without duplicating data.
+- Refuses unsafe collisions: if a non-synthetic brand exists with the same name, aborts without modifying.
+- Enforces synthetic provenance: all campaigns and feedback are marked synthetic.
+- Does NOT retain synthetic fixtures to live Hindsight Cloud.
 """
 
 import sys
@@ -12,7 +16,6 @@ from decimal import Decimal
 from datetime import datetime, timezone
 from pathlib import Path
 
-# Add project root to path
 ROOT_DIR = Path(__file__).resolve().parent.parent
 if str(ROOT_DIR) not in sys.path:
     sys.path.insert(0, str(ROOT_DIR))
@@ -55,7 +58,7 @@ CANONICAL_FIXTURES = [
         },
         "feedback": {
             "feedback_type": "CAMPAIGN_POSTMORTEM",
-            "content": "Campaign generated 48,200 impressions and 389 redemptions. Peak traffic occurred between 11 PM and 1 AM using the flash code QUESO22.",
+            "content": "[SYNTHETIC DEMO FIXTURE] Campaign generated 48,200 impressions and 389 redemptions. Peak traffic occurred between 11 PM and 1 AM using the flash code QUESO22.",
             "lessons_learned": "Time-sensitive flash codes (11 PM - 1 AM) and ASMR cheese pulls are the single most reliable conversion mechanism for West Campus night owls.",
         },
     },
@@ -90,7 +93,7 @@ CANONICAL_FIXTURES = [
         },
         "feedback": {
             "feedback_type": "CAMPAIGN_POSTMORTEM",
-            "content": "Campaign severely underperformed with only 34 conversions at a crippling $41.18 CPA. Student audience felt alienated.",
+            "content": "[SYNTHETIC DEMO FIXTURE] Campaign severely underperformed with only 34 conversions at a crippling $41.18 CPA. Student audience felt alienated.",
             "lessons_learned": "Strict negative heuristic: Never position The Taco Syndicate as fine-dining or luxury cuisine. Stick to authentic street food and value.",
         },
     },
@@ -125,19 +128,35 @@ CANONICAL_FIXTURES = [
         },
         "feedback": {
             "feedback_type": "CAMPAIGN_POSTMORTEM",
-            "content": "Successfully filled afternoon lull with 278 verified student redemptions. Kitchen bottlenecked between 2:00 and 2:30 PM.",
+            "content": "[SYNTHETIC DEMO FIXTURE] Successfully filled afternoon lull with 278 verified student redemptions. Kitchen bottlenecked between 2:00 and 2:30 PM.",
             "lessons_learned": "Clear price point ($1 taco) drives rapid word-of-mouth on campus group chats. Stagger arrival times to relieve counter congestion.",
         },
     },
 ]
 
 
-def seed_demo_data():
-    db = SessionLocal()
+def seed_demo_data(db_session=None):
+    """Seed demo fixtures safely. Accepts an optional external session for testing."""
+    close_session = False
+    if db_session is None:
+        db = SessionLocal()
+        close_session = True
+    else:
+        db = db_session
+
     try:
-        print("Checking demonstration brand...")
+        print("Checking demonstration brand provenance...")
         brand = db.query(Brand).filter(Brand.name == DEMO_BRAND_NAME).first()
-        if not brand:
+
+        if brand:
+            # Check provenance: must be explicitly synthetic
+            if not getattr(brand, "is_synthetic", False):
+                raise ValueError(
+                    f"Unsafe brand collision: Found existing brand '{brand.name}' (ID: {brand.id}) "
+                    f"with is_synthetic=False. Refusing to inject synthetic fixtures into an authentic brand."
+                )
+            print(f"  Verified synthetic brand '{brand.name}' exists (ID: {brand.id})")
+        else:
             brand = Brand(
                 id=str(uuid.uuid4()),
                 name=DEMO_BRAND_NAME,
@@ -153,9 +172,7 @@ def seed_demo_data():
             db.add(brand)
             db.commit()
             db.refresh(brand)
-            print(f"  Created brand '{brand.name}' (ID: {brand.id})")
-        else:
-            print(f"  Brand '{brand.name}' exists (ID: {brand.id})")
+            print(f"  Created synthetic brand '{brand.name}' (ID: {brand.id})")
 
         print("Checking demonstration fixtures...")
         seeded_count = 0
@@ -212,7 +229,9 @@ def seed_demo_data():
                 feedback_type=f_data["feedback_type"],
                 content=f_data["content"],
                 lessons_learned=f_data["lessons_learned"],
-                retained_to_hindsight=False,  # Local synthetic fixtures
+                retained_to_hindsight=False,  # Local synthetic fixtures are never pushed to Hindsight
+                hindsight_memory_id=None,
+                created_at=datetime.now(timezone.utc),
             )
             db.add(feedback)
             seeded_count += 1
@@ -220,12 +239,16 @@ def seed_demo_data():
 
         db.commit()
         print(f"\nDemonstration seeding complete. Added {seeded_count} new fixtures. Brand total campaigns: {len(brand.campaigns)}")
+        return 0
     except Exception as exc:
         db.rollback()
         print(f"Seeding failed: {exc}", file=sys.stderr)
-        sys.exit(1)
+        if close_session:
+            sys.exit(1)
+        raise
     finally:
-        db.close()
+        if close_session:
+            db.close()
 
 
 if __name__ == "__main__":

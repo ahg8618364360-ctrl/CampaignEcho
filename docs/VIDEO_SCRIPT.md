@@ -4,7 +4,8 @@
 **Presenter / Host**: Adarsh (Team Lead & Systems Architect)  
 **Target Duration**: 4 Minutes 00 Seconds (240 Seconds)  
 **Format**: 1080p60 Screencast with Host Webcam Picture-in-Picture  
-**Brand**: The Taco Syndicate (Austin, TX)  
+**Brand**: The Taco Syndicate (Austin, TX) — Synthetic Evaluation Fixture  
+**Synthetic Provenance Note**: *The Taco Syndicate* and its metrics are synthetic demonstration fixtures; Hindsight Cloud API operations and Z.ai inferences are real live cloud operations.  
 **Prohibited Content**: Zero occurrences of informal slang or banned competition terminology  
 
 ---
@@ -129,9 +130,9 @@ Click **Retain & Verify Closed Loop**.
 Show the green success banner rendering the live Hindsight Retain Operation ID and immediate verified recall confirmation.
 
 **[Adarsh Voiceover]**:
-> "Once a campaign runs in the real world, the loop must be closed.
+> "Once a campaign runs, the loop must be closed.
 >
-> We enter our actual performance data and qualitative takeaways into the Results Drawer. When we click 'Retain', CampaignEcho dispatches the postmortem directly to Vectorize Hindsight Cloud via `aretain`.
+> We enter our postmortem performance metrics and qualitative takeaways into the Results Drawer. When we click 'Retain', CampaignEcho dispatches the postmortem directly to Vectorize Hindsight Cloud via `aretain`.
 >
 > Immediately after, CampaignEcho executes an active verification query to prove the memory is indexed and retrievable. In under a second, the verification passes. The experience is now permanently part of the brand's institutional memory."
 

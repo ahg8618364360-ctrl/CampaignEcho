@@ -202,6 +202,9 @@ In accordance with CampaignEcho architectural standards, AI outputs must never c
 
 For competition judges and evaluators, CampaignEcho provides fully automated PowerShell scripts to test and run the entire platform in seconds:
 
+> [!NOTE]
+> **Synthetic Data & Provenance Disclosure**: *The Taco Syndicate* brand profile and seeded performance metrics (e.g. 48,200 impressions, 389 redemptions) are synthetic evaluation fixtures (`is_synthetic = True`). All Vectorize Hindsight Cloud operations (`aretain`, `arecall`, `areflect`) and Z.ai model inferences are real live cloud operations.
+
 ```powershell
 # 1. Run environment diagnostics (validates Python, Node, live Hindsight Cloud & Z.ai gateway)
 .\scripts\check-demo.ps1

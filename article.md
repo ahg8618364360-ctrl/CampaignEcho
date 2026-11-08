@@ -12,13 +12,13 @@ To solve this, we engineered **CampaignEcho**—an enterprise marketing intellig
 
 ## 1. The Cognitive Memory Loop: Retain, Recall, and Reflect
 
-Traditional vector retrieval (RAG) matches keyword queries against static documentation. However, basic RAG lacks temporal context, brand boundaries, and the ability to distinguish an unverified hunch from an empirically measured conversion outcome.
+Traditional vector retrieval (RAG) matches keywords against static documents without temporal state or brand boundaries, unable to separate an unverified hunch from measured outcomes.
 
 Vectorize Hindsight redefines agent memory through three native cognitive primitives:
 
-1. **Recall**: When a marketer submits a brief, the agent executes contextual retrieval across past campaigns to surface initiatives targeting comparable audiences, budgets, or objectives.
-2. **Reflect**: Rather than saturating the context window with raw historical logs, Hindsight synthesizes high-level behavioral heuristics and rules of thumb across all past campaigns.
-3. **Retain**: Once a campaign concludes, verified postmortem metrics (impressions, redemptions, spend) and qualitative findings are stored in the brand's memory bank.
+1. **Recall**: Contextual retrieval across past campaigns targeting comparable audiences, budgets, or objectives.
+2. **Reflect**: Synthesizes high-level behavioral heuristics and rules of thumb across all past campaigns.
+3. **Retain**: Once a campaign concludes, verified postmortem metrics and qualitative findings are stored in the brand's memory bank.
 
 ```
                     +-----------------------------+
@@ -158,7 +158,7 @@ To demonstrate the concrete impact of persistent memory, CampaignEcho features *
 | **Channel Timing** | Standard business hours (10 AM - 6 PM) | Concentrates ad spend Thursday-Saturday 10:30 PM - 1:30 AM |
 | **Epistemic Trace** | Speculative assertions with zero citations | Clickable memory citation chips linked to verified postmortems |
 
-*Note on Scientific Rigor*: Two LLM generations do not establish statistically significant causal uplift; rather, this comparison demonstrates the contextual grounding and mistake avoidance made possible by persistent memory.
+*Synthetic Data Disclosure & Scientific Rigor*: For demonstration and testing, *The Taco Syndicate* brand and seeded performance metrics (e.g. 48,200 impressions, 389 redemptions) are synthetic evaluation fixtures. While all Vectorize Hindsight Cloud operations (retain, recall, reflect) and Z.ai model inferences are real live cloud operations, the underlying brand data serves as a controlled test fixture rather than historical customer records. Two LLM generations do not establish statistically significant causal uplift; rather, this comparison demonstrates the qualitative grounding and mistake avoidance made possible by persistent memory.
 
 ---
 

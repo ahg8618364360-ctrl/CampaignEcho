@@ -5,6 +5,7 @@
 **Resolution**: 1080p60 (1920x1080)  
 **Aspect Ratio**: 16:9  
 **Platform**: Public YouTube  
+**Synthetic Provenance Note**: *The Taco Syndicate* and its metrics are synthetic demonstration fixtures; Hindsight Cloud API operations and Z.ai inferences are real live cloud operations.  
 
 ---
 

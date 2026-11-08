@@ -1,27 +1,43 @@
-# CampaignEcho — Content Publishing & Submission Tracker
+# CampaignEcho — Content Publishing & Multi-Participant Tracker
 
 **Project**: CampaignEcho — Memory-Powered AI Marketing Intelligence Platform  
 **Governing Standard**: Multi-Participant Submission Guide & Compliance Rules  
-**Date**: November 7, 2026  
-**Status**: ASSETS PREPARED & COMPLIANCE VERIFIED  
+**Date**: November 8, 2026  
+**Status**: RELEASE CANDIDATE (STATUSES TRUTHFULLY AUDITED)  
 **Repository**: `https://github.com/ahg8618364360-ctrl/CampaignEcho`  
 
 ---
 
-## 1. Master Content Distribution Ledger
+## 1. Multi-Participant Individual Publishing Ledger
 
-| Deliverable | Target Platform | Lead Owner | Word Count / Duration | Compliance Checks | Target URL | Status |
+The competition guidelines mandate that **EVERY** participating team member must independently publish three deliverables:
+1. **One Individual Technical Article**: 1,200–1,500 words, Hindsight in title $\le$ 10 words, tagged `@Code.in` and `@Vectorize`, zero prohibited terms.
+2. **One Individual LinkedIn Post**: Professional post highlighting platform architecture, tagging `@Code.in` and `@Vectorize`, zero prohibited terms.
+3. **One Individual Reddit Link Post**: Linking to their published technical article in a relevant developer subreddit (`r/ArtificialIntelligence`, `r/webdev`, `r/MachineLearning`, etc.).
+
+Additionally, the team must produce **One Shared Team Demonstration Video** (2–5 minutes, $\ge$1080p).
+
+### Publishing Status Ledger
+
+| Participant | Deliverable | Platform | Target Title / Scope | Word Count / Specs | Status | Target / Draft Link |
 | :--- | :--- | :--- | :--- | :--- | :--- | :--- |
-| **Technical Article** | Dev.to / Hashnode / Medium | Adarsh (Lead Engineer) | 1,458 words | • Title $\le$ 10 words (8 words)<br>• Vectorize Hindsight featured<br>• Real code snippets<br>• Tagged Code.in<br>• **0 banned words** | `https://dev.to/campaignecho/building-continuous-ai-marketing-agents-with-vectorize-hindsight` | **READY TO PUBLISH**<br>(Source: `article.md`) |
-| **Product Video Demo** | YouTube (Unlisted or Public) | Adarsh & AI Engineer | 4m 10s (250s) | • Demonstrates Retain, Recall, Reflect<br>• Real Hindsight Cloud responses<br>• Memory Evolution side-by-side<br>• High-definition 1080p<br>• **0 banned words** | `https://youtu.be/CampaignEcho-Demo-Hindsight` | **SCRIPT LOCKED**<br>(Source: `docs/VIDEO_SCRIPT.md`) |
-| **Professional Deep Dive** | LinkedIn Article / Post | Product / Marketing Lead | ~350 words + carousel | • Tags @Code.in and @Vectorize<br>• Highlights Hindsight memory banks<br>• Screenshot carousel attached<br>• **0 banned words** | `https://www.linkedin.com/posts/campaignecho-continuous-marketing-intelligence` | **READY TO POST**<br>(Template below) |
-| **Open Source Repository** | GitHub | Adarsh | Full Codebase | • 100% tests passing (39/39)<br>• Zero credentials in git<br>• Clean README & Runbooks<br>• One-command demo scripts | `https://github.com/ahg8618364360-ctrl/CampaignEcho` | **READY FOR RELEASE PR** |
+| **Adarsh** *(Lead)* | Technical Article | Dev.to / Hashnode | *Building Continuous AI Marketing Agents with Vectorize Hindsight* | 1,480 words (8-word title) | `READY_TO_PUBLISH` | Source: `article.md` |
+| **Adarsh** *(Lead)* | LinkedIn Post | LinkedIn | Professional Architecture Post + Screenshot | ~350 words | `READY_TO_PUBLISH` | Template in Section 2 |
+| **Adarsh** *(Lead)* | Reddit Post | Reddit (`r/ArtificialIntelligence`) | Link Post to published Dev.to article | Link Post | `PENDING_PUBLICATION` | Pending article live URL |
+| **Participant 2** *(Frontend)* | Technical Article | Dev.to / Medium | *Designing Anti-Slop Interfaces for Memory-Powered AI Agents* | 1,200–1,500 words | `PENDING_PUBLICATION` | Outline in draft |
+| **Participant 2** *(Frontend)* | LinkedIn Post | LinkedIn | Editorial UI Craft Deep Dive + Visual Carousel | ~300 words + carousel | `PENDING_PUBLICATION` | Draft in preparation |
+| **Participant 2** *(Frontend)* | Reddit Post | Reddit (`r/webdev`) | Link Post to Frontend Craft article | Link Post | `PENDING_PUBLICATION` | Pending article live URL |
+| **Participant 3** *(AI/QA)* | Technical Article | Dev.to / Hashnode | *Evaluating Epistemic Integrity in Agentic Memory Systems* | 1,200–1,500 words | `PENDING_PUBLICATION` | Outline in draft |
+| **Participant 3** *(AI/QA)* | LinkedIn Post | LinkedIn | Causal Reasoning & Epistemic Triad Breakdown | ~300 words | `PENDING_PUBLICATION` | Draft in preparation |
+| **Participant 3** *(AI/QA)* | Reddit Post | Reddit (`r/MachineLearning`) | Link Post to Causal Integrity article | Link Post | `PENDING_PUBLICATION` | Pending article live URL |
+| **Team (Shared)** | Demo Video | YouTube | 4-Minute Screencast Demonstration (Host: Adarsh) | 4m 10s (1080p) | `PENDING_PUBLICATION` | Source: `docs/VIDEO_SCRIPT.md` |
 
 ---
 
 ## 2. Pre-Formatted Social Media Copy (LinkedIn / Professional)
 
-### Ready-to-Publish LinkedIn Post Template (Strictly Zero Banned Words)
+### Ready-to-Publish LinkedIn Post Template (Adarsh / Lead)
+*(Strictly Zero Prohibited Terms; Tagging @Code.in and @Vectorize)*
 
 > Most generative AI marketing tools suffer from catastrophic amnesia.
 > 
@@ -43,21 +59,30 @@
 > 
 > Proud to share our progress with the **Code.in** developer community! Check out the architecture and demo below:
 > 
-> 🔗 Technical Article: [Link]  
-> 🎥 Video Walkthrough: [Link]  
+> 🔗 Technical Article: [INSERT_DEVTO_URL_AFTER_PUBLISHING]  
+> 🎥 Video Walkthrough: [INSERT_YOUTUBE_URL_AFTER_RECORDING]  
 > 💻 Source Code: https://github.com/ahg8618364360-ctrl/CampaignEcho  
 > 
 > #ArtificialIntelligence #SoftwareEngineering #MarketingTech #MachineLearning #Vectorize #Hindsight #WebDevelopment #Codein
 
 ---
 
-## 3. Compliance Verification Sign-Off
+## 3. Band AI Desktop Status Ledger
 
-- [x] **Word Count Verification**: `article.md` verified at 1,458 words (within 1,200–1,500 word range).
-- [x] **Hindsight in Title**: Article title is 8 words: `"Building Continuous AI Marketing Agents with Vectorize Hindsight"`.
-- [x] **Prohibited Word Audit**: Automated regex search confirmed **0 occurrences of prohibited terms** in `article.md`, `docs/VIDEO_SCRIPT.md`, `docs/VIDEO_SHOT_LIST.md`, and `SUBMISSION_LINKS.md`.
-- [x] **Community Attribution**: Code.in community and Vectorize Hindsight explicitly tagged in the article and social copy.
-- [x] **Band AI Desktop Runbook**: Setup and diagnostic instructions documented in `docs/COMPETITION_COMPLIANCE.md`.
-- [x] **Evaluator Guide**: Complete evaluator manual created at `docs/EVALUATOR_GUIDE.md`.
-- [x] **Demonstration Runbook**: Step-by-step evaluator runbook created at `docs/FINAL_DEMO_RUNBOOK.md`.
-- [x] **One-Command Automation**: `scripts/check-demo.ps1`, `scripts/start-demo.ps1`, `scripts/stop-demo.ps1`, and `scripts/seed_demo.py` tested and verified.
+The competition requires all participants to use Band AI Desktop. We report actual status without fabrication:
+
+| Participant | Environment | Band Desktop Status | Verification Action Needed |
+| :--- | :--- | :--- | :--- |
+| **Adarsh** | Windows 11 | `PENDING` | Install Band Desktop, run `band daemon status` and `band project connect C:\CampaignEcho` |
+| **Participant 2** | Local Workstation | `PENDING` | Install Band Desktop, run `band daemon status` on workstation |
+| **Participant 3** | Local Workstation | `PENDING` | Install Band Desktop, run `band daemon status` on workstation |
+
+*Manual installation and connection runbook is maintained at `docs/COMPETITION_COMPLIANCE.md`.*
+
+---
+
+## 4. Synthetic Provenance Declaration
+
+- **Synthetic Fixtures**: All performance data for *The Taco Syndicate* (impressions, clicks, conversions, spend) are synthetic fixtures generated for benchmark testing.
+- **Real Operations**: All API interactions with Vectorize Hindsight Cloud (`api.hindsight.vectorize.io`) and Z.ai Inference Gateway (`open.bigmodel.cn`) are real live network operations.
+- Local synthetic fixtures are strictly tagged with `is_synthetic = True` and are never described as genuine customer business results.
