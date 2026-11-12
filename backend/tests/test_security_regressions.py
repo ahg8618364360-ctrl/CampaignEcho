@@ -39,8 +39,11 @@ def test_python_runtime_enforces_version():
         assert "below required minimum" in err_msg
 
 
-def test_env_keys_rejects_all_placeholders():
+def test_env_keys_rejects_all_placeholders(monkeypatch):
     """Verify check_env_keys rejects every known placeholder string."""
+    monkeypatch.delenv("CAMPAIGNECHO_AUTH_SECRET", raising=False)
+    monkeypatch.delenv("HINDSIGHT_API_KEY", raising=False)
+    monkeypatch.delenv("ZAI_API_KEY", raising=False)
     valid_secret = "a" * 32
     for placeholder in PLACEHOLDERS:
         with patch("backend.app.core.config.settings.CAMPAIGNECHO_AUTH_SECRET", placeholder):
@@ -65,8 +68,11 @@ def test_env_keys_rejects_all_placeholders():
                     assert "placeholder" in msg.lower()
 
 
-def test_env_keys_rejects_missing_or_empty():
+def test_env_keys_rejects_missing_or_empty(monkeypatch):
     """Verify check_env_keys rejects empty or None keys."""
+    monkeypatch.delenv("CAMPAIGNECHO_AUTH_SECRET", raising=False)
+    monkeypatch.delenv("HINDSIGHT_API_KEY", raising=False)
+    monkeypatch.delenv("ZAI_API_KEY", raising=False)
     valid_secret = "a" * 32
     with patch("backend.app.core.config.settings.CAMPAIGNECHO_AUTH_SECRET", ""):
         with patch("backend.app.core.config.settings.HINDSIGHT_API_KEY", "real-valid-key"):
