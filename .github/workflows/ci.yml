@@ -29,6 +29,7 @@ jobs:
           pytest backend/tests/ -v -k "not test_critical_ and not test_live_continuous_learning_loop_e2e"
         env:
           DATABASE_URL: sqlite:///./test_ci.db
+          CAMPAIGNECHO_AUTH_SECRET: ci-ephemeral-signing-key-9f4e2a1b8c7d6e5f4a3b2c1d
 
   frontend-build:
     name: Frontend Typecheck, Lint & Build
@@ -58,4 +59,4 @@ jobs:
       - name: Production build
         run: npm run build
         env:
-          NEXT_PUBLIC_API_BASE_URL: http://127.0.0.1:8000
+          NEXT_PUBLIC_API_BASE_URL: http://localhost:8000/api/v1

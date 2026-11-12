@@ -245,6 +245,7 @@ export async function fetchMemoryStatus(brandId: string): Promise<MemoryStatusRe
   try {
     const res = await fetch(`${API_BASE_URL}/brands/${brandId}/memory/status`, {
       cache: "no-store",
+      credentials: "include",
       headers: { Accept: "application/json" },
     });
     if (res.ok) {
@@ -260,6 +261,7 @@ export async function fetchMemoryActivity(brandId: string): Promise<MemoryActivi
   try {
     const res = await fetch(`${API_BASE_URL}/brands/${brandId}/memory/activity?limit=20`, {
       cache: "no-store",
+      credentials: "include",
       headers: { Accept: "application/json" },
     });
     if (res.ok) {
@@ -280,6 +282,7 @@ export async function fetchMemoryExplore(
       `${API_BASE_URL}/brands/${brandId}/memory/explore?query=${encodeURIComponent(query)}`,
       {
         cache: "no-store",
+        credentials: "include",
         headers: { Accept: "application/json" },
       }
     );
@@ -297,6 +300,7 @@ export async function executeComparison(
 ): Promise<CampaignComparisonResponse> {
   const res = await fetch(`${API_BASE_URL}/campaigns/compare`, {
     method: "POST",
+    credentials: "include",
     headers: {
       "Content-Type": "application/json",
       Accept: "application/json",
@@ -318,6 +322,7 @@ export async function fetchComparison(
   try {
     const res = await fetch(`${API_BASE_URL}/campaigns/compare/${comparisonId}`, {
       cache: "no-store",
+      credentials: "include",
       headers: { Accept: "application/json" },
     });
     if (res.ok) {
@@ -338,6 +343,7 @@ export async function fetchComparisons(
       : `${API_BASE_URL}/campaigns/compare`;
     const res = await fetch(url, {
       cache: "no-store",
+      credentials: "include",
       headers: { Accept: "application/json" },
     });
     if (res.ok) {

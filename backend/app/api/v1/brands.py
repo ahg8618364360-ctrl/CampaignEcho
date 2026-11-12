@@ -18,9 +18,13 @@ router = APIRouter(prefix="/brands", tags=["Brands"])
 def create_brand(
     payload: BrandCreate,
     db: Session = Depends(get_db),
-    current_user: Optional[User] = Depends(get_current_user_optional),
+    current_user: User = Depends(get_current_user),
 ):
-    """Create a new business profile / brand workspace."""
+    """Create a new business profile / brand workspace (authentication required).
+    
+    Workspaces created by users are strictly non-synthetic, owned by the user,
+    and provisioned with an isolated server-derived Hindsight bank identifier.
+    """
     brand = Brand(
         name=payload.name.strip(),
         industry=payload.industry.strip(),
@@ -30,8 +34,8 @@ def create_brand(
         brand_voice=payload.brand_voice.strip(),
         preferred_language=payload.preferred_language,
         restrictions=payload.restrictions,
-        is_synthetic=payload.is_synthetic,
-        user_id=current_user.id if current_user else None,
+        is_synthetic=False,  # Clients cannot set synthetic benchmark status
+        user_id=current_user.id,
         website=payload.website,
         instagram_handle=payload.instagram_handle,
         products_or_services=payload.products_or_services,
@@ -40,9 +44,9 @@ def create_brand(
         key_offers=payload.key_offers,
         competitors=payload.competitors,
     )
-    # Provision Hindsight bank ID idempotently
     db.add(brand)
     db.flush()
+    # Server-derived bank identifier; never exposed in public client responses
     brand.hindsight_bank_id = f"campaignecho-brand-{brand.id}"
     db.commit()
     db.refresh(brand)
@@ -108,16 +112,19 @@ def update_brand(
     db: Session = Depends(get_db),
     current_user: User = Depends(get_current_user),
 ):
-    """Update business workspace metadata (owner only)."""
+    """Update business workspace metadata (owner only; benchmark brands are immutable)."""
     brand = db.query(Brand).filter(Brand.id == brand_id).first()
-    if not brand or (brand.user_id != current_user.id and not brand.is_synthetic):
+    if not brand:
         raise ResourceNotFoundException("Brand", brand_id)
 
     if brand.is_synthetic:
         raise HTTPException(
             status_code=status.HTTP_403_FORBIDDEN,
-            detail="Benchmark demo brand profiles cannot be modified.",
+            detail="Benchmark demo brand profiles are immutable and cannot be modified.",
         )
+
+    if brand.user_id != current_user.id:
+        raise ResourceNotFoundException("Brand", brand_id)
 
     update_data = payload.model_dump(exclude_unset=True)
     for field, value in update_data.items():
@@ -134,16 +141,19 @@ def archive_brand(
     db: Session = Depends(get_db),
     current_user: User = Depends(get_current_user),
 ):
-    """Archive a business workspace (owner only)."""
+    """Archive a business workspace (owner only; benchmark brands are immutable)."""
     brand = db.query(Brand).filter(Brand.id == brand_id).first()
-    if not brand or brand.user_id != current_user.id:
+    if not brand:
         raise ResourceNotFoundException("Brand", brand_id)
 
     if brand.is_synthetic:
         raise HTTPException(
             status_code=status.HTTP_403_FORBIDDEN,
-            detail="Benchmark demo brand profiles cannot be deleted.",
+            detail="Benchmark demo brand profiles are immutable and cannot be deleted.",
         )
+
+    if brand.user_id != current_user.id:
+        raise ResourceNotFoundException("Brand", brand_id)
 
     brand.is_archived = True
     db.commit()

@@ -5,6 +5,7 @@ import Link from "next/link";
 import { PageContainer } from "@/components/PageContainer";
 import { PageHeader } from "@/components/PageHeader";
 import { Button } from "@/components/Button";
+import { useAuth } from "@/lib/auth-context";
 import {
   Plus,
   ArrowRight,
@@ -80,6 +81,7 @@ const HISTORICAL_RECORDS: CampaignRecord[] = [
 ];
 
 export default function CampaignHistoryPage() {
+  const { user } = useAuth();
   const [filter, setFilter] = useState<"all" | "success" | "mistake" | "operational">("all");
   const [search, setSearch] = useState("");
   const [apiRecords, setApiRecords] = useState<CampaignRecord[]>([]);
@@ -87,8 +89,11 @@ export default function CampaignHistoryPage() {
   useEffect(() => {
     async function loadCampaigns() {
       try {
-        const apiBase = process.env.NEXT_PUBLIC_API_BASE_URL || "http://127.0.0.1:8000/api/v1";
-        const res = await fetch(`${apiBase}/campaigns`);
+        const apiBase = process.env.NEXT_PUBLIC_API_BASE_URL || "http://localhost:8000/api/v1";
+        const res = await fetch(`${apiBase}/campaigns`, {
+          credentials: "include",
+          cache: "no-store",
+        });
         if (res.ok) {
           const data = await res.json();
           const mapped: CampaignRecord[] = data.map((c: any) => {
@@ -118,7 +123,7 @@ export default function CampaignHistoryPage() {
       }
     }
     loadCampaigns();
-  }, []);
+  }, [user?.id]);
 
   const allRecords = [...apiRecords, ...HISTORICAL_RECORDS];
 
@@ -240,7 +245,7 @@ export default function CampaignHistoryPage() {
                 : "bg-surface border border-hairline text-ink-secondary hover:text-ink"
             }`}
           >
-            All (3)
+            All ({allRecords.length})
           </button>
           <button
             onClick={() => setFilter("success")}

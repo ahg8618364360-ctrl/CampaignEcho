@@ -37,7 +37,6 @@ interface Brand {
   market_region: string;
   brand_voice: string;
   restrictions?: string;
-  hindsight_bank_id?: string;
   is_synthetic: boolean;
 }
 
@@ -119,7 +118,7 @@ interface MemoryStatus {
 }
 
 export default function CampaignStudioPage() {
-  const { brands: authBrands, activeBrandId, setActiveBrandId, token } = useAuth();
+  const { brands: authBrands, activeBrandId, setActiveBrandId } = useAuth();
   const [brands, setBrands] = useState<Brand[]>([]);
   const [selectedBrandId, setSelectedBrandId] = useState<string>("");
   const [memoryStatus, setMemoryStatus] = useState<MemoryStatus | null>(null);
@@ -144,7 +143,7 @@ export default function CampaignStudioPage() {
   const [constraints, setConstraints] = useState("Keep tone irreverent, energetic, and value-first. Avoid gourmet or fine-dining clichés.");
   const [durationDays, setDurationDays] = useState("10");
   const [preferredFormat, setPreferredFormat] = useState("9:16 Fast-Paced Reels");
-  const [isSynthetic, setIsSynthetic] = useState(true);
+  const [isSynthetic, setIsSynthetic] = useState(false);
   const [preferredProvider, setPreferredProvider] = useState<"zai">("zai");
 
   // State Management
@@ -172,23 +171,25 @@ export default function CampaignStudioPage() {
   const [clientFeedback, setClientFeedback] = useState("Lines wrapped around the corner after 10 PM on Friday and Saturday.");
   const [lessonsLearned, setLessonsLearned] = useState("Audio-first ASMR food prep of queso pour drove 389 flash redemptions; keep talking-head hooks under 2 seconds.");
 
-  const API_BASE = "http://127.0.0.1:8000/api/v1";
+  const API_BASE = process.env.NEXT_PUBLIC_API_BASE_URL || "http://localhost:8000/api/v1";
 
   // Load brands on mount and when authBrands changes
   useEffect(() => {
     async function loadBrands() {
       try {
-        const headers: Record<string, string> = { Accept: "application/json" };
-        if (token) {
-          headers["Authorization"] = `Bearer ${token}`;
-        }
-        const res = await fetch(`${API_BASE}/brands`, { headers });
+        const res = await fetch(`${API_BASE}/brands`, {
+          credentials: "include",
+          headers: { Accept: "application/json" },
+        });
         if (res.ok) {
           const data: Brand[] = await res.json();
           setBrands(data);
           if (data.length > 0) {
-            const initialId = activeBrandId || data[0].id;
-            setSelectedBrandId(initialId);
+            const preferred =
+              (activeBrandId && data.find((b) => b.id === activeBrandId)) ||
+              data.find((b) => !b.is_synthetic) ||
+              data[0];
+            setSelectedBrandId(preferred.id);
           }
         }
       } catch (err) {
@@ -196,7 +197,7 @@ export default function CampaignStudioPage() {
       }
     }
     loadBrands();
-  }, [token, authBrands, activeBrandId]);
+  }, [authBrands, activeBrandId, API_BASE]);
 
   // Load memory status and activity whenever selected brand changes
   useEffect(() => {
@@ -205,8 +206,8 @@ export default function CampaignStudioPage() {
     async function loadBrandMemory() {
       try {
         const [statusRes, activityRes] = await Promise.all([
-          fetch(`${API_BASE}/brands/${selectedBrandId}/memory/status`),
-          fetch(`${API_BASE}/brands/${selectedBrandId}/memory/activity?limit=5`),
+          fetch(`${API_BASE}/brands/${selectedBrandId}/memory/status`, { credentials: "include" }),
+          fetch(`${API_BASE}/brands/${selectedBrandId}/memory/activity?limit=5`, { credentials: "include" }),
         ]);
 
         if (statusRes.ok) {
@@ -222,7 +223,7 @@ export default function CampaignStudioPage() {
       }
     }
     loadBrandMemory();
-  }, [selectedBrandId]);
+  }, [selectedBrandId, API_BASE]);
 
   const selectedBrand = brands.find((b) => b.id === selectedBrandId) || brands[0];
 
@@ -258,6 +259,7 @@ export default function CampaignStudioPage() {
         `${API_BASE}/campaigns/generate?preferred_provider=${preferredProvider}`,
         {
           method: "POST",
+          credentials: "include",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify(payload),
         }
@@ -272,7 +274,9 @@ export default function CampaignStudioPage() {
       setActiveCampaign(campaignData);
 
       // Refresh memory activities
-      const actRes = await fetch(`${API_BASE}/brands/${selectedBrandId}/memory/activity?limit=5`);
+      const actRes = await fetch(`${API_BASE}/brands/${selectedBrandId}/memory/activity?limit=5`, {
+        credentials: "include",
+      });
       if (actRes.ok) {
         const actData = await actRes.json();
         setMemoryActivities(actData.activities || []);
@@ -310,6 +314,7 @@ export default function CampaignStudioPage() {
 
       const res = await fetch(`${API_BASE}/campaigns/${activeCampaign.id}/results`, {
         method: "POST",
+        credentials: "include",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(payload),
       });
@@ -324,7 +329,9 @@ export default function CampaignStudioPage() {
       setActiveCampaign((prev) => (prev ? { ...prev, status: "COMPLETED" } : null));
 
       // Refresh memory activity feed
-      const actRes = await fetch(`${API_BASE}/brands/${selectedBrandId}/memory/activity?limit=5`);
+      const actRes = await fetch(`${API_BASE}/brands/${selectedBrandId}/memory/activity?limit=5`, {
+        credentials: "include",
+      });
       if (actRes.ok) {
         const actData = await actRes.json();
         setMemoryActivities(actData.activities || []);

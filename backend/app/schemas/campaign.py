@@ -182,7 +182,6 @@ class LearningLoopClosedResponse(BaseModel):
     """Confirmation response indicating campaign results were saved and retained into Hindsight."""
     campaign_id: str
     brand_id: str
-    hindsight_bank_id: str
     metrics_recorded: bool
     retained_to_hindsight: bool
     retained_memory_content: str

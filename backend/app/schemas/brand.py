@@ -1,3 +1,5 @@
+"""CampaignEcho — Brand & Business Workspace Schemas."""
+
 from datetime import datetime
 from typing import Optional
 from pydantic import BaseModel, ConfigDict, Field
@@ -12,7 +14,6 @@ class BrandCreate(BaseModel):
     brand_voice: str = Field(..., max_length=100)
     preferred_language: str = Field("en", max_length=20)
     restrictions: Optional[str] = None
-    is_synthetic: bool = False
 
     # Extended business profile metadata
     website: Optional[str] = None
@@ -45,7 +46,6 @@ class BrandUpdate(BaseModel):
 
 class BrandResponse(BaseModel):
     id: str
-    user_id: Optional[str] = None
     name: str
     industry: str
     description: str
@@ -54,7 +54,6 @@ class BrandResponse(BaseModel):
     brand_voice: str
     preferred_language: str
     restrictions: Optional[str]
-    hindsight_bank_id: Optional[str]
     is_synthetic: bool
     is_archived: bool = False
     website: Optional[str] = None

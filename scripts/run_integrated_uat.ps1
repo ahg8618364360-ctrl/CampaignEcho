@@ -26,6 +26,9 @@ try {
     & "$PSScriptRoot\stop-demo.ps1"
     $stopExit = $LASTEXITCODE
     Write-Host "Stop-demo completed with code: $stopExit."
+
+    Write-Host "`n=== 4. Cleaning Disposable UAT Test Records ==="
+    & "$root\venv\Scripts\python.exe" "$PSScriptRoot\cleanup_uat.py"
 }
 
 if ($uatPassed -and ($stopExit -eq 0)) {
@@ -35,4 +38,3 @@ if ($uatPassed -and ($stopExit -eq 0)) {
     Write-Error "Integrated UAT run failed."
     exit 1
 }
-

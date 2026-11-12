@@ -1,13 +1,13 @@
 """CampaignEcho — Hindsight Memory Engine Endpoints."""
 
 from typing import Optional
-from fastapi import APIRouter, Depends, Query, status
+from fastapi import APIRouter, Depends, HTTPException, Query, status
 from sqlalchemy.orm import Session
 
 from backend.app.db.session import get_db
 from backend.app.db.models import Brand, User
 from backend.app.core.exceptions import ResourceNotFoundException
-from backend.app.core.security import get_current_user_optional
+from backend.app.core.security import get_current_user, get_current_user_optional
 from backend.app.schemas.memory import (
     BankProvisionRequest,
     BankProvisionResponse,
@@ -45,6 +45,20 @@ def _verify_brand_access(db: Session, brand_id: str, current_user: Optional[User
     return brand
 
 
+def _verify_owned_writable_brand(db: Session, brand_id: str, current_user: User) -> Brand:
+    brand = db.query(Brand).filter(Brand.id == brand_id).first()
+    if not brand:
+        raise ResourceNotFoundException("Brand", brand_id)
+    if brand.is_synthetic:
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="Benchmark demo brand memory bank is immutable. Write operations are prohibited.",
+        )
+    if brand.user_id != current_user.id:
+        raise ResourceNotFoundException("Brand", brand_id)
+    return brand
+
+
 @router.post(
     "/provision",
     response_model=BankProvisionResponse,
@@ -55,11 +69,11 @@ async def provision_bank(
     brand_id: str,
     payload: Optional[BankProvisionRequest] = None,
     db: Session = Depends(get_db),
-    current_user: Optional[User] = Depends(get_current_user_optional),
+    current_user: User = Depends(get_current_user),
     service: MemoryService = Depends(get_memory_service),
 ):
     """Idempotently provisions a dedicated Vectorize Hindsight memory bank for the brand."""
-    _verify_brand_access(db, brand_id, current_user)
+    _verify_owned_writable_brand(db, brand_id, current_user)
     p = payload or BankProvisionRequest()
     return await service.provision_bank(
         db=db,
@@ -81,11 +95,11 @@ async def retain_memory(
     brand_id: str,
     payload: MemoryRetainRequest,
     db: Session = Depends(get_db),
-    current_user: Optional[User] = Depends(get_current_user_optional),
+    current_user: User = Depends(get_current_user),
     service: MemoryService = Depends(get_memory_service),
 ):
     """Asynchronously stores a campaign observation, post-mortem feedback, or brand rule into memory."""
-    _verify_brand_access(db, brand_id, current_user)
+    _verify_owned_writable_brand(db, brand_id, current_user)
     return await service.retain(
         db=db,
         brand_id=brand_id,
@@ -95,7 +109,7 @@ async def retain_memory(
         metadata=payload.metadata,
         tags=payload.tags,
         entities=payload.entities,
-        is_synthetic=payload.is_synthetic,
+        is_synthetic=False,
         source_type=payload.source_type,
         campaign_id=payload.campaign_id,
         verification_run_id=payload.verification_run_id,
@@ -165,11 +179,11 @@ async def verify_brand_memory_operations(
     brand_id: str,
     verification_run_id: Optional[str] = Query(None, description="Optional custom verification run ID"),
     db: Session = Depends(get_db),
-    current_user: Optional[User] = Depends(get_current_user_optional),
+    current_user: User = Depends(get_current_user),
     service: MemoryService = Depends(get_memory_service),
 ):
     """Executes a correlated verification suite (RETAIN, RECALL, REFLECT) ensuring all 3 succeed."""
-    _verify_brand_access(db, brand_id, current_user)
+    _verify_owned_writable_brand(db, brand_id, current_user)
     return await service.run_verification_suite(
         db=db,
         brand_id=brand_id,

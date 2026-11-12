@@ -266,16 +266,14 @@ class CampaignService:
             for r in verify_recall.results
         )
 
-        bank_id = self.memory_service.get_bank_id_for_brand(brand.id)
         msg = (
-            f"Campaign results successfully ingested. Memory retained to Vectorize Hindsight bank '{bank_id}' "
-            f"and verified retrievable for future strategy generation."
+            "Campaign results successfully ingested. Memory retained to the brand's isolated Vectorize Hindsight bank "
+            "and verified retrievable for future strategy generation."
         )
 
         return LearningLoopClosedResponse(
             campaign_id=campaign.id,
             brand_id=brand.id,
-            hindsight_bank_id=bank_id,
             metrics_recorded=True,
             retained_to_hindsight=(retain_resp.status == "SUCCESS"),
             retained_memory_content=retained_content,
@@ -463,10 +461,15 @@ class CampaignService:
             is_grounded=True,
         )
 
-        hook_diff = f"Mode A proposed '{baseline_strategy.campaign_concept[:40]}...' vs Mode B's grounded '{memory_strategy.campaign_concept[:40]}...'"
+        mode_a_concept = (baseline_strategy.campaign_concept or "Stateless baseline strategy")[:40]
+        mode_b_concept = (memory_strategy.campaign_concept or "Memory-grounded strategy")[:40]
+        hook_diff = f"Mode A proposed '{mode_a_concept}...' vs Mode B's grounded '{mode_b_concept}...'"
+
+        mode_a_offer = (baseline_strategy.offer_recommendations or "Standard brand promotional offer")[:45]
+        mode_b_offer = (memory_strategy.offer_recommendations or "Evidence-grounded promotional offer")[:45]
         strat_diffs = [
             f"Concept Divergence: {hook_diff}",
-            f"Offer Structure: Mode A recommends '{baseline_strategy.offer_recommendations[:45]}...' vs Mode B's evidence-backed '{memory_strategy.offer_recommendations[:45]}...'",
+            f"Offer Structure: Mode A recommends '{mode_a_offer}...' vs Mode B's evidence-backed '{mode_b_offer}...'",
             f"Execution Pace: Mode B integrates {len(memory_strategy.reel_concepts)} specific short-form video hooks with historical pacing cues.",
         ]
         dim_strategy = ComparisonDimensionCheck(

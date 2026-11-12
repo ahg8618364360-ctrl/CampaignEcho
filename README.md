@@ -14,8 +14,8 @@
 [![LLM: Z.ai GLM-4.5-Flash](https://img.shields.io/badge/LLM-Z.ai_GLM--4.5--Flash-B85C38.svg)](https://z.ai)
 [![Next.js: 15.1.7](https://img.shields.io/badge/Frontend-Next.js_15.1.7_App_Router-000000.svg)](https://nextjs.org)
 [![FastAPI: 0.115](https://img.shields.io/badge/Backend-FastAPI_Python_3.11+-009688.svg)](https://fastapi.tiangolo.com)
-[![CI Tests: 41 Passing](https://img.shields.io/badge/CI_Tests-41%2F41_Passing-brightgreen.svg)](docs/PROGRESS.md)
-[![Local Suite: 47 Passing](https://img.shields.io/badge/Total_Tests-47%2F47_Passing-brightgreen.svg)](docs/PROGRESS.md)
+[![CI Tests: 55 Passing](https://img.shields.io/badge/CI_Tests-55%2F55_Passing-brightgreen.svg)](docs/PROGRESS.md)
+[![Local Suite: 61 Passing](https://img.shields.io/badge/Total_Tests-61%2F61_Passing-brightgreen.svg)](docs/PROGRESS.md)
 
 </div>
 
@@ -185,7 +185,7 @@ In accordance with CampaignEcho architectural standards, AI outputs must never c
 
 | Component | Technology | Version | Purpose |
 | :--- | :--- | :--- | :--- |
-| **Frontend Framework** | Next.js (App Router) | `15.0.3` | Server & client React component rendering |
+| **Frontend Framework** | Next.js (App Router) | `15.1.7` | Server & client React component rendering |
 | **Language** | TypeScript | `5.6+` | Strict type safety across the client application |
 | **Styling & UI** | Tailwind CSS / shadcn/ui | `3.4+` | Campaign Desk editorial styling system |
 | **Iconography** | Lucide React | `0.454+` | Clean, minimalist interface icons |
@@ -207,7 +207,7 @@ For competition judges and evaluators, CampaignEcho provides fully automated Pow
 > **Synthetic Data & Provenance Disclosure**: *The Taco Syndicate* brand profile and seeded performance metrics (e.g. 48,200 impressions, 389 redemptions) are synthetic evaluation fixtures (`is_synthetic = True`). All Vectorize Hindsight Cloud operations (`aretain`, `arecall`, `areflect`) and Z.ai model inferences are real live cloud operations.
 
 ```powershell
-# 1. Run environment diagnostics (validates Python >= 3.11, Node >= 20, 8 DB tables, live Hindsight Cloud & Z.ai gateway)
+# 1. Run environment diagnostics (validates Python >= 3.11, Node >= 20, 10 DB tables, live Hindsight Cloud & Z.ai gateway)
 .\scripts\check-demo.ps1
 
 # 2. Apply database migrations to current schema
@@ -251,8 +251,11 @@ cd CampaignEcho
 Copy-Item .env.example .env
 ```
 
-Edit `.env` to configure your API keys:
+Edit `.env` to configure your API keys and mandatory session signing secret:
 ```ini
+# Session Signing Secret (FAIL-CLOSED: min 32 chars, strictly non-placeholder)
+CAMPAIGNECHO_AUTH_SECRET=replace_with_a_strong_32_plus_char_random_hex_secret
+
 # Hindsight Configuration
 HINDSIGHT_API_URL=https://api.hindsight.vectorize.io
 HINDSIGHT_API_KEY=your_hindsight_api_key_here
@@ -306,10 +309,11 @@ Open `http://localhost:3000` in your browser.
 
 CampaignEcho adheres to a strict **Verification Before Completion** standard. All claims are grounded in verifiable execution evidence:
 
-- **CI Test Suite**: **41 unit, contract, and security tests passed** in CI (6 live cloud integration tests excluded in CI via `-k "not test_critical_ and not test_live_continuous_learning_loop_e2e"`).
-- **Full Local Pytest Suite**: **47 total tests passed** in `backend/tests/` (including all 6 live Vectorize Hindsight Cloud integration and continuous learning loop tests).
-- **Security Regression Suite**: **8/8 automated security regression tests passed** (`scripts/test_security_regressions.ps1`).
-- **User Acceptance Testing (UAT)**: **21/21 responsive routes passed** across Desktop (1440x900), Tablet (768x1024), and Mobile (390x844) with **zero console errors** and **zero horizontal overflow violations**, plus **5/5 end-to-end strategic user journey steps passed**.
+- **CI Test Suite**: **55 unit, contract, migration, and security tests passed** in CI (6 live cloud integration tests excluded in CI via `-k "not test_critical_ and not test_live_continuous_learning_loop_e2e"`).
+- **Full Local Pytest Suite**: **61/61 total tests passed** in `backend/tests/` (including all 6 live Vectorize Hindsight Cloud integration and continuous learning loop E2E tests).
+- **Security Regression Suite**: **12/12 automated Windows PowerShell security & ownership regression tests passed** (`scripts/test_security_regressions.ps1`).
+- **User Acceptance Testing (UAT)**: **21/21 responsive routes passed** across Desktop (1440x900), Tablet (768x1024), and Mobile (390x844) with **zero console errors**, **zero page errors**, and **zero horizontal overflow violations**, plus **7/7 genuine multi-user browser UI & tenant-isolation security journey steps passed** (`scripts/run_integrated_uat.ps1`).
+- **Multi-Tenant Authentication & Hardening**: Fail-closed `CAMPAIGNECHO_AUTH_SECRET` validation, server-managed revocable `user_sessions` (SHA-256 digests), `HttpOnly` + `SameSite=lax` session cookies (zero `localStorage` bearer token storage), CSRF `Origin`/`Referer` middleware, rate-limited auth endpoints (`429`), 600,000-iteration PBKDF2-HMAC-SHA256 passwords with transparent rehash, strict `404` cross-tenant boundary & `403` immutable synthetic benchmark enforcement, and zero internal ID (`hindsight_bank_id`, `user_id`) exposure.
 - **Frontend Typecheck**: `tsc --noEmit` exits with **0 errors**.
 - **Frontend Lint**: `next lint` reports **0 warnings, 0 errors**.
 - **Production Build**: `next build` compiles all application routes statically without hydration issues.
@@ -361,7 +365,7 @@ CampaignEcho/
 │   │   └── services/              # Hindsight memory & Z.ai adapters
 │   ├── requirements.txt           # Python backend dependencies
 │   ├── scripts/                   # Database seeding & verification scripts
-│   └── tests/                     # Unit, integration, & E2E tests (47 tests: 41 CI / 6 live cloud)
+│   └── tests/                     # Unit, integration, & E2E tests (61 tests: 55 CI / 6 live cloud)
 ├── frontend/                      # Next.js 15 App Router application
 │   ├── src/                       # Page routes, components, hooks, & types
 │   │   ├── app/                   # App Router pages (Overview, Studio, Memory, etc.)

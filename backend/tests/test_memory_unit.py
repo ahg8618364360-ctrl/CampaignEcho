@@ -4,9 +4,13 @@ from fastapi.testclient import TestClient
 
 from backend.app.main import app
 from backend.app.db.session import get_db
-from backend.app.db.models import Brand, MemoryLog, MemoryVerificationRun
+from backend.app.db.models import Brand, MemoryLog, MemoryVerificationRun, User
 from backend.app.services.memory_service import MemoryService
 from backend.app.api.v1.memory import get_memory_service
+from backend.app.core.security import get_current_user, get_current_user_optional
+
+
+UNIT_TEST_USER_ID = "unit-test-user-001"
 
 
 @pytest.fixture
@@ -45,6 +49,7 @@ def mock_hindsight_client():
 @pytest.fixture
 def test_brand(db_session):
     brand = Brand(
+        user_id=UNIT_TEST_USER_ID,
         name="The Taco Syndicate",
         industry="Fast-Casual Dining",
         description="Authentic Mexican street tacos near campus.",
@@ -53,7 +58,7 @@ def test_brand(db_session):
         brand_voice="Energetic, witty",
         preferred_language="en",
         restrictions="No fine dining aesthetics",
-        is_synthetic=True,
+        is_synthetic=False,
     )
     db_session.add(brand)
     db_session.commit()
@@ -64,13 +69,14 @@ def test_brand(db_session):
 @pytest.fixture
 def test_brand_b(db_session):
     brand = Brand(
+        user_id=UNIT_TEST_USER_ID,
         name="Luxe Parisian Spa",
         industry="Luxury Wellness",
         description="High-end skincare atelier",
         target_audience="HNW Individuals",
         market_region="Paris, France",
         brand_voice="Opulent",
-        is_synthetic=True,
+        is_synthetic=False,
     )
     db_session.add(brand)
     db_session.commit()
@@ -87,6 +93,14 @@ def client_with_mock_memory(db_session, mock_hindsight_client):
         is_live=True,
     )
 
+    mock_user = User(
+        id=UNIT_TEST_USER_ID,
+        email="unit@campaignecho.test",
+        full_name="Unit Tester",
+        hashed_password="hashed_pw",
+        is_active=True,
+    )
+
     def override_get_db():
         try:
             yield db_session
@@ -98,6 +112,8 @@ def client_with_mock_memory(db_session, mock_hindsight_client):
 
     app.dependency_overrides[get_db] = override_get_db
     app.dependency_overrides[get_memory_service] = override_memory_service
+    app.dependency_overrides[get_current_user_optional] = lambda: mock_user
+    app.dependency_overrides[get_current_user] = lambda: mock_user
 
     with TestClient(app) as test_client:
         yield test_client, service, mock_hindsight_client
@@ -150,7 +166,8 @@ def test_memory_retain_success(client_with_mock_memory, test_brand, mock_hindsig
     assert data["brand_id"] == brand_id
     assert "bank_id" not in data  # ADR-002: no bank ID leakage
     assert data["status"] == "SUCCESS"
-    assert data["is_synthetic"] is True
+    # Server strictly overrides caller-supplied is_synthetic=True on non-synthetic brands
+    assert data["is_synthetic"] is False
     assert data["operation_id"] == "op-12345"
     assert data["duration_ms"] >= 0
 
@@ -158,7 +175,7 @@ def test_memory_retain_success(client_with_mock_memory, test_brand, mock_hindsig
     call_kwargs = mock_hindsight_client.aretain.call_args.kwargs
     assert call_kwargs["bank_id"] == f"campaignecho-brand-{brand_id.lower()}"
     assert "Flash BOGO" in call_kwargs["content"]
-    assert call_kwargs["metadata"]["is_synthetic"] == "true"
+    assert call_kwargs["metadata"]["is_synthetic"] == "false"
     assert call_kwargs["metadata"]["brand_id"] == brand_id
 
 
@@ -381,8 +398,13 @@ def test_regression_i_mocked_test_operations_never_count_as_live(db_session, tes
     def override_get_db():
         yield db_session
 
+    mock_u = User(
+        id=UNIT_TEST_USER_ID, email="unit@test.com", full_name="Unit", hashed_password="pw", is_active=True
+    )
     app.dependency_overrides[get_db] = override_get_db
     app.dependency_overrides[get_memory_service] = lambda: service_mocked
+    app.dependency_overrides[get_current_user_optional] = lambda: mock_u
+    app.dependency_overrides[get_current_user] = lambda: mock_u
 
     with TestClient(app) as test_client:
         run_id = "test-run-i-mocked"
@@ -485,6 +507,9 @@ def test_memory_status_unauthenticated_state(db_session, test_brand):
 
     app.dependency_overrides[get_db] = override_get_db
     app.dependency_overrides[get_memory_service] = lambda: service
+    app.dependency_overrides[get_current_user_optional] = lambda: User(
+        id=UNIT_TEST_USER_ID, email="unit@test.com", full_name="Unit", hashed_password="pw", is_active=True
+    )
 
     with TestClient(app) as test_client:
         resp = test_client.get(f"/api/v1/brands/{test_brand.id}/memory/status")

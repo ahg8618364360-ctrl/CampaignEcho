@@ -4,7 +4,8 @@ from fastapi.testclient import TestClient
 
 from backend.app.main import app
 from backend.app.db.session import get_db
-from backend.app.db.models import Brand, CampaignComparison
+from backend.app.db.models import Brand, CampaignComparison, User
+from backend.app.core.security import create_user_session, hash_password
 from backend.app.services.campaign_service import CampaignService, get_campaign_service
 from backend.app.services.memory_service import MemoryService
 from backend.app.services.llm_service import LLMService
@@ -112,7 +113,28 @@ def mock_memory_strategy():
     )
 
 
-def test_comparison_endpoint_flow(db_session, test_brand, mock_baseline_strategy, mock_memory_strategy):
+@pytest.fixture
+def auth_headers(db_session, test_brand):
+    """Create authenticated user owning test_brand (authentic writable workspace)."""
+    user = User(
+        email="comparison_tester@campaignecho.io",
+        hashed_password=hash_password("ValidPassword123!"),
+        full_name="Comparison Tester",
+        is_active=True,
+    )
+    db_session.add(user)
+    db_session.commit()
+    db_session.refresh(user)
+
+    test_brand.user_id = user.id
+    test_brand.is_synthetic = False
+    db_session.commit()
+
+    _, raw_token = create_user_session(db_session, user_id=user.id)
+    return {"Authorization": f"Bearer {raw_token}"}
+
+
+def test_comparison_endpoint_flow(db_session, test_brand, auth_headers, mock_baseline_strategy, mock_memory_strategy):
     """Test full POST /api/v1/campaigns/compare controlled A/B execution."""
     mock_mem = MagicMock(spec=MemoryService)
     mock_mem.get_bank_id_for_brand.return_value = f"campaignecho-brand-{test_brand.id}"
@@ -147,7 +169,7 @@ def test_comparison_endpoint_flow(db_session, test_brand, mock_baseline_strategy
         "preferred_provider": "zai"
     }
 
-    response = client.post("/api/v1/campaigns/compare", json=payload)
+    response = client.post("/api/v1/campaigns/compare", json=payload, headers=auth_headers)
     assert response.status_code == 201
     data = response.json()
 
@@ -185,12 +207,12 @@ def test_comparison_endpoint_flow(db_session, test_brand, mock_baseline_strategy
 
     # 7. Verify comparison persistence in database
     comp_id = data["id"]
-    get_resp = client.get(f"/api/v1/campaigns/compare/{comp_id}")
+    get_resp = client.get(f"/api/v1/campaigns/compare/{comp_id}", headers=auth_headers)
     assert get_resp.status_code == 200
     assert get_resp.json()["id"] == comp_id
 
     # 8. Verify list comparisons
-    list_resp = client.get(f"/api/v1/campaigns/compare?brand_id={test_brand.id}")
+    list_resp = client.get(f"/api/v1/campaigns/compare?brand_id={test_brand.id}", headers=auth_headers)
     assert list_resp.status_code == 200
     assert len(list_resp.json()) >= 1
     assert list_resp.json()[0]["id"] == comp_id
@@ -198,7 +220,7 @@ def test_comparison_endpoint_flow(db_session, test_brand, mock_baseline_strategy
     app.dependency_overrides.clear()
 
 
-def test_comparison_rejects_hallucinated_citations(db_session, test_brand, mock_baseline_strategy, mock_memory_strategy):
+def test_comparison_rejects_hallucinated_citations(db_session, test_brand, auth_headers, mock_baseline_strategy, mock_memory_strategy):
     """Test that Mode B strips citations that do not exist in the retrieved memory bank."""
     mock_mem = MagicMock(spec=MemoryService)
     mock_mem.get_bank_id_for_brand.return_value = f"campaignecho-brand-{test_brand.id}"
@@ -233,7 +255,7 @@ def test_comparison_rejects_hallucinated_citations(db_session, test_brand, mock_
         "objective": "Foot Traffic",
         "platform": "Instagram Reels",
     }
-    response = client.post("/api/v1/campaigns/compare", json=payload)
+    response = client.post("/api/v1/campaigns/compare", json=payload, headers=auth_headers)
     assert response.status_code == 201
     data = response.json()
 
@@ -244,7 +266,7 @@ def test_comparison_rejects_hallucinated_citations(db_session, test_brand, mock_
     app.dependency_overrides.clear()
 
 
-def test_comparison_brand_not_found(db_session):
+def test_comparison_brand_not_found(db_session, auth_headers):
     """Test 404 response when brand ID does not exist."""
     app.dependency_overrides[get_db] = lambda: db_session
     client = TestClient(app)
@@ -254,12 +276,12 @@ def test_comparison_brand_not_found(db_session):
         "objective": "Awareness",
         "platform": "TikTok",
     }
-    response = client.post("/api/v1/campaigns/compare", json=payload)
+    response = client.post("/api/v1/campaigns/compare", json=payload, headers=auth_headers)
     assert response.status_code == 404
     app.dependency_overrides.clear()
 
 
-def test_comparison_mode_a_never_calls_hindsight(db_session, test_brand, mock_baseline_strategy, mock_memory_strategy):
+def test_comparison_mode_a_never_calls_hindsight(db_session, test_brand, auth_headers, mock_baseline_strategy, mock_memory_strategy):
     """Verify Mode A strictly runs before any Hindsight memory retrieval and does not receive memory context."""
     mock_mem = MagicMock(spec=MemoryService)
     mock_mem.get_bank_id_for_brand.return_value = f"campaignecho-brand-{test_brand.id}"
@@ -291,7 +313,7 @@ def test_comparison_mode_a_never_calls_hindsight(db_session, test_brand, mock_ba
         "objective": "Foot Traffic",
         "platform": "Instagram Reels",
     }
-    resp = client.post("/api/v1/campaigns/compare", json=payload)
+    resp = client.post("/api/v1/campaigns/compare", json=payload, headers=auth_headers)
     assert resp.status_code == 201
 
     # Mode A must execute first with zero memory

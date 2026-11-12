@@ -1,8 +1,8 @@
 """Security Regression and Process Ownership Unit Tests.
 
 Verifies:
-1. Rejection of placeholder API keys (Hindsight & Z.ai).
-2. Strict verification of all 8 database tables against SQLAlchemy schema.
+1. Rejection of placeholder API keys (Hindsight & Z.ai) and CAMPAIGNECHO_AUTH_SECRET.
+2. Strict verification of all 10 database tables against SQLAlchemy schema.
 3. Python runtime version requirement (>= 3.11).
 4. Strict brand memory isolation and tenant boundaries.
 5. Process ownership schema and validation rules.
@@ -41,40 +41,61 @@ def test_python_runtime_enforces_version():
 
 def test_env_keys_rejects_all_placeholders():
     """Verify check_env_keys rejects every known placeholder string."""
+    valid_secret = "a" * 32
     for placeholder in PLACEHOLDERS:
-        with patch("backend.app.core.config.settings.HINDSIGHT_API_KEY", placeholder):
-            with patch("backend.app.core.config.settings.ZAI_API_KEY", "real-valid-key"):
-                passed, msg = check_env_keys()
-                assert passed is False
-                assert "placeholder" in msg.lower()
+        with patch("backend.app.core.config.settings.CAMPAIGNECHO_AUTH_SECRET", placeholder):
+            with patch("backend.app.core.config.settings.HINDSIGHT_API_KEY", "real-valid-key"):
+                with patch("backend.app.core.config.settings.ZAI_API_KEY", "real-valid-key"):
+                    passed, msg = check_env_keys()
+                    assert passed is False
+                    assert "placeholder" in msg.lower() or "least 32" in msg.lower()
 
-        with patch("backend.app.core.config.settings.HINDSIGHT_API_KEY", "real-valid-key"):
-            with patch("backend.app.core.config.settings.ZAI_API_KEY", placeholder):
-                passed, msg = check_env_keys()
-                assert passed is False
-                assert "placeholder" in msg.lower()
+        with patch("backend.app.core.config.settings.CAMPAIGNECHO_AUTH_SECRET", valid_secret):
+            with patch("backend.app.core.config.settings.HINDSIGHT_API_KEY", placeholder):
+                with patch("backend.app.core.config.settings.ZAI_API_KEY", "real-valid-key"):
+                    passed, msg = check_env_keys()
+                    assert passed is False
+                    assert "placeholder" in msg.lower()
+
+        with patch("backend.app.core.config.settings.CAMPAIGNECHO_AUTH_SECRET", valid_secret):
+            with patch("backend.app.core.config.settings.HINDSIGHT_API_KEY", "real-valid-key"):
+                with patch("backend.app.core.config.settings.ZAI_API_KEY", placeholder):
+                    passed, msg = check_env_keys()
+                    assert passed is False
+                    assert "placeholder" in msg.lower()
 
 
 def test_env_keys_rejects_missing_or_empty():
     """Verify check_env_keys rejects empty or None keys."""
-    with patch("backend.app.core.config.settings.HINDSIGHT_API_KEY", ""):
-        with patch("backend.app.core.config.settings.ZAI_API_KEY", "real-valid-key"):
-            passed, msg = check_env_keys()
-            assert passed is False
-            assert "missing or empty" in msg
+    valid_secret = "a" * 32
+    with patch("backend.app.core.config.settings.CAMPAIGNECHO_AUTH_SECRET", ""):
+        with patch("backend.app.core.config.settings.HINDSIGHT_API_KEY", "real-valid-key"):
+            with patch("backend.app.core.config.settings.ZAI_API_KEY", "real-valid-key"):
+                passed, msg = check_env_keys()
+                assert passed is False
+                assert "missing or empty" in msg
 
-    with patch("backend.app.core.config.settings.HINDSIGHT_API_KEY", "real-valid-key"):
-        with patch("backend.app.core.config.settings.ZAI_API_KEY", "   "):
-            passed, msg = check_env_keys()
-            assert passed is False
-            assert "missing or empty" in msg
+    with patch("backend.app.core.config.settings.CAMPAIGNECHO_AUTH_SECRET", valid_secret):
+        with patch("backend.app.core.config.settings.HINDSIGHT_API_KEY", ""):
+            with patch("backend.app.core.config.settings.ZAI_API_KEY", "real-valid-key"):
+                passed, msg = check_env_keys()
+                assert passed is False
+                assert "missing or empty" in msg
+
+    with patch("backend.app.core.config.settings.CAMPAIGNECHO_AUTH_SECRET", valid_secret):
+        with patch("backend.app.core.config.settings.HINDSIGHT_API_KEY", "real-valid-key"):
+            with patch("backend.app.core.config.settings.ZAI_API_KEY", "   "):
+                passed, msg = check_env_keys()
+                assert passed is False
+                assert "missing or empty" in msg
 
 
-def test_database_schema_verifies_all_9_tables():
-    """Verify check_database verifies exactly all 9 required tables."""
-    assert len(REQUIRED_TABLES) == 9
+def test_database_schema_verifies_all_10_tables():
+    """Verify check_database verifies exactly all 10 required tables."""
+    assert len(REQUIRED_TABLES) == 10
     expected = {
         "users",
+        "user_sessions",
         "brands",
         "campaigns",
         "campaign_metrics",
@@ -113,4 +134,3 @@ def test_strict_brand_isolation_in_memory_service():
 
     # Brand 1 cannot access Brand 2 bank
     assert service.get_bank_id_for_brand(brand_1_id) != service.get_bank_id_for_brand(brand_2_id)
-

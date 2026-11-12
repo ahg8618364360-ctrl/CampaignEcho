@@ -242,6 +242,15 @@ try {
     Start-Sleep -Seconds 1
 }
 
+# --- TEST 12: Auth Secret (CAMPAIGNECHO_AUTH_SECRET) Fail-Closed Validation ---
+Write-Host "`n[Test 12] Testing rejection of missing or weak CAMPAIGNECHO_AUTH_SECRET..."
+$env:CAMPAIGNECHO_AUTH_SECRET = "short-secret"
+$t12Output = & $pythonExe "$rootPath\scripts\verify_readiness.py" 2>&1
+$t12Exit = $LASTEXITCODE
+$t12Passed = ($t12Exit -eq 1) -and ($t12Output -match "at least 32 characters")
+Report-Test -TestName "CAMPAIGNECHO_AUTH_SECRET Validation" -Passed $t12Passed -Details "Exit Code: $t12Exit"
+$env:CAMPAIGNECHO_AUTH_SECRET = $null
+
 # --- SUMMARY REPORT ---
 Write-Host "`n==========================================================" -ForegroundColor Cyan
 Write-Host "  Security & Ownership Regression Test Summary" -ForegroundColor Cyan

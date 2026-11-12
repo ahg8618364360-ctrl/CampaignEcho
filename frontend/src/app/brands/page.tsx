@@ -30,7 +30,6 @@ const DEMO_FALLBACK: BrandWorkspace = {
   industry: "Fast-Casual Restaurant",
   description: "Late-night urban street tacos with fiery salsa and loaded queso.",
   market_region: "Austin, TX (West Campus Corridor)",
-  hindsight_bank_id: "campaignecho-brand-b0f7",
   target_audience: "University students (18–24), value-conscious, nocturnal study schedules.",
   brand_voice: "High-energy, witty, culturally authentic street food utility. Zero corporate fluff.",
   is_synthetic: true,
@@ -64,8 +63,6 @@ export default function BrandsPage() {
 
   const selectedBrand =
     brandList.find((b) => b.id === selectedId) || brandList[0];
-
-  const bankDisplayId = selectedBrand.hindsight_bank_id || `campaignecho-brand-${selectedBrand.id.slice(0, 8)}`;
 
   return (
     <PageContainer size="wide">
@@ -288,7 +285,7 @@ export default function BrandsPage() {
             <div className="pt-1 flex items-center justify-between text-[11px] text-ink-secondary">
               <span>Architectural Bank Scheme:</span>
               <span className="text-forest font-mono text-[10px] bg-forest/10 px-2 py-0.5 rounded border border-forest/20 font-semibold">
-                {bankDisplayId}
+                Dedicated 1:1 Server-Managed Bank
               </span>
             </div>
           </div>

@@ -84,7 +84,7 @@ export default function SettingsPage() {
               <div>
                 <p className="text-xs sm:text-sm font-medium text-ink font-sans">FastAPI Backend Service</p>
                 <p className="text-[11px] text-ink-secondary font-sans">
-                  Endpoint: <code className="font-mono text-ink">http://127.0.0.1:8000/api/v1</code>
+                  Endpoint: <code className="font-mono text-ink">{process.env.NEXT_PUBLIC_API_BASE_URL || "http://localhost:8000/api/v1"}</code>
                 </p>
               </div>
             </div>

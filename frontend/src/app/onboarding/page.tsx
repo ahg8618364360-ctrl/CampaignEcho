@@ -24,7 +24,7 @@ const API_BASE = process.env.NEXT_PUBLIC_API_BASE_URL || "http://localhost:8000/
 
 export default function OnboardingPage() {
   const router = useRouter();
-  const { user, token, refreshBrands, setActiveBrandId } = useAuth();
+  const { user, refreshBrands, setActiveBrandId } = useAuth();
 
   const [name, setName] = useState("");
   const [industry, setIndustry] = useState("Retail & E-Commerce");
@@ -55,13 +55,6 @@ export default function OnboardingPage() {
     setError(null);
 
     try {
-      const headers: Record<string, string> = {
-        "Content-Type": "application/json",
-      };
-      if (token) {
-        headers["Authorization"] = `Bearer ${token}`;
-      }
-
       const payload = {
         name: name.trim(),
         industry: industry.trim(),
@@ -78,12 +71,15 @@ export default function OnboardingPage() {
         price_range: priceRange.trim() || undefined,
         key_offers: keyOffers.trim() || undefined,
         competitors: competitors.trim() || undefined,
-        is_synthetic: false,
       };
 
       const res = await fetch(`${API_BASE}/brands`, {
         method: "POST",
-        headers,
+        credentials: "include",
+        headers: {
+          "Content-Type": "application/json",
+          Accept: "application/json",
+        },
         body: JSON.stringify(payload),
       });
 

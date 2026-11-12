@@ -226,3 +226,20 @@
   - Demo automation scripts are fail-safe, truthful, and safe to execute on any host.
   - Zero risk of synthetic fixtures contaminating real brand data.
   - Compliance documentation reflects genuine evaluator standards without exaggeration.
+
+---
+
+## ADR-016: Multi-User Security Hardening, Revocable Sessions & Zero-Leakage Tenant Isolation (M8.1 / M8.1.1)
+- **Status**: ACCEPTED (Milestones M8.1 & M8.1.1)
+- **Context**: Introducing multi-user accounts (`users`) and private business workspaces (`brands`) exposed production security requirements that stateless HMAC tokens and `localStorage` bearer persistence could not satisfy: secret fallback risks, unrevocable tokens upon logout, XSS-exposed `localStorage` credentials, lower PBKDF2 iteration counts, missing campaign/memory benchmark mutation guards, CSRF risk once cookies carry auth, and residual internal `bank_id` exposure in responses and frontend views.
+- **Decision**:
+  1. **Fail-Closed Secret Validation**: Require `CAMPAIGNECHO_AUTH_SECRET` (>= 32 characters, strictly non-placeholder) at boot (`validate_auth_secret()` in `config.py` and lifespan startup in `main.py`). Eliminate all hardcoded or Hindsight API key fallbacks.
+  2. **Server-Managed Revocable Sessions & HttpOnly Cookies**: Store opaque 256-bit tokens (`secrets.token_urlsafe(32)`) as SHA-256 digests in the `user_sessions` table (Alembic `b48f93dd6d91`), enforce server-side `revoked_at` and `expires_at` checks on every request, issue `HttpOnly` + `SameSite=lax` (and `Secure` in non-dev/debug) session cookies, and prohibit `localStorage` bearer-token storage on the frontend (`credentials: "include"` everywhere against unified `localhost` origin).
+  3. **CSRF & Auth Abuse Controls**: Validate `Origin` / `Referer` on all state-changing HTTP methods (`POST`, `PUT`, `PATCH`, `DELETE`) in `main.py`, and apply thread-safe sliding-window IP rate limiting (`429 Too Many Requests`) on `/auth/register` and `/auth/login`.
+  4. **OWASP Password Hardening**: Upgrade password hashing to `PBKDF2-HMAC-SHA256` with `600,000` iterations, constant-time `hmac.compare_digest` verification, and transparent on-login rehash upgrade from legacy 100k hashes.
+  5. **Complete Ownership & Benchmark Immutability**: Require authentication and `_verify_owned_writable_brand` on `/campaigns/generate`, `/campaigns/compare`, `/campaigns/{id}/results`, `/brands/{id}/memory/provision`, `/retain`, `/verify`, returning `404` for foreign/nonexistent resources and `403 Forbidden` for *The Taco Syndicate* synthetic benchmark.
+  6. **Zero Internal Identifier Leakage**: Strip `hindsight_bank_id`, `user_id`, and `campaignecho-brand-...` substrings from all public schemas, `LearningLoopClosedResponse`, error payloads, `memory_logs` context tags, and frontend components.
+- **Consequences**:
+  - Immediate session revocation works across cookies and bearer headers.
+  - Cross-tenant enumeration and synthetic benchmark tampering are systematically blocked (`404` / `403`).
+  - All 61 backend tests (55 offline CI + 6 live Hindsight/Z.ai), 12 PowerShell security regressions, and 21-route + 7-step two-user browser UAT checks pass without skips or console errors.

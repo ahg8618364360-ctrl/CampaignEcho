@@ -34,6 +34,7 @@ import {
   CampaignComparisonRequest,
   MemoryCitation,
 } from "@/lib/api";
+import { useAuth } from "@/lib/auth-context";
 
 interface Brand {
   id: string;
@@ -43,11 +44,11 @@ interface Brand {
   market_region: string;
   brand_voice: string;
   restrictions?: string;
-  hindsight_bank_id?: string;
   is_synthetic: boolean;
 }
 
 export default function MemoryEvolutionPage() {
+  const { activeBrandId, brands: authBrands } = useAuth();
   const [brands, setBrands] = useState<Brand[]>([]);
   const [selectedBrandId, setSelectedBrandId] = useState<string>("");
   const [loadingBrands, setLoadingBrands] = useState<boolean>(true);
@@ -73,19 +74,25 @@ export default function MemoryEvolutionPage() {
   const [selectedCitation, setSelectedCitation] = useState<MemoryCitation | null>(null);
   const [copiedType, setCopiedType] = useState<string | null>(null);
 
-  // Load Brands on mount
+  // Load Brands on mount and keep synced with auth/active brand
   useEffect(() => {
     async function loadBrands() {
       try {
         setLoadingBrands(true);
-        const res = await fetch("http://localhost:8000/api/v1/brands", {
+        const apiBase = process.env.NEXT_PUBLIC_API_BASE_URL || "http://localhost:8000/api/v1";
+        const res = await fetch(`${apiBase}/brands`, {
+          credentials: "include",
           headers: { Accept: "application/json" },
         });
         if (res.ok) {
           const data: Brand[] = await res.json();
           setBrands(data);
           if (data.length > 0) {
-            setSelectedBrandId(data[0].id);
+            const preferred =
+              (activeBrandId && data.find((b) => b.id === activeBrandId)) ||
+              data.find((b) => !b.is_synthetic) ||
+              data[0];
+            setSelectedBrandId(preferred.id);
           }
         }
       } catch (err: any) {
@@ -95,7 +102,7 @@ export default function MemoryEvolutionPage() {
       }
     }
     loadBrands();
-  }, []);
+  }, [authBrands, activeBrandId]);
 
   // Load existing comparison history when brand changes
   useEffect(() => {
@@ -104,9 +111,7 @@ export default function MemoryEvolutionPage() {
       try {
         const history = await fetchComparisons(selectedBrandId);
         setComparisonHistory(history);
-        if (history.length > 0 && !comparison) {
-          setComparison(history[0]);
-        }
+        setComparison(history.length > 0 ? history[0] : null);
       } catch {
         // Silent failure for history
       }
@@ -758,7 +763,7 @@ export default function MemoryEvolutionPage() {
 
             <div className="flex items-center justify-between pt-2">
               <span className="text-[10px] text-ink-secondary font-mono">
-                Bank: campaignecho-brand-{selectedBrandId.slice(0, 8)}...
+                Memory Bank: Isolated Server-Side
               </span>
               <Button
                 variant="secondary"

@@ -1,5 +1,5 @@
 {
-  "started_at": "2026-11-08T16:05:22.090Z",
+  "started_at": "2026-11-12T04:43:55.227Z",
   "routes": [
     {
       "route": "overview",
@@ -235,44 +235,45 @@
   ],
   "journey_steps": [
     {
-      "step": "Brand Inspection & Isolation",
+      "step": "User A UI Registration, Redirect & HttpOnly Cookie",
       "passed": true,
-      "details": "The Taco Syndicate loaded with isolated bank mapping"
+      "details": "Redirected to /onboarding: true, HttpOnly cookie: true, Zero localStorage token: true"
     },
     {
-      "step": "Settings Diagnostics",
+      "step": "User A UI Onboarding & Brand Workspace Isolation / ID Privacy",
       "passed": true,
-      "details": "System settings and service status rendered cleanly"
+      "details": "Created Business Alpha ID=a34603be-989f-494b-b80c-33775dba38fc, is_synthetic=false, IDs leaked=false"
     },
     {
-      "step": "Memory Explorer Inspection",
+      "step": "Campaign Studio UI Generation, Results Ingestion & Cookie Persistence",
       "passed": true,
-      "details": "Memory Explorer rendered observations and retrieval controls"
+      "details": "Generated campaign via UI, retained clearly labelled UAT outcomes to Hindsight via modal, verified cookie persistence across reload"
     },
     {
-      "step": "Campaign Studio Inspection",
+      "step": "Campaign History UI & Memory Evolution UI Verification",
       "passed": true,
-      "details": "Campaign Studio loaded with active brand strategy generator"
+      "details": "History visible: true, Campaign ID: 6e3d4f57-de98-4463-9a6e-7cc1b6e44297, Comparison ID: abfdca05-696d-4d28-8f23-385cadfb2f6b, Zero bank_id UI leak: true"
     },
     {
-      "step": "Memory Evolution Mode A vs Mode B Inspection",
+      "step": "User B Separate Context & Multi-Tenant UI Isolation",
       "passed": true,
-      "details": "Mode A Stateless Baseline and Mode B Memory-Grounded cards displayed"
+      "details": "User B sees Zenith Hydro Systems: true, Alpha Brand leaked: false, Alpha Campaign leaked: false"
     },
     {
-      "step": "Campaign History & Observations",
+      "step": "Cross-Tenant 404, Synthetic Immutability 403 & CSRF 403",
       "passed": true,
-      "details": "Historical campaigns and observed metrics rendered"
+      "details": "Cross-tenant 404: true, Synthetic 403: true ({\"putBrand\":403,\"retain\":403,\"provision\":403,\"verify\":403,\"generate\":403,\"compare\":403,\"results\":403}), CSRF 403: true"
     },
     {
-      "step": "Cross-Session Database & Memory Readiness",
+      "step": "UI Logout & Server-Side Session Revocation",
       "passed": true,
-      "details": "Backend reported ready with SQLite persistence intact"
+      "details": "UI signed out state: true, Replaying revoked cookie returned HTTP 401"
     }
   ],
   "console_errors": [],
   "page_errors": [],
   "failed_requests": [],
   "overflow_violations": [],
+  "cleanup": null,
   "all_passed": true
 }

@@ -12,7 +12,6 @@ export interface User {
 
 export interface BrandWorkspace {
   id: string;
-  user_id?: string | null;
   name: string;
   industry: string;
   description: string;
@@ -30,13 +29,11 @@ export interface BrandWorkspace {
   price_range?: string | null;
   key_offers?: string | null;
   competitors?: string | null;
-  hindsight_bank_id?: string | null;
   created_at?: string;
 }
 
 interface AuthContextType {
   user: User | null;
-  token: string | null;
   isLoading: boolean;
   brands: BrandWorkspace[];
   activeBrand: BrandWorkspace | null;
@@ -45,7 +42,7 @@ interface AuthContextType {
   refreshBrands: () => Promise<void>;
   login: (email: string, password: string) => Promise<{ success: boolean; error?: string }>;
   register: (email: string, password: string, fullName: string) => Promise<{ success: boolean; error?: string }>;
-  logout: () => void;
+  logout: () => Promise<void>;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -54,7 +51,6 @@ const API_BASE = process.env.NEXT_PUBLIC_API_BASE_URL || "http://localhost:8000/
 
 export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [user, setUser] = useState<User | null>(null);
-  const [token, setToken] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [brands, setBrands] = useState<BrandWorkspace[]>([]);
   const [activeBrandId, setActiveBrandIdState] = useState<string | null>(null);
@@ -68,13 +64,11 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
   const refreshBrands = useCallback(async () => {
     try {
-      const headers: Record<string, string> = { Accept: "application/json" };
-      const storedToken = typeof window !== "undefined" ? localStorage.getItem("campaignecho_auth_token") : null;
-      if (storedToken) {
-        headers["Authorization"] = `Bearer ${storedToken}`;
-      }
-
-      const res = await fetch(`${API_BASE}/brands`, { headers, cache: "no-store" });
+      const res = await fetch(`${API_BASE}/brands`, {
+        credentials: "include",
+        headers: { Accept: "application/json" },
+        cache: "no-store",
+      });
       if (res.ok) {
         const data: BrandWorkspace[] = await res.json();
         setBrands(data);
@@ -98,30 +92,24 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     }
   }, []);
 
-  // Initial authentication hydration
+  // Initial authentication hydration via HttpOnly cookie
   useEffect(() => {
     const initAuth = async () => {
       setIsLoading(true);
-      const storedToken = typeof window !== "undefined" ? localStorage.getItem("campaignecho_auth_token") : null;
-      if (storedToken) {
-        setToken(storedToken);
-        try {
-          const meRes = await fetch(`${API_BASE}/auth/me`, {
-            headers: { Authorization: `Bearer ${storedToken}` },
-            cache: "no-store",
-          });
-          if (meRes.ok) {
-            const userData: User = await meRes.json();
-            setUser(userData);
-          } else {
-            // Token expired or invalid
-            localStorage.removeItem("campaignecho_auth_token");
-            setToken(null);
-            setUser(null);
-          }
-        } catch {
-          // Network failure or backend not yet ready
+      try {
+        const meRes = await fetch(`${API_BASE}/auth/me`, {
+          credentials: "include",
+          headers: { Accept: "application/json" },
+          cache: "no-store",
+        });
+        if (meRes.ok) {
+          const userData: User = await meRes.json();
+          setUser(userData);
+        } else {
+          setUser(null);
         }
+      } catch {
+        setUser(null);
       }
       await refreshBrands();
       setIsLoading(false);
@@ -134,6 +122,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     try {
       const res = await fetch(`${API_BASE}/auth/login`, {
         method: "POST",
+        credentials: "include",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ email, password }),
       });
@@ -144,9 +133,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       }
 
       const data = await res.json();
-      setToken(data.access_token);
       setUser(data.user);
-      localStorage.setItem("campaignecho_auth_token", data.access_token);
       await refreshBrands();
       return { success: true };
     } catch (err: any) {
@@ -158,6 +145,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     try {
       const res = await fetch(`${API_BASE}/auth/register`, {
         method: "POST",
+        credentials: "include",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ email, password, full_name: fullName }),
       });
@@ -168,9 +156,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       }
 
       const data = await res.json();
-      setToken(data.access_token);
       setUser(data.user);
-      localStorage.setItem("campaignecho_auth_token", data.access_token);
       await refreshBrands();
       return { success: true };
     } catch (err: any) {
@@ -178,11 +164,20 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     }
   };
 
-  const logout = () => {
-    setToken(null);
+  const logout = async () => {
+    try {
+      await fetch(`${API_BASE}/auth/logout`, {
+        method: "POST",
+        credentials: "include",
+      });
+    } catch {
+      // Ignore network errors on logout
+    }
     setUser(null);
-    localStorage.removeItem("campaignecho_auth_token");
-    refreshBrands();
+    if (typeof window !== "undefined") {
+      localStorage.removeItem("campaignecho_active_brand_id");
+    }
+    await refreshBrands();
   };
 
   const activeBrand = brands.find((b) => b.id === activeBrandId) || brands[0] || null;
@@ -191,7 +186,6 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     <AuthContext.Provider
       value={{
         user,
-        token,
         isLoading,
         brands,
         activeBrand,

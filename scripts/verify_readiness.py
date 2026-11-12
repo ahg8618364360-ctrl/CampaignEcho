@@ -37,6 +37,7 @@ PLACEHOLDERS = [
 
 REQUIRED_TABLES = {
     "users",
+    "user_sessions",
     "brands",
     "campaigns",
     "campaign_metrics",
@@ -99,6 +100,14 @@ def check_frontend_dependencies() -> Tuple[bool, str]:
 def check_env_keys() -> Tuple[bool, str]:
     from backend.app.core.config import settings
 
+    auth_secret = (settings.CAMPAIGNECHO_AUTH_SECRET or os.environ.get("CAMPAIGNECHO_AUTH_SECRET") or "").strip()
+    if not auth_secret:
+        return False, "CAMPAIGNECHO_AUTH_SECRET is missing or empty"
+    if len(auth_secret) < 32:
+        return False, f"CAMPAIGNECHO_AUTH_SECRET must be at least 32 characters (got {len(auth_secret)})"
+    if any(p in auth_secret.lower() for p in PLACEHOLDERS):
+        return False, "CAMPAIGNECHO_AUTH_SECRET contains a placeholder value"
+
     hindsight_key = (settings.HINDSIGHT_API_KEY or "").strip()
     zai_key = (settings.ZAI_API_KEY or "").strip()
 
@@ -112,7 +121,7 @@ def check_env_keys() -> Tuple[bool, str]:
     if any(p in zai_key.lower() for p in PLACEHOLDERS):
         return False, "ZAI_API_KEY contains a placeholder value"
 
-    return True, "API keys configured and verified non-placeholder (secrets masked)"
+    return True, "API keys and auth secret configured and verified non-placeholder (secrets masked)"
 
 
 def check_database() -> Tuple[bool, str]:
