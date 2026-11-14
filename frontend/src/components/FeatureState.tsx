@@ -26,7 +26,7 @@ export function FeatureState({
   statusBadge,
   capabilities,
   primaryActionText = "Return to Overview",
-  primaryActionHref = "/",
+  primaryActionHref = "/workspace",
 }: FeatureStateProps) {
   return (
     <div className="space-y-6">
@@ -79,7 +79,7 @@ export function FeatureState({
         <div className="pt-6 border-t border-hairline flex items-center justify-between flex-wrap gap-4">
           <div className="flex items-center gap-2 text-xs text-ink-secondary">
             <span className="w-2 h-2 rounded-full bg-forest shrink-0" />
-            <span>Active Brand Context: <strong className="text-ink font-medium">The Taco Syndicate</strong></span>
+            <span>Active Brand Context: <strong className="text-ink font-medium">Isolated Brand Memory</strong></span>
           </div>
 
           <Button

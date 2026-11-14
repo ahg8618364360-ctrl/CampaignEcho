@@ -1,6 +1,7 @@
 "use client";
 
 import React, { createContext, useContext, useState, useEffect, useCallback } from "react";
+import { getApiBaseUrl, apiFetch } from "@/lib/api";
 
 export interface User {
   id: string;
@@ -39,15 +40,13 @@ interface AuthContextType {
   activeBrand: BrandWorkspace | null;
   activeBrandId: string | null;
   setActiveBrandId: (id: string) => void;
-  refreshBrands: () => Promise<void>;
-  login: (email: string, password: string) => Promise<{ success: boolean; error?: string }>;
+  refreshBrands: () => Promise<BrandWorkspace[]>;
+  login: (email: string, password: string) => Promise<{ success: boolean; error?: string; brandsCount?: number }>;
   register: (email: string, password: string, fullName: string) => Promise<{ success: boolean; error?: string }>;
   logout: () => Promise<void>;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
-
-const API_BASE = process.env.NEXT_PUBLIC_API_BASE_URL || "http://localhost:8000/api/v1";
 
 export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [user, setUser] = useState<User | null>(null);
@@ -62,11 +61,9 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     }
   };
 
-  const refreshBrands = useCallback(async () => {
+  const refreshBrands = useCallback(async (): Promise<BrandWorkspace[]> => {
     try {
-      const res = await fetch(`${API_BASE}/brands`, {
-        credentials: "include",
-        headers: { Accept: "application/json" },
+      const res = await apiFetch("/brands", {
         cache: "no-store",
       });
       if (res.ok) {
@@ -85,10 +82,15 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
           if (typeof window !== "undefined") {
             localStorage.setItem("campaignecho_active_brand_id", defaultBrand.id);
           }
+        } else {
+          setActiveBrandIdState(null);
         }
+        return data;
       }
+      return [];
     } catch (err) {
       console.warn("Failed to refresh brand workspaces:", err);
+      return [];
     }
   }, []);
 
@@ -97,9 +99,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     const initAuth = async () => {
       setIsLoading(true);
       try {
-        const meRes = await fetch(`${API_BASE}/auth/me`, {
-          credentials: "include",
-          headers: { Accept: "application/json" },
+        const meRes = await apiFetch("/auth/me", {
           cache: "no-store",
         });
         if (meRes.ok) {
@@ -118,11 +118,10 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     initAuth();
   }, [refreshBrands]);
 
-  const login = async (email: string, password: string): Promise<{ success: boolean; error?: string }> => {
+  const login = async (email: string, password: string): Promise<{ success: boolean; error?: string; brandsCount?: number }> => {
     try {
-      const res = await fetch(`${API_BASE}/auth/login`, {
+      const res = await apiFetch("/auth/login", {
         method: "POST",
-        credentials: "include",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ email, password }),
       });
@@ -134,8 +133,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
       const data = await res.json();
       setUser(data.user);
-      await refreshBrands();
-      return { success: true };
+      const loadedBrands = await refreshBrands();
+      return { success: true, brandsCount: loadedBrands.length };
     } catch (err: any) {
       return { success: false, error: err.message || "Network error during login" };
     }
@@ -143,9 +142,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
   const register = async (email: string, password: string, fullName: string): Promise<{ success: boolean; error?: string }> => {
     try {
-      const res = await fetch(`${API_BASE}/auth/register`, {
+      const res = await apiFetch("/auth/register", {
         method: "POST",
-        credentials: "include",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ email, password, full_name: fullName }),
       });
@@ -166,9 +164,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
   const logout = async () => {
     try {
-      await fetch(`${API_BASE}/auth/logout`, {
+      await apiFetch("/auth/logout", {
         method: "POST",
-        credentials: "include",
       });
     } catch {
       // Ignore network errors on logout

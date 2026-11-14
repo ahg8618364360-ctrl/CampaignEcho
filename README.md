@@ -37,8 +37,8 @@ Marketing teams running repetitive AI prompts hit an invisible wall:
 
 The CampaignEcho workspace is designed around the **Campaign Desk** design system—prioritizing typographical clarity, information density, and epistemic honesty.
 
-### 1. Executive Intelligence Overview
-*Real-time readiness telemetry, brand-isolated bank provisioning, and cognitive activity feeds.*
+### 1. Executive Intelligence Overview (`/workspace`)
+*Real-time readiness telemetry, brand-isolated bank provisioning, and cognitive activity feeds accessed from your multi-tenant workspace.*
 ![Executive Overview](docs/assets/readme/overview.png)
 
 ### 2. Campaign Studio & Epistemic Triad
@@ -301,7 +301,7 @@ npm install
 npm run dev
 ```
 
-Open `http://localhost:3000` in your browser.
+Open `http://localhost:3000` in your browser to view the editorial landing page, or sign in to access your intelligence workspace at `http://localhost:3000/workspace`.
 
 ---
 

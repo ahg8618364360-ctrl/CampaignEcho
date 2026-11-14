@@ -18,7 +18,7 @@ const VIEWPORTS = [
 
 const ROUTES = [
   { name: "overview", path: "/", expectedText: "CampaignEcho" },
-  { name: "brands", path: "/brands", expectedText: "The Taco Syndicate" },
+  { name: "brands", path: "/brands", expectedText: "Brand" },
   { name: "campaign-studio", path: "/campaign-studio", expectedText: "Campaign" },
   { name: "campaign-history", path: "/campaign-history", expectedText: "History" },
   { name: "memory-evolution", path: "/memory-evolution", expectedText: "Evolution" },
@@ -260,12 +260,24 @@ async function runUAT() {
     // Step 3: User A generates campaign in /campaign-studio UI & submits results
     // -------------------------------------------------------------------------
     console.log("  Step 3: User A generates campaign & closes learning loop in /campaign-studio UI...");
+    await pageA.waitForSelector("#studio-campaign-name", { state: "visible", timeout: 20000 });
     const studioBrandSelect = pageA.locator("select").first();
+    await pageA.waitForFunction(
+      (brandId) => {
+        const sel = document.querySelector("select");
+        return sel && Array.from(sel.options).some((o) => o.value === brandId);
+      },
+      userABrandId,
+      { timeout: 15000 }
+    ).catch(() => {});
     await studioBrandSelect.selectOption(userABrandId);
 
-    await pageA.fill('input[placeholder*="Midnight Taco Stash Run"]', "Alpine Ventus Launch Campaign");
-    await pageA.fill('input[placeholder*="UT Austin Undergrads"]', "Competitive trail runners and endurance athletes aged 24-42");
-    await pageA.fill('input[placeholder*="Austin, TX (Campus Corridor)"]', "North America");
+    const nameInput = pageA.locator("#studio-campaign-name").first();
+    await nameInput.fill("Alpine Ventus Launch Campaign");
+    const audInput = pageA.locator("#studio-target-audience").first();
+    await audInput.fill("Competitive trail runners and endurance athletes aged 24-42");
+    const geoInput = pageA.locator("#studio-geographic-market").first();
+    await geoInput.fill("North America");
 
     await pageA.getByRole("button", { name: /Generate Memory-Grounded Strategy/i }).click();
 
@@ -315,14 +327,24 @@ async function runUAT() {
     // Navigate to Memory Evolution UI and run live comparison for Business Alpha
     await pageA.goto(`${FRONTEND_URL}/memory-evolution`, { waitUntil: "networkidle", timeout: 25000 });
     await pageA.locator("#brand-select").waitFor({ state: "visible", timeout: 15000 });
+    await pageA.waitForFunction(
+      (brandId) => {
+        const sel = document.getElementById("brand-select");
+        return sel && Array.from(sel.options).some((o) => o.value === brandId);
+      },
+      userABrandId,
+      { timeout: 15000 }
+    ).catch(() => {});
     await pageA.locator("#brand-select").selectOption(userABrandId);
     await pageA.fill("#campaign-name-input", "Alpine Storm Windbreaker A/B Test");
 
-    await pageA.getByRole("button", { name: /Compare Strategies/i }).click();
+    const compareBtn = pageA.getByRole("button", { name: /Compare Strategies/i });
+    await compareBtn.waitFor({ state: "visible", timeout: 15000 });
+    await compareBtn.click();
     await Promise.race([
       pageA.getByText(/Mode A · Stateless Baseline/i).waitFor({ state: "visible", timeout: 240000 }),
-      pageA.locator("div.bg-red-500\\/10").waitFor({ state: "visible", timeout: 240000 }).then(async () => {
-        const errMsg = await pageA.locator("div.bg-red-500\\/10").textContent();
+      pageA.locator("div.bg-red-500\\/10, div.text-red-700").waitFor({ state: "visible", timeout: 240000 }).then(async () => {
+        const errMsg = await pageA.locator("div.bg-red-500\\/10, div.text-red-700").textContent();
         throw new Error(`Memory Evolution UI displayed error banner: ${errMsg}`);
       }),
     ]);
@@ -477,19 +499,17 @@ async function runUAT() {
     });
     const mutResults = await contextA.request.post(`${API_URL}/campaigns/${synthCampId}/results`, {
       headers: originHeader,
-      data: { impressions: 100, lessons_learned: "Attempting unauthorized synthetic benchmark write." },
+      data: { impressions: 100, lessons_learned: "Polluting benchmark observations" },
     });
 
-    const synthStatuses = {
-      putBrand: mutPutBrand.status(),
-      retain: mutRetain.status(),
-      provision: mutProv.status(),
-      verify: mutVerify.status(),
-      generate: mutGen.status(),
-      compare: mutComp.status(),
-      results: mutResults.status(),
-    };
-    const syntheticImmutable = Object.values(synthStatuses).every((s) => s === 403);
+    const syntheticImmutable =
+      mutPutBrand.status() === 403 &&
+      mutRetain.status() === 403 &&
+      mutProv.status() === 403 &&
+      mutVerify.status() === 403 &&
+      mutGen.status() === 403 &&
+      mutComp.status() === 403 &&
+      mutResults.status() === 403;
 
     // CSRF untrusted Origin rejection
     const csrfRes = await contextA.request.post(`${API_URL}/auth/logout`, {
@@ -501,9 +521,9 @@ async function runUAT() {
     report.journey_steps.push({
       step: "Cross-Tenant 404, Synthetic Immutability 403 & CSRF 403",
       passed: step6Pass,
-      details: `Cross-tenant 404: ${crossTenantBlocked}, Synthetic 403: ${syntheticImmutable} (${JSON.stringify(synthStatuses)}), CSRF 403: ${csrfBlocked}`,
+      details: `Cross-tenant 404: ${crossTenantBlocked}, Synthetic 403: ${syntheticImmutable}, CSRF 403: ${csrfBlocked}`,
     });
-    console.log(`    Result: ${step6Pass ? "[PASS]" : "[FAIL]"} (404=${crossTenantBlocked}, 403=${syntheticImmutable} ${JSON.stringify(synthStatuses)}, CSRF=${csrfBlocked})`);
+    console.log(`    Result: ${step6Pass ? "[PASS]" : "[FAIL]"} (404=${crossTenantBlocked}, 403=${syntheticImmutable}, CSRF=${csrfBlocked})`);
 
     // -------------------------------------------------------------------------
     // Step 7: User A UI Logout & Server-Side Session Replay Rejection (401)
@@ -570,8 +590,8 @@ async function runUAT() {
 
     return report.all_passed ? 0 : 1;
   } finally {
-    if (contextA) await contextA.close().catch(() => {});
-    if (contextB) await contextB.close().catch(() => {});
+    if (contextA) await contextA.close().catch(() => { });
+    if (contextB) await contextB.close().catch(() => { });
     await browser.close();
   }
 }

@@ -6,9 +6,9 @@ import { PageContainer } from "@/components/PageContainer";
 import { PageHeader } from "@/components/PageHeader";
 import { Button } from "@/components/Button";
 import { useAuth } from "@/lib/auth-context";
+import { apiFetch } from "@/lib/api";
 import {
   Building2,
-  Sparkles,
   ArrowRight,
   ShieldCheck,
   CheckCircle2,
@@ -19,8 +19,6 @@ import {
   Compass,
   AlertCircle,
 } from "lucide-react";
-
-const API_BASE = process.env.NEXT_PUBLIC_API_BASE_URL || "http://localhost:8000/api/v1";
 
 export default function OnboardingPage() {
   const router = useRouter();
@@ -73,12 +71,10 @@ export default function OnboardingPage() {
         competitors: competitors.trim() || undefined,
       };
 
-      const res = await fetch(`${API_BASE}/brands`, {
+      const res = await apiFetch("/brands", {
         method: "POST",
-        credentials: "include",
         headers: {
           "Content-Type": "application/json",
-          Accept: "application/json",
         },
         body: JSON.stringify(payload),
       });
@@ -110,23 +106,23 @@ export default function OnboardingPage() {
 
       <div className="max-w-4xl mx-auto mt-6">
         {error && (
-          <div className="mb-6 p-4 rounded-xl bg-red-500/10 border border-red-500/20 text-red-400 text-sm flex items-center gap-3">
+          <div className="mb-6 p-4 rounded-xl bg-alert-subtle border border-alert-border text-alert text-sm flex items-center gap-3">
             <AlertCircle className="w-5 h-5 shrink-0" />
-            <span>{error}</span>
+            <span className="font-sans font-medium">{error}</span>
           </div>
         )}
 
         <form onSubmit={handleSubmit} className="space-y-8">
           {/* Section 1: Business Identity */}
-          <div className="p-6 rounded-2xl bg-card border border-border space-y-4">
-            <div className="flex items-center gap-2.5 pb-3 border-b border-border/60">
-              <Building2 className="w-5 h-5 text-primary" />
-              <h2 className="text-base font-semibold text-foreground">1. Business Identity</h2>
+          <div className="p-6 rounded-2xl bg-surface border border-hairline space-y-4 shadow-sm">
+            <div className="flex items-center gap-2.5 pb-3 border-b border-hairline/60">
+              <Building2 className="w-5 h-5 text-terracotta" />
+              <h2 className="text-base font-semibold text-ink font-sans">1. Business Identity</h2>
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div>
-                <label className="block text-xs font-mono uppercase text-muted-foreground mb-1">
+                <label className="block text-xs font-mono uppercase tracking-wider text-ink-secondary mb-1">
                   Business Name *
                 </label>
                 <input
@@ -135,18 +131,18 @@ export default function OnboardingPage() {
                   placeholder="e.g. Apex Performance Gear"
                   value={name}
                   onChange={(e) => setName(e.target.value)}
-                  className="w-full px-3.5 py-2.5 rounded-lg bg-surface border border-border text-foreground text-sm focus:outline-none focus:border-primary/60"
+                  className="w-full px-3.5 py-2.5 rounded-xl bg-surface-subtle border border-hairline text-ink text-sm font-sans placeholder:text-muted focus:outline-none focus:border-terracotta focus:ring-1 focus:ring-terracotta/30 transition-all"
                 />
               </div>
 
               <div>
-                <label className="block text-xs font-mono uppercase text-muted-foreground mb-1">
+                <label className="block text-xs font-mono uppercase tracking-wider text-ink-secondary mb-1">
                   Industry Vertical *
                 </label>
                 <select
                   value={industry}
                   onChange={(e) => setIndustry(e.target.value)}
-                  className="w-full px-3.5 py-2.5 rounded-lg bg-surface border border-border text-foreground text-sm focus:outline-none focus:border-primary/60"
+                  className="w-full px-3.5 py-2.5 rounded-xl bg-surface-subtle border border-hairline text-ink text-sm font-sans focus:outline-none focus:border-terracotta focus:ring-1 focus:ring-terracotta/30 transition-all"
                 >
                   <option value="Retail & E-Commerce">Retail & E-Commerce</option>
                   <option value="Food & Beverage">Food & Beverage</option>
@@ -159,7 +155,7 @@ export default function OnboardingPage() {
               </div>
 
               <div>
-                <label className="block text-xs font-mono uppercase text-muted-foreground mb-1">
+                <label className="block text-xs font-mono uppercase tracking-wider text-ink-secondary mb-1">
                   Market Region / Headquarters *
                 </label>
                 <input
@@ -168,12 +164,12 @@ export default function OnboardingPage() {
                   placeholder="e.g. Austin, TX (National DTC)"
                   value={marketRegion}
                   onChange={(e) => setMarketRegion(e.target.value)}
-                  className="w-full px-3.5 py-2.5 rounded-lg bg-surface border border-border text-foreground text-sm focus:outline-none focus:border-primary/60"
+                  className="w-full px-3.5 py-2.5 rounded-xl bg-surface-subtle border border-hairline text-ink text-sm font-sans placeholder:text-muted focus:outline-none focus:border-terracotta focus:ring-1 focus:ring-terracotta/30 transition-all"
                 />
               </div>
 
               <div>
-                <label className="block text-xs font-mono uppercase text-muted-foreground mb-1">
+                <label className="block text-xs font-mono uppercase tracking-wider text-ink-secondary mb-1">
                   Brand Voice & Tone *
                 </label>
                 <input
@@ -182,12 +178,12 @@ export default function OnboardingPage() {
                   placeholder="e.g. Energetic, punchy, irreverent"
                   value={brandVoice}
                   onChange={(e) => setBrandVoice(e.target.value)}
-                  className="w-full px-3.5 py-2.5 rounded-lg bg-surface border border-border text-foreground text-sm focus:outline-none focus:border-primary/60"
+                  className="w-full px-3.5 py-2.5 rounded-xl bg-surface-subtle border border-hairline text-ink text-sm font-sans placeholder:text-muted focus:outline-none focus:border-terracotta focus:ring-1 focus:ring-terracotta/30 transition-all"
                 />
               </div>
 
               <div>
-                <label className="block text-xs font-mono uppercase text-muted-foreground mb-1">
+                <label className="block text-xs font-mono uppercase tracking-wider text-ink-secondary mb-1">
                   Website URL
                 </label>
                 <input
@@ -195,12 +191,12 @@ export default function OnboardingPage() {
                   placeholder="https://apexgear.example.com"
                   value={website}
                   onChange={(e) => setWebsite(e.target.value)}
-                  className="w-full px-3.5 py-2.5 rounded-lg bg-surface border border-border text-foreground text-sm focus:outline-none focus:border-primary/60"
+                  className="w-full px-3.5 py-2.5 rounded-xl bg-surface-subtle border border-hairline text-ink text-sm font-sans placeholder:text-muted focus:outline-none focus:border-terracotta focus:ring-1 focus:ring-terracotta/30 transition-all"
                 />
               </div>
 
               <div>
-                <label className="block text-xs font-mono uppercase text-muted-foreground mb-1">
+                <label className="block text-xs font-mono uppercase tracking-wider text-ink-secondary mb-1">
                   Instagram Handle
                 </label>
                 <input
@@ -208,13 +204,13 @@ export default function OnboardingPage() {
                   placeholder="@apexperformance"
                   value={instagramHandle}
                   onChange={(e) => setInstagramHandle(e.target.value)}
-                  className="w-full px-3.5 py-2.5 rounded-lg bg-surface border border-border text-foreground text-sm focus:outline-none focus:border-primary/60"
+                  className="w-full px-3.5 py-2.5 rounded-xl bg-surface-subtle border border-hairline text-ink text-sm font-sans placeholder:text-muted focus:outline-none focus:border-terracotta focus:ring-1 focus:ring-terracotta/30 transition-all"
                 />
               </div>
             </div>
 
             <div className="pt-2">
-              <label className="block text-xs font-mono uppercase text-muted-foreground mb-1">
+              <label className="block text-xs font-mono uppercase tracking-wider text-ink-secondary mb-1">
                 Business Description & Narrative *
               </label>
               <textarea
@@ -223,22 +219,22 @@ export default function OnboardingPage() {
                 placeholder="Describe your business, mission, and core customer value proposition..."
                 value={description}
                 onChange={(e) => setDescription(e.target.value)}
-                className="w-full px-3.5 py-2.5 rounded-lg bg-surface border border-border text-foreground text-sm focus:outline-none focus:border-primary/60"
+                className="w-full px-3.5 py-2.5 rounded-xl bg-surface-subtle border border-hairline text-ink text-sm font-sans placeholder:text-muted focus:outline-none focus:border-terracotta focus:ring-1 focus:ring-terracotta/30 transition-all"
               />
             </div>
           </div>
 
           {/* Section 2: Commercial Positioning & Offerings */}
-          <div className="p-6 rounded-2xl bg-card border border-border space-y-4">
-            <div className="flex items-center gap-2.5 pb-3 border-b border-border/60">
-              <Target className="w-5 h-5 text-primary" />
-              <h2 className="text-base font-semibold text-foreground">
+          <div className="p-6 rounded-2xl bg-surface border border-hairline space-y-4 shadow-sm">
+            <div className="flex items-center gap-2.5 pb-3 border-b border-hairline/60">
+              <Target className="w-5 h-5 text-terracotta" />
+              <h2 className="text-base font-semibold text-ink font-sans">
                 2. Commercial Positioning & Offerings
               </h2>
             </div>
 
             <div>
-              <label className="block text-xs font-mono uppercase text-muted-foreground mb-1">
+              <label className="block text-xs font-mono uppercase tracking-wider text-ink-secondary mb-1">
                 Target Audience Breakdown *
               </label>
               <textarea
@@ -247,13 +243,13 @@ export default function OnboardingPage() {
                 placeholder="e.g. Marathon runners, CrossFitters, and fitness enthusiasts aged 22-40 seeking technical gear."
                 value={targetAudience}
                 onChange={(e) => setTargetAudience(e.target.value)}
-                className="w-full px-3.5 py-2.5 rounded-lg bg-surface border border-border text-foreground text-sm focus:outline-none focus:border-primary/60"
+                className="w-full px-3.5 py-2.5 rounded-xl bg-surface-subtle border border-hairline text-ink text-sm font-sans placeholder:text-muted focus:outline-none focus:border-terracotta focus:ring-1 focus:ring-terracotta/30 transition-all"
               />
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div>
-                <label className="block text-xs font-mono uppercase text-muted-foreground mb-1">
+                <label className="block text-xs font-mono uppercase tracking-wider text-ink-secondary mb-1">
                   Core Products or Services
                 </label>
                 <input
@@ -261,12 +257,12 @@ export default function OnboardingPage() {
                   placeholder="e.g. Ultra-vented running shorts, seamless compression tops"
                   value={productsOrServices}
                   onChange={(e) => setProductsOrServices(e.target.value)}
-                  className="w-full px-3.5 py-2.5 rounded-lg bg-surface border border-border text-foreground text-sm focus:outline-none focus:border-primary/60"
+                  className="w-full px-3.5 py-2.5 rounded-xl bg-surface-subtle border border-hairline text-ink text-sm font-sans placeholder:text-muted focus:outline-none focus:border-terracotta focus:ring-1 focus:ring-terracotta/30 transition-all"
                 />
               </div>
 
               <div>
-                <label className="block text-xs font-mono uppercase text-muted-foreground mb-1">
+                <label className="block text-xs font-mono uppercase tracking-wider text-ink-secondary mb-1">
                   Price Range
                 </label>
                 <input
@@ -274,12 +270,12 @@ export default function OnboardingPage() {
                   placeholder="e.g. $45 - $120"
                   value={priceRange}
                   onChange={(e) => setPriceRange(e.target.value)}
-                  className="w-full px-3.5 py-2.5 rounded-lg bg-surface border border-border text-foreground text-sm focus:outline-none focus:border-primary/60"
+                  className="w-full px-3.5 py-2.5 rounded-xl bg-surface-subtle border border-hairline text-ink text-sm font-sans placeholder:text-muted focus:outline-none focus:border-terracotta focus:ring-1 focus:ring-terracotta/30 transition-all"
                 />
               </div>
 
               <div>
-                <label className="block text-xs font-mono uppercase text-muted-foreground mb-1">
+                <label className="block text-xs font-mono uppercase tracking-wider text-ink-secondary mb-1">
                   Unique Selling Points (USPs)
                 </label>
                 <input
@@ -287,12 +283,12 @@ export default function OnboardingPage() {
                   placeholder="e.g. 100% recycled technical fabric, zero chafing guarantee"
                   value={uniqueSellingPoints}
                   onChange={(e) => setUniqueSellingPoints(e.target.value)}
-                  className="w-full px-3.5 py-2.5 rounded-lg bg-surface border border-border text-foreground text-sm focus:outline-none focus:border-primary/60"
+                  className="w-full px-3.5 py-2.5 rounded-xl bg-surface-subtle border border-hairline text-ink text-sm font-sans placeholder:text-muted focus:outline-none focus:border-terracotta focus:ring-1 focus:ring-terracotta/30 transition-all"
                 />
               </div>
 
               <div>
-                <label className="block text-xs font-mono uppercase text-muted-foreground mb-1">
+                <label className="block text-xs font-mono uppercase tracking-wider text-ink-secondary mb-1">
                   Key Promotional Offers
                 </label>
                 <input
@@ -300,14 +296,14 @@ export default function OnboardingPage() {
                   placeholder="e.g. Free shipping on first 2 orders with code APEX20"
                   value={keyOffers}
                   onChange={(e) => setKeyOffers(e.target.value)}
-                  className="w-full px-3.5 py-2.5 rounded-lg bg-surface border border-border text-foreground text-sm focus:outline-none focus:border-primary/60"
+                  className="w-full px-3.5 py-2.5 rounded-xl bg-surface-subtle border border-hairline text-ink text-sm font-sans placeholder:text-muted focus:outline-none focus:border-terracotta focus:ring-1 focus:ring-terracotta/30 transition-all"
                 />
               </div>
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4 pt-2">
               <div>
-                <label className="block text-xs font-mono uppercase text-muted-foreground mb-1">
+                <label className="block text-xs font-mono uppercase tracking-wider text-ink-secondary mb-1">
                   Key Competitors
                 </label>
                 <input
@@ -315,12 +311,12 @@ export default function OnboardingPage() {
                   placeholder="e.g. Lululemon, Gymshark, Ten Thousand"
                   value={competitors}
                   onChange={(e) => setCompetitors(e.target.value)}
-                  className="w-full px-3.5 py-2.5 rounded-lg bg-surface border border-border text-foreground text-sm focus:outline-none focus:border-primary/60"
+                  className="w-full px-3.5 py-2.5 rounded-xl bg-surface-subtle border border-hairline text-ink text-sm font-sans placeholder:text-muted focus:outline-none focus:border-terracotta focus:ring-1 focus:ring-terracotta/30 transition-all"
                 />
               </div>
 
               <div>
-                <label className="block text-xs font-mono uppercase text-muted-foreground mb-1">
+                <label className="block text-xs font-mono uppercase tracking-wider text-ink-secondary mb-1">
                   Brand Restrictions / Guardrails
                 </label>
                 <input
@@ -328,22 +324,22 @@ export default function OnboardingPage() {
                   placeholder="e.g. Never make medical claims; avoid aggressive slang"
                   value={restrictions}
                   onChange={(e) => setRestrictions(e.target.value)}
-                  className="w-full px-3.5 py-2.5 rounded-lg bg-surface border border-border text-foreground text-sm focus:outline-none focus:border-primary/60"
+                  className="w-full px-3.5 py-2.5 rounded-xl bg-surface-subtle border border-hairline text-ink text-sm font-sans placeholder:text-muted focus:outline-none focus:border-terracotta focus:ring-1 focus:ring-terracotta/30 transition-all"
                 />
               </div>
             </div>
           </div>
 
-          <div className="flex items-center justify-between pt-4">
-            <div className="flex items-center gap-2 text-xs text-muted-foreground">
-              <ShieldCheck className="w-4 h-4 text-emerald-400" />
+          <div className="flex flex-col sm:flex-row items-center justify-between gap-4 pt-4">
+            <div className="flex items-center gap-2 text-xs text-ink-secondary font-sans">
+              <ShieldCheck className="w-4 h-4 text-forest shrink-0" />
               <span>Isolated Vectorize Hindsight memory bank provisioned automatically.</span>
             </div>
 
             <Button
               type="submit"
               disabled={isSubmitting}
-              className="px-6 py-2.5 text-sm font-semibold flex items-center gap-2"
+              className="w-full sm:w-auto px-6 py-2.5 text-sm font-semibold flex items-center justify-center gap-2 bg-terracotta hover:bg-terracotta/90 text-white rounded-xl shadow-xs"
             >
               {isSubmitting ? (
                 <>

@@ -1,5 +1,5 @@
 {
-  "started_at": "2026-11-12T04:43:55.227Z",
+  "started_at": "2026-11-14T07:33:31.953Z",
   "routes": [
     {
       "route": "overview",
@@ -17,7 +17,7 @@
       "path": "/brands",
       "viewport": "desktop",
       "status": 200,
-      "expected_text": "The Taco Syndicate",
+      "expected_text": "Brand",
       "text_found": true,
       "overflow": false,
       "screenshot": "brands-desktop.png",
@@ -94,7 +94,7 @@
       "path": "/brands",
       "viewport": "tablet",
       "status": 200,
-      "expected_text": "The Taco Syndicate",
+      "expected_text": "Brand",
       "text_found": true,
       "overflow": false,
       "screenshot": "brands-tablet.png",
@@ -171,7 +171,7 @@
       "path": "/brands",
       "viewport": "mobile",
       "status": 200,
-      "expected_text": "The Taco Syndicate",
+      "expected_text": "Brand",
       "text_found": true,
       "overflow": false,
       "screenshot": "brands-mobile.png",
@@ -242,7 +242,7 @@
     {
       "step": "User A UI Onboarding & Brand Workspace Isolation / ID Privacy",
       "passed": true,
-      "details": "Created Business Alpha ID=a34603be-989f-494b-b80c-33775dba38fc, is_synthetic=false, IDs leaked=false"
+      "details": "Created Business Alpha ID=2cadf102-932e-426a-a9d8-2f30391a49cd, is_synthetic=false, IDs leaked=false"
     },
     {
       "step": "Campaign Studio UI Generation, Results Ingestion & Cookie Persistence",
@@ -252,7 +252,7 @@
     {
       "step": "Campaign History UI & Memory Evolution UI Verification",
       "passed": true,
-      "details": "History visible: true, Campaign ID: 6e3d4f57-de98-4463-9a6e-7cc1b6e44297, Comparison ID: abfdca05-696d-4d28-8f23-385cadfb2f6b, Zero bank_id UI leak: true"
+      "details": "History visible: true, Campaign ID: ff671067-b1ba-415b-aada-1e9c6ef40e8d, Comparison ID: e01e3e42-5b1c-434f-9bab-87137e0d51e7, Zero bank_id UI leak: true"
     },
     {
       "step": "User B Separate Context & Multi-Tenant UI Isolation",
@@ -262,7 +262,7 @@
     {
       "step": "Cross-Tenant 404, Synthetic Immutability 403 & CSRF 403",
       "passed": true,
-      "details": "Cross-tenant 404: true, Synthetic 403: true ({\"putBrand\":403,\"retain\":403,\"provision\":403,\"verify\":403,\"generate\":403,\"compare\":403,\"results\":403}), CSRF 403: true"
+      "details": "Cross-tenant 404: true, Synthetic 403: true, CSRF 403: true"
     },
     {
       "step": "UI Logout & Server-Side Session Revocation",

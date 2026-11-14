@@ -17,7 +17,7 @@ import {
 } from "lucide-react";
 
 const navigation = [
-  { name: "Overview", href: "/", icon: LayoutDashboard },
+  { name: "Overview", href: "/workspace", icon: LayoutDashboard },
   { name: "Brands", href: "/brands", icon: Layers },
   { name: "Campaign Studio", href: "/campaign-studio", icon: FilePlus },
   { name: "Memory Evolution", href: "/memory-evolution", icon: GitCompare },
@@ -149,14 +149,14 @@ export function Sidebar() {
             <div className="w-full bg-surface-subtle border border-hairline hover:border-hairline-strong transition-colors rounded-lg p-2.5 flex items-center justify-between shadow-xs">
               <div className="truncate">
                 <p className="text-xs font-semibold text-ink truncate">
-                  {activeBrand?.name || "The Taco Syndicate"}
+                  {activeBrand?.name || "No Business Selected"}
                 </p>
                 <p className="text-[11px] text-ink-secondary truncate">
-                  {activeBrand?.industry || "Fast-Casual Dining"}
+                  {activeBrand?.industry || "Create or select workspace"}
                 </p>
               </div>
               <span className="text-[10px] font-medium px-2 py-0.5 rounded-full bg-forest-subtle text-forest border border-forest-border shrink-0">
-                {activeBrand ? (activeBrand.is_synthetic ? "Demo" : "Owned") : "Demo"}
+                {activeBrand ? (activeBrand.is_synthetic ? "Demo" : "Owned") : "None"}
               </span>
             </div>
           </div>

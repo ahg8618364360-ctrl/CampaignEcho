@@ -6,6 +6,7 @@ import { PageContainer } from "@/components/PageContainer";
 import { PageHeader } from "@/components/PageHeader";
 import { Button } from "@/components/Button";
 import { useAuth } from "@/lib/auth-context";
+import { apiFetch } from "@/lib/api";
 import {
   Plus,
   ArrowRight,
@@ -35,53 +36,8 @@ interface CampaignRecord {
   isSynthetic: boolean;
 }
 
-const HISTORICAL_RECORDS: CampaignRecord[] = [
-  {
-    id: "camp-001",
-    name: "Late Night Burrito Drops",
-    date: "Oct 12 – Oct 18, 2026",
-    platform: "Instagram Reels",
-    objective: "Foot Traffic / Late-Night Sales",
-    impressions: "42,800",
-    conversions: "380 redemptions",
-    outcomeType: "success",
-    outcomeLabel: "Synthetic Observation",
-    mainLesson: "BOGO promotions after 9 PM combined with macro food prep clips delivered 4.2x engagement over static carousels.",
-    memoryProvenance: "Synthetic demonstration data — not yet verified as retained in Hindsight",
-    isSynthetic: true,
-  },
-  {
-    id: "camp-002",
-    name: "Gourmet Truffle Tasting",
-    date: "Sep 20 – Sep 25, 2026",
-    platform: "Instagram & TikTok",
-    objective: "Premium Menu Awareness",
-    impressions: "18,400",
-    conversions: "4 redemptions",
-    outcomeType: "mistake",
-    outcomeLabel: "Synthetic Negative Rule",
-    mainLesson: "Upscale aesthetic created cognitive friction with budget-conscious student demographic; perceived as unaffordable.",
-    memoryProvenance: "Synthetic demonstration data — not yet verified as retained in Hindsight",
-    isSynthetic: true,
-  },
-  {
-    id: "camp-003",
-    name: "Flash Student ID Redemption",
-    date: "Aug 28 – Sep 04, 2026",
-    platform: "Campus Flyering & IG Stories",
-    objective: "Back-to-School Activation",
-    impressions: "12,600",
-    conversions: "512 redemptions",
-    outcomeType: "operational",
-    outcomeLabel: "Synthetic Guideline",
-    mainLesson: "Showing college ID directly to the cashier reduced counter wait times by 65% compared to QR code redemption apps.",
-    memoryProvenance: "Synthetic demonstration data — not yet verified as retained in Hindsight",
-    isSynthetic: true,
-  },
-];
-
 export default function CampaignHistoryPage() {
-  const { user } = useAuth();
+  const { user, activeBrandId } = useAuth();
   const [filter, setFilter] = useState<"all" | "success" | "mistake" | "operational">("all");
   const [search, setSearch] = useState("");
   const [apiRecords, setApiRecords] = useState<CampaignRecord[]>([]);
@@ -89,14 +45,17 @@ export default function CampaignHistoryPage() {
   useEffect(() => {
     async function loadCampaigns() {
       try {
-        const apiBase = process.env.NEXT_PUBLIC_API_BASE_URL || "http://localhost:8000/api/v1";
-        const res = await fetch(`${apiBase}/campaigns`, {
-          credentials: "include",
+        const res = await apiFetch("/campaigns", {
           cache: "no-store",
         });
         if (res.ok) {
           const data = await res.json();
-          const mapped: CampaignRecord[] = data.map((c: any) => {
+          // Filter by activeBrandId if available
+          const relevant = activeBrandId
+            ? data.filter((c: any) => c.brand_id === activeBrandId)
+            : data;
+
+          const mapped: CampaignRecord[] = relevant.map((c: any) => {
             const impressionsVal = c.metrics?.impressions ? `${c.metrics.impressions.toLocaleString()} views` : "In Progress";
             const conversionsVal = c.metrics?.offer_redemptions ? `${c.metrics.offer_redemptions.toLocaleString()} redemptions` : (c.metrics?.conversions ? `${c.metrics.conversions} conversions` : "Active Execution");
             const lesson = c.feedback && c.feedback.length > 0 ? c.feedback[0].lessons_learned : (c.strategy_output?.historical_rationale || "Memory-informed campaign strategy actively running.");
@@ -123,9 +82,9 @@ export default function CampaignHistoryPage() {
       }
     }
     loadCampaigns();
-  }, [user?.id]);
+  }, [user?.id, activeBrandId]);
 
-  const allRecords = [...apiRecords, ...HISTORICAL_RECORDS];
+  const allRecords = apiRecords;
 
   const filteredRecords = allRecords.filter((rec) => {
     if (filter !== "all" && rec.outcomeType !== filter) return false;
@@ -145,9 +104,9 @@ export default function CampaignHistoryPage() {
       {/* 1. Header with Actions */}
       <PageHeader
         badge="Empirical Observation Ledger"
-        badgeSubtext="Verified Campaigns & Baseline Fixtures"
+        badgeSubtext="Retained Campaigns & Empirical Grounding"
         title="Campaign History & Observations"
-        description="Structured repository of past marketing executions, observed performance metrics, and qualitative post-mortems for The Taco Syndicate demonstration profile."
+        description="Structured repository of past marketing executions, observed performance metrics, and qualitative post-mortems retained in your brand's memory bank."
         actions={
           <>
             <Button
@@ -172,7 +131,7 @@ export default function CampaignHistoryPage() {
       <div className="p-3 rounded-lg bg-surface-subtle border border-hairline flex items-center gap-2 text-xs text-ink-secondary font-sans">
         <Info className="w-4 h-4 text-ink-secondary shrink-0" />
         <span>
-          <strong className="text-ink font-medium">Empirical Ledger:</strong> Displaying {allRecords.length} records ({apiRecords.length} database persisted campaign{apiRecords.length === 1 ? "" : "s"} + {HISTORICAL_RECORDS.length} demonstration baseline fixtures).
+          <strong className="text-ink font-medium">Empirical Ledger:</strong> Displaying {allRecords.length} database-persisted campaign{allRecords.length === 1 ? "" : "s"} with live Vectorize Hindsight memory grounding.
         </span>
       </div>
 
@@ -280,7 +239,29 @@ export default function CampaignHistoryPage() {
         </div>
       </section>
 
-      {/* 4. Structured Empirical Ledger Table */}
+      {/* 4. Structured Empirical Ledger Table OR Empty State */}
+      {filteredRecords.length === 0 ? (
+        <section className="p-8 rounded-xl bg-surface border border-hairline text-center space-y-3 shadow-xs">
+          <div className="w-10 h-10 rounded-full bg-surface-subtle text-ink-secondary mx-auto flex items-center justify-center">
+            <Filter className="w-5 h-5" />
+          </div>
+          <h3 className="font-serif text-lg text-ink font-normal">
+            {allRecords.length === 0 ? "No Campaign Records Yet" : "No Campaigns Match Filter"}
+          </h3>
+          <p className="text-xs text-ink-secondary max-w-md mx-auto leading-relaxed font-sans">
+            {allRecords.length === 0
+              ? "Compose your first brief in Campaign Studio and submit actual campaign outcomes to populate this historical learning ledger."
+              : "Try adjusting your search query or selecting 'All' in the filter tabs above."}
+          </p>
+          {allRecords.length === 0 && (
+            <div className="pt-2">
+              <Button variant="primary" href="/campaign-studio" icon={<Plus className="w-3.5 h-3.5" />}>
+                Compose First Brief in Campaign Studio
+              </Button>
+            </div>
+          )}
+        </section>
+      ) : (
       <section className="rounded-xl bg-surface border border-hairline shadow-xs overflow-hidden">
         <div className="overflow-x-auto">
           <table className="w-full text-left border-collapse">
@@ -372,6 +353,7 @@ export default function CampaignHistoryPage() {
           </table>
         </div>
       </section>
+      )}
     </PageContainer>
   );
 }

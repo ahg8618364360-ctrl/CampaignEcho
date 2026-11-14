@@ -28,6 +28,7 @@ import {
   Lock,
 } from "lucide-react";
 import { useAuth } from "@/lib/auth-context";
+import { apiFetch, API_BASE_URL } from "@/lib/api";
 
 interface Brand {
   id: string;
@@ -37,6 +38,7 @@ interface Brand {
   market_region: string;
   brand_voice: string;
   restrictions?: string;
+  key_offers?: string;
   is_synthetic: boolean;
 }
 
@@ -132,16 +134,16 @@ export default function CampaignStudioPage() {
   }, [activeBrandId, selectedBrandId]);
 
   // Composer Form Inputs
-  const [campaignName, setCampaignName] = useState("Midnight Taco Stash Run");
-  const [objective, setObjective] = useState("Late-Night Foot Traffic");
+  const [campaignName, setCampaignName] = useState("Q4 Growth & Acquisition Campaign");
+  const [objective, setObjective] = useState("Customer Acquisition & Conversions");
   const [platform, setPlatform] = useState("Instagram Reels");
-  const [targetAudience, setTargetAudience] = useState("UT Austin Undergrads & Night Owls");
-  const [geographicMarket, setGeographicMarket] = useState("Austin, TX");
+  const [targetAudience, setTargetAudience] = useState("");
+  const [geographicMarket, setGeographicMarket] = useState("");
   const [budget, setBudget] = useState("1500");
-  const [primaryKpi, setPrimaryKpi] = useState("Flash Redemptions");
-  const [offerOrPromotion, setOfferOrPromotion] = useState("Buy 2 Tacos Get Free Loaded Queso after 10 PM");
-  const [constraints, setConstraints] = useState("Keep tone irreverent, energetic, and value-first. Avoid gourmet or fine-dining clichés.");
-  const [durationDays, setDurationDays] = useState("10");
+  const [primaryKpi, setPrimaryKpi] = useState("Offer Redemptions");
+  const [offerOrPromotion, setOfferOrPromotion] = useState("");
+  const [constraints, setConstraints] = useState("");
+  const [durationDays, setDurationDays] = useState("14");
   const [preferredFormat, setPreferredFormat] = useState("9:16 Fast-Paced Reels");
   const [isSynthetic, setIsSynthetic] = useState(false);
   const [preferredProvider, setPreferredProvider] = useState<"zai">("zai");
@@ -159,19 +161,19 @@ export default function CampaignStudioPage() {
   const [closedLoopResult, setClosedLoopResult] = useState<any | null>(null);
 
   // Results Form Inputs
-  const [reportingPeriod, setReportingPeriod] = useState("Weekend Run");
-  const [impressions, setImpressions] = useState("48200");
-  const [reach, setReach] = useState("34100");
-  const [clicks, setClicks] = useState("1820");
-  const [conversions, setConversions] = useState("412");
-  const [redemptions, setRedemptions] = useState("389");
-  const [spend, setSpend] = useState("1150");
-  const [revenue, setRevenue] = useState("4680");
-  const [observations, setObservations] = useState("Sizzling carnitas food-prep sound and queso pour clips converted 3.1x higher than talking heads.");
-  const [clientFeedback, setClientFeedback] = useState("Lines wrapped around the corner after 10 PM on Friday and Saturday.");
-  const [lessonsLearned, setLessonsLearned] = useState("Audio-first ASMR food prep of queso pour drove 389 flash redemptions; keep talking-head hooks under 2 seconds.");
+  const [reportingPeriod, setReportingPeriod] = useState("Campaign Run");
+  const [impressions, setImpressions] = useState("35000");
+  const [reach, setReach] = useState("24000");
+  const [clicks, setClicks] = useState("1200");
+  const [conversions, setConversions] = useState("320");
+  const [redemptions, setRedemptions] = useState("280");
+  const [spend, setSpend] = useState("1200");
+  const [revenue, setRevenue] = useState("3800");
+  const [observations, setObservations] = useState("");
+  const [clientFeedback, setClientFeedback] = useState("");
+  const [lessonsLearned, setLessonsLearned] = useState("");
 
-  const API_BASE = process.env.NEXT_PUBLIC_API_BASE_URL || "http://localhost:8000/api/v1";
+  const API_BASE = API_BASE_URL;
 
   // Load brands on mount and when authBrands changes
   useEffect(() => {
@@ -226,6 +228,23 @@ export default function CampaignStudioPage() {
   }, [selectedBrandId, API_BASE]);
 
   const selectedBrand = brands.find((b) => b.id === selectedBrandId) || brands[0];
+
+  useEffect(() => {
+    if (selectedBrand) {
+      if (selectedBrand.target_audience && !targetAudience) {
+        setTargetAudience(selectedBrand.target_audience);
+      }
+      if (selectedBrand.market_region && !geographicMarket) {
+        setGeographicMarket(selectedBrand.market_region);
+      }
+      if (selectedBrand.restrictions && !constraints) {
+        setConstraints(selectedBrand.restrictions);
+      }
+      if (selectedBrand.key_offers && !offerOrPromotion) {
+        setOfferOrPromotion(selectedBrand.key_offers);
+      }
+    }
+  }, [selectedBrand, targetAudience, geographicMarket, constraints, offerOrPromotion]);
 
   // Handle Campaign Generation
   const handleGenerate = async () => {
@@ -357,7 +376,7 @@ export default function CampaignStudioPage() {
       {/* 1. Header */}
       <PageHeader
         badge="Continuous Marketing Intelligence"
-        badgeSubtext={`Active Brand: ${selectedBrand?.name || "The Taco Syndicate"}`}
+        badgeSubtext={selectedBrand ? `Active Brand: ${selectedBrand.name}` : "No Brand Selected"}
         title="Campaign Studio"
         description="Formulate empirical marketing strategies grounded in accumulated brand memory, past campaign performance, and causal marketing constraints."
         actions={
@@ -438,13 +457,14 @@ export default function CampaignStudioPage() {
                   </div>
 
                   <div className="space-y-1">
-                    <label className="font-medium text-ink block">Campaign Name</label>
+                    <label htmlFor="studio-campaign-name" className="font-medium text-ink block">Campaign Name</label>
                     <input
+                      id="studio-campaign-name"
                       type="text"
                       value={campaignName}
                       onChange={(e) => setCampaignName(e.target.value)}
                       className="w-full px-3 py-2 rounded-lg bg-surface border border-hairline text-xs text-ink focus:outline-none focus:border-terracotta transition-colors"
-                      placeholder="e.g. Midnight Taco Stash Run"
+                      placeholder="e.g. Product Launch & Acquisition Campaign"
                     />
                   </div>
                 </div>
@@ -458,9 +478,9 @@ export default function CampaignStudioPage() {
                       onChange={(e) => setObjective(e.target.value)}
                       className="w-full px-3 py-2 rounded-lg bg-surface border border-hairline text-xs text-ink focus:outline-none focus:border-terracotta transition-colors cursor-pointer"
                     >
-                      <option value="Late-Night Foot Traffic">Late-Night Foot Traffic / Sales</option>
-                      <option value="Campus Item Awareness">Campus Menu Item Awareness</option>
-                      <option value="Student Loyalty Activation">Student Loyalty Activation</option>
+                      <option value="Late-Night Foot Traffic">Customer Acquisition &amp; Foot Traffic</option>
+                      <option value="Campus Item Awareness">Product Line Awareness</option>
+                      <option value="Student Loyalty Activation">Customer Loyalty Activation</option>
                       <option value="Digital Direct Orders">Digital Online Delivery Orders</option>
                     </select>
                   </div>
@@ -483,24 +503,26 @@ export default function CampaignStudioPage() {
                 {/* Target Audience & Market Region */}
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                   <div className="space-y-1">
-                    <label className="font-medium text-ink block">Audience Segment</label>
+                    <label htmlFor="studio-target-audience" className="font-medium text-ink block">Audience Segment</label>
                     <input
+                      id="studio-target-audience"
                       type="text"
                       value={targetAudience}
                       onChange={(e) => setTargetAudience(e.target.value)}
                       className="w-full px-3 py-2 rounded-lg bg-surface border border-hairline text-xs text-ink focus:outline-none focus:border-terracotta transition-colors"
-                      placeholder="e.g. UT Austin Undergrads & Night Owls"
+                      placeholder="e.g. Active lifestyle enthusiasts (25–40)"
                     />
                   </div>
 
                   <div className="space-y-1">
-                    <label className="font-medium text-ink block">Geographic Market</label>
+                    <label htmlFor="studio-geographic-market" className="font-medium text-ink block">Geographic Market</label>
                     <input
+                      id="studio-geographic-market"
                       type="text"
                       value={geographicMarket}
                       onChange={(e) => setGeographicMarket(e.target.value)}
                       className="w-full px-3 py-2 rounded-lg bg-surface border border-hairline text-xs text-ink focus:outline-none focus:border-terracotta transition-colors"
-                      placeholder="e.g. Austin, TX (Campus Corridor)"
+                      placeholder="e.g. North America Metro Region"
                     />
                   </div>
                 </div>
@@ -513,7 +535,7 @@ export default function CampaignStudioPage() {
                     value={offerOrPromotion}
                     onChange={(e) => setOfferOrPromotion(e.target.value)}
                     className="w-full px-3 py-2 rounded-lg bg-surface border border-hairline text-xs text-ink focus:outline-none focus:border-terracotta transition-colors"
-                    placeholder="e.g. Buy 2 Tacos Get Free Loaded Queso after 10 PM"
+                    placeholder="e.g. Free consultation, introductory bundle, or 20% launch voucher"
                   />
                 </div>
 
@@ -527,7 +549,7 @@ export default function CampaignStudioPage() {
                     value={constraints}
                     onChange={(e) => setConstraints(e.target.value)}
                     className="w-full px-3 py-2 rounded-lg bg-surface border border-hairline text-xs text-ink focus:outline-none focus:border-terracotta transition-colors leading-relaxed"
-                    placeholder="e.g. Keep tone irreverent, energetic, and value-first. Avoid gourmet clichés."
+                    placeholder="e.g. Keep tone authoritative, clear, and value-first. Avoid generic marketing superlatives."
                   />
                 </div>
 

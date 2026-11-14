@@ -175,7 +175,40 @@ export interface CampaignComparisonResponse {
   created_at: string;
 }
 
-const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL || "http://localhost:8000/api/v1";
+/**
+ * Canonical API configuration and client helpers for CampaignEcho.
+ * Resolves NEXT_PUBLIC_API_BASE_URL with safe browser/SSR fallback and validation.
+ */
+export function getApiBaseUrl(): string {
+  const envUrl = process.env.NEXT_PUBLIC_API_BASE_URL;
+  if (envUrl && envUrl.trim()) {
+    return envUrl.trim().replace(/\/+$/, "");
+  }
+  // In browser runtime, match host (localhost vs 127.0.0.1) to avoid cookie/CORS mismatches
+  if (typeof window !== "undefined") {
+    const host = window.location.hostname || "localhost";
+    return `http://${host}:8000/api/v1`;
+  }
+  return "http://localhost:8000/api/v1";
+}
+
+export const API_BASE_URL = getApiBaseUrl();
+
+export async function apiFetch(endpoint: string, options: RequestInit = {}): Promise<Response> {
+  const baseUrl = getApiBaseUrl();
+  const url = endpoint.startsWith("http") ? endpoint : `${baseUrl}${endpoint.startsWith("/") ? "" : "/"}${endpoint}`;
+  
+  const headers = new Headers(options.headers || {});
+  if (!headers.has("Accept")) {
+    headers.set("Accept", "application/json");
+  }
+
+  return fetch(url, {
+    ...options,
+    credentials: "include",
+    headers,
+  });
+}
 
 export async function checkLiveness(): Promise<HealthLiveResponse> {
   const start = performance.now();
@@ -243,10 +276,8 @@ export async function checkReadiness(): Promise<HealthReadyResponse> {
 
 export async function fetchMemoryStatus(brandId: string): Promise<MemoryStatusResponse | null> {
   try {
-    const res = await fetch(`${API_BASE_URL}/brands/${brandId}/memory/status`, {
+    const res = await apiFetch(`/brands/${brandId}/memory/status`, {
       cache: "no-store",
-      credentials: "include",
-      headers: { Accept: "application/json" },
     });
     if (res.ok) {
       return await res.json();
@@ -259,10 +290,8 @@ export async function fetchMemoryStatus(brandId: string): Promise<MemoryStatusRe
 
 export async function fetchMemoryActivity(brandId: string): Promise<MemoryActivityResponse | null> {
   try {
-    const res = await fetch(`${API_BASE_URL}/brands/${brandId}/memory/activity?limit=20`, {
+    const res = await apiFetch(`/brands/${brandId}/memory/activity?limit=20`, {
       cache: "no-store",
-      credentials: "include",
-      headers: { Accept: "application/json" },
     });
     if (res.ok) {
       return await res.json();
@@ -278,12 +307,10 @@ export async function fetchMemoryExplore(
   query: string = "campaign marketing audience performance"
 ): Promise<MemoryExploreResponse | null> {
   try {
-    const res = await fetch(
-      `${API_BASE_URL}/brands/${brandId}/memory/explore?query=${encodeURIComponent(query)}`,
+    const res = await apiFetch(
+      `/brands/${brandId}/memory/explore?query=${encodeURIComponent(query)}`,
       {
         cache: "no-store",
-        credentials: "include",
-        headers: { Accept: "application/json" },
       }
     );
     if (res.ok) {
@@ -298,12 +325,10 @@ export async function fetchMemoryExplore(
 export async function executeComparison(
   req: CampaignComparisonRequest
 ): Promise<CampaignComparisonResponse> {
-  const res = await fetch(`${API_BASE_URL}/campaigns/compare`, {
+  const res = await apiFetch("/campaigns/compare", {
     method: "POST",
-    credentials: "include",
     headers: {
       "Content-Type": "application/json",
-      Accept: "application/json",
     },
     body: JSON.stringify(req),
   });
@@ -320,10 +345,8 @@ export async function fetchComparison(
   comparisonId: string
 ): Promise<CampaignComparisonResponse | null> {
   try {
-    const res = await fetch(`${API_BASE_URL}/campaigns/compare/${comparisonId}`, {
+    const res = await apiFetch(`/campaigns/compare/${comparisonId}`, {
       cache: "no-store",
-      credentials: "include",
-      headers: { Accept: "application/json" },
     });
     if (res.ok) {
       return await res.json();
@@ -338,13 +361,11 @@ export async function fetchComparisons(
   brandId?: string
 ): Promise<CampaignComparisonResponse[]> {
   try {
-    const url = brandId
-      ? `${API_BASE_URL}/campaigns/compare?brand_id=${brandId}`
-      : `${API_BASE_URL}/campaigns/compare`;
-    const res = await fetch(url, {
+    const endpoint = brandId
+      ? `/campaigns/compare?brand_id=${brandId}`
+      : "/campaigns/compare";
+    const res = await apiFetch(endpoint, {
       cache: "no-store",
-      credentials: "include",
-      headers: { Accept: "application/json" },
     });
     if (res.ok) {
       return await res.json();

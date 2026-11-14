@@ -24,35 +24,20 @@ import {
   Instagram,
 } from "lucide-react";
 
-const DEMO_FALLBACK: BrandWorkspace = {
-  id: "9d215d96-2695-41ee-8625-64be3e547504",
-  name: "The Taco Syndicate",
-  industry: "Fast-Casual Restaurant",
-  description: "Late-night urban street tacos with fiery salsa and loaded queso.",
-  market_region: "Austin, TX (West Campus Corridor)",
-  target_audience: "University students (18–24), value-conscious, nocturnal study schedules.",
-  brand_voice: "High-energy, witty, culturally authentic street food utility. Zero corporate fluff.",
-  is_synthetic: true,
-  restrictions: "No fine-dining tropes. No alcohol promotions targeting undergraduate accounts. Never present speculative AI estimates as verified historical metrics.",
-  products_or_services: "Late-night street tacos, loaded queso, grilled quesadillas",
-  unique_selling_points: "Made-to-order midnight service, secret family salsa roja",
-  price_range: "$3.50 - $9.00",
-  key_offers: "Buy 2 Tacos Get Free Loaded Queso after 10 PM",
-  competitors: "Torchy's Tacos, Velvet Taco",
-};
-
 export default function BrandsPage() {
   const { brands: authBrands, activeBrandId, setActiveBrandId, user } = useAuth();
   const [search, setSearch] = useState("");
 
-  const brandList = useMemo(() => (authBrands.length > 0 ? authBrands : [DEMO_FALLBACK]), [authBrands]);
-  const [selectedId, setSelectedId] = useState<string>(activeBrandId || brandList[0].id);
+  const brandList = authBrands;
+  const [selectedId, setSelectedId] = useState<string>(activeBrandId || (brandList.length > 0 ? brandList[0].id : ""));
 
   useEffect(() => {
     if (activeBrandId && brandList.some((b) => b.id === activeBrandId)) {
       setSelectedId(activeBrandId);
+    } else if (brandList.length > 0 && !selectedId) {
+      setSelectedId(brandList[0].id);
     }
-  }, [activeBrandId, brandList]);
+  }, [activeBrandId, brandList, selectedId]);
 
   const filteredBrands = brandList.filter(
     (b) =>
@@ -62,14 +47,14 @@ export default function BrandsPage() {
   );
 
   const selectedBrand =
-    brandList.find((b) => b.id === selectedId) || brandList[0];
+    brandList.find((b) => b.id === selectedId) || (brandList.length > 0 ? brandList[0] : null);
 
   return (
     <PageContainer size="wide">
       {/* 1. Header */}
       <PageHeader
         badge="Multi-Brand Workspaces"
-        badgeSubtext={selectedBrand.is_synthetic ? "Demonstration Benchmark" : "Authenticated Business"}
+        badgeSubtext={selectedBrand ? (selectedBrand.is_synthetic ? "Demonstration Benchmark" : "Authenticated Business") : "Workspace Setup"}
         title="Brand Management & Tenant Boundaries"
         description="Configure brand identity guidelines, voice parameters, and review architectural 1:1 Hindsight memory bank isolation across client accounts."
         actions={
@@ -77,7 +62,7 @@ export default function BrandsPage() {
             <Button
               variant="secondary"
               href="/onboarding"
-              icon={<Plus className="w-3.5 h-3.5 text-primary" />}
+              icon={<Plus className="w-3.5 h-3.5 text-terracotta" />}
             >
               New Business Workspace
             </Button>
@@ -92,7 +77,32 @@ export default function BrandsPage() {
         }
       />
 
-      {/* 2. 12-Column Grid */}
+      {/* Empty State when no brands exist */}
+      {!selectedBrand ? (
+        <div className="p-8 mt-6 rounded-xl bg-surface border border-hairline text-center space-y-4 shadow-xs">
+          <div className="w-12 h-12 rounded-full bg-terracotta/10 text-terracotta mx-auto flex items-center justify-center">
+            <Building2 className="w-6 h-6" />
+          </div>
+          <div className="max-w-md mx-auto space-y-1.5">
+            <h3 className="font-serif text-xl sm:text-2xl text-ink font-normal">
+              No Brand Workspaces Found
+            </h3>
+            <p className="text-xs sm:text-sm text-ink-secondary leading-relaxed font-sans">
+              Create your first business workspace to establish brand voice rules, market guidelines, and a dedicated 1:1 Vectorize Hindsight cloud memory bank.
+            </p>
+          </div>
+          <div className="pt-2">
+            <Link
+              href="/onboarding"
+              className="inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-terracotta text-white text-xs font-medium hover:bg-terracotta/90 transition-colors shadow-xs"
+            >
+              <Plus className="w-4 h-4" />
+              <span>Create Business Workspace</span>
+            </Link>
+          </div>
+        </div>
+      ) : (
+      /* 2. 12-Column Grid */
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-5 items-start mt-6">
         {/* Left Pane: 4 cols Brand Directory */}
         <section className="lg:col-span-4 p-4 rounded-xl bg-surface border border-hairline shadow-xs space-y-3">
@@ -181,7 +191,7 @@ export default function BrandsPage() {
                 </span>
                 {selectedBrand.is_synthetic ? (
                   <span className="px-2 py-0.5 rounded text-[10px] font-mono bg-amber-500/10 text-amber-500 border border-amber-500/20 font-medium">
-                    The Taco Syndicate (Benchmark)
+                    Synthetic Benchmark
                   </span>
                 ) : (
                   <span className="px-2 py-0.5 rounded text-[10px] font-mono bg-emerald-500/10 text-emerald-500 border border-emerald-500/20 font-medium">
@@ -291,6 +301,7 @@ export default function BrandsPage() {
           </div>
         </section>
       </div>
+      )}
     </PageContainer>
   );
 }

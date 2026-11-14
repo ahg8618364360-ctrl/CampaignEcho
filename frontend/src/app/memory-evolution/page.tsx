@@ -28,6 +28,7 @@ import {
   ChevronUp,
 } from "lucide-react";
 import {
+  apiFetch,
   executeComparison,
   fetchComparisons,
   CampaignComparisonResponse,
@@ -44,6 +45,7 @@ interface Brand {
   market_region: string;
   brand_voice: string;
   restrictions?: string;
+  key_offers?: string;
   is_synthetic: boolean;
 }
 
@@ -54,14 +56,14 @@ export default function MemoryEvolutionPage() {
   const [loadingBrands, setLoadingBrands] = useState<boolean>(true);
 
   // Form State
-  const [campaignTitle, setCampaignTitle] = useState<string>("Late-Night Student Craving Campaign");
-  const [objective, setObjective] = useState<string>("Increase late-night restaurant foot traffic");
+  const [campaignTitle, setCampaignTitle] = useState<string>("Q4 Growth Activation");
+  const [objective, setObjective] = useState<string>("Customer Acquisition & Foot Traffic");
   const [platform, setPlatform] = useState<string>("Instagram Reels");
-  const [targetAudience, setTargetAudience] = useState<string>("University Students & Night-Owls");
-  const [offerOrPromotion, setOfferOrPromotion] = useState<string>("Buy 2 tacos get free loaded queso after 10 PM");
-  const [constraints, setConstraints] = useState<string>("No discounts over 25%, avoid gourmet upscale tone");
-  const [budget, setBudget] = useState<string>("1200");
-  const [primaryKpi, setPrimaryKpi] = useState<string>("Late-Night Redemptions");
+  const [targetAudience, setTargetAudience] = useState<string>("");
+  const [offerOrPromotion, setOfferOrPromotion] = useState<string>("");
+  const [constraints, setConstraints] = useState<string>("");
+  const [budget, setBudget] = useState<string>("1500");
+  const [primaryKpi, setPrimaryKpi] = useState<string>("Offer Redemptions");
   const [showFormDetails, setShowFormDetails] = useState<boolean>(true);
 
   // Execution & Comparison State
@@ -79,11 +81,7 @@ export default function MemoryEvolutionPage() {
     async function loadBrands() {
       try {
         setLoadingBrands(true);
-        const apiBase = process.env.NEXT_PUBLIC_API_BASE_URL || "http://localhost:8000/api/v1";
-        const res = await fetch(`${apiBase}/brands`, {
-          credentials: "include",
-          headers: { Accept: "application/json" },
-        });
+        const res = await apiFetch("/brands");
         if (res.ok) {
           const data: Brand[] = await res.json();
           setBrands(data);
@@ -122,15 +120,26 @@ export default function MemoryEvolutionPage() {
 
   const selectedBrand = brands.find((b) => b.id === selectedBrandId) || brands[0];
 
-  function loadTacoDemoPreset() {
-    setCampaignTitle("Late-Night Student Craving Campaign");
-    setObjective("Increase late-night restaurant foot traffic");
-    setPlatform("Instagram Reels");
-    setTargetAudience("University Students & Night-Owls");
-    setOfferOrPromotion("Buy 2 tacos get free loaded queso after 10 PM");
-    setConstraints("Never pitch truffle tasting as budget food; maintain street-food casual tone");
-    setBudget("1500");
-    setPrimaryKpi("Offer Redemptions after 10 PM");
+  useEffect(() => {
+    if (selectedBrand) {
+      if (selectedBrand.target_audience && !targetAudience) {
+        setTargetAudience(selectedBrand.target_audience);
+      }
+      if (selectedBrand.restrictions && !constraints) {
+        setConstraints(selectedBrand.restrictions);
+      }
+    }
+  }, [selectedBrand, targetAudience, constraints]);
+
+  function fillFromBrandProfile() {
+    if (!selectedBrand) return;
+    setCampaignTitle(`${selectedBrand.name} Growth Campaign`);
+    setObjective(`Acquire customers in ${selectedBrand.market_region || "target market"}`);
+    setTargetAudience(selectedBrand.target_audience || "Primary target demographic");
+    setConstraints(selectedBrand.restrictions || "Maintain authentic brand voice; zero generic fluff");
+    if (selectedBrand.key_offers) {
+      setOfferOrPromotion(selectedBrand.key_offers);
+    }
   }
 
   async function handleRunComparison() {
@@ -184,10 +193,10 @@ export default function MemoryEvolutionPage() {
           <div className="flex items-center gap-2">
             <Button
               variant="secondary"
-              onClick={loadTacoDemoPreset}
-              icon={<Sparkles className="w-3.5 h-3.5 text-terracotta" />}
+              onClick={fillFromBrandProfile}
+              icon={<Layers className="w-3.5 h-3.5 text-forest" />}
             >
-              Load Demo Brief
+              Fill from Brand Profile
             </Button>
             <Button
               variant="primary"
