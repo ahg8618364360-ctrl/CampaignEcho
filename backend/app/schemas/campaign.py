@@ -72,25 +72,23 @@ class CampaignStrategyOutput(BaseModel):
     """Full marketing intelligence strategy generated with grounded memory synthesis."""
     campaign_concept: str = Field(..., description="Core overarching campaign hook and thesis")
     main_objective: str = Field(..., description="Revalidated strategic objective")
-    target_audience: str = Field(..., description="Refined audience profile for this execution")
-    campaign_positioning: str = Field(..., description="Market positioning vs competitive alternatives")
-    creative_direction: str = Field(..., description="Visual aesthetic, tone, color palette, pacing")
+    target_audience: Optional[str] = Field(None, description="Refined audience profile for this execution")
+    campaign_positioning: Optional[str] = Field(None, description="Market positioning vs competitive alternatives")
+    creative_direction: Optional[str] = Field(None, description="Visual aesthetic, tone, color palette, pacing")
     reel_concepts: List[ReelConcept] = Field(
-        ...,
-        min_length=1,
-        max_length=5,
+        default_factory=list,
         description="Detailed short-form video execution concepts"
     )
     content_formats: List[str] = Field(default_factory=list, description="Recommended production formats")
     caption_directions: List[str] = Field(default_factory=list, description="Copywriting frameworks and caption guidelines")
     suggested_hooks: List[str] = Field(default_factory=list, description="Standout copy hooks for headlines and ads")
-    platform_specific_execution: str = Field(..., description="Platform native mechanics (audio, hashtags, algorithms)")
-    offer_recommendations: str = Field(..., description="Pricing, promotion, or offer structure")
-    call_to_action: str = Field(..., description="Primary conversion driver")
+    platform_specific_execution: Optional[str] = Field(None, description="Platform native mechanics (audio, hashtags, algorithms)")
+    offer_recommendations: Optional[str] = Field(None, description="Pricing, promotion, or offer structure")
+    call_to_action: Optional[str] = Field(None, description="Primary conversion driver")
     kpi_recommendations: List[str] = Field(default_factory=list, description="Primary and secondary metrics to track")
     execution_timeline: List[str] = Field(default_factory=list, description="Phased launch timeline")
     potential_risks: List[str] = Field(default_factory=list, description="Identified failure modes to mitigate")
-    historical_rationale: str = Field(..., description="How past Hindsight experiences shaped this strategy")
+    historical_rationale: Optional[str] = Field(None, description="How past Hindsight experiences shaped this strategy")
     memory_citations: List[MemoryCitation] = Field(
         default_factory=list,
         description="Explicit memory items cited in this strategy"
@@ -103,8 +101,8 @@ class CampaignStrategyOutput(BaseModel):
         None,
         description="Summary of Vectorize Hindsight reflect operation that informed this strategy"
     )
-    llm_provider: str = Field(..., description="Actual LLM provider used (e.g. zai, groq)")
-    llm_model: str = Field(..., description="Specific model utilized (e.g. glm-4.5-flash)")
+    llm_provider: Optional[str] = Field("zai", description="Actual LLM provider used (e.g. zai, groq)")
+    llm_model: Optional[str] = Field("glm-4.5-flash", description="Specific model utilized (e.g. glm-4.5-flash)")
     fallback_used: bool = Field(False, description="Whether automatic provider fallback occurred")
     generated_at: datetime = Field(default_factory=lambda: datetime.now())
 
@@ -184,7 +182,6 @@ class LearningLoopClosedResponse(BaseModel):
     """Confirmation response indicating campaign results were saved and retained into Hindsight."""
     campaign_id: str
     brand_id: str
-    hindsight_bank_id: str
     metrics_recorded: bool
     retained_to_hindsight: bool
     retained_memory_content: str
@@ -193,3 +190,66 @@ class LearningLoopClosedResponse(BaseModel):
     verified_retrieval_query: Optional[str] = None
     message: str
     timestamp: datetime
+
+
+class ComparisonDimensionCheck(BaseModel):
+    """Verifiable dimension comparison without fake percentage scores."""
+    dimension: str = Field(..., description="Evaluation dimension identifier")
+    label: str = Field(..., description="Human-readable dimension name")
+    mode_a_result: str = Field(..., description="Mode A (Zero Memory) result")
+    mode_b_result: str = Field(..., description="Mode B (Hindsight Memory) result")
+    detail: str = Field(..., description="Verifiable empirical difference")
+    is_grounded: bool = Field(True, description="Whether this difference is grounded in verifiable evidence")
+
+
+class ComparisonSummary(BaseModel):
+    """Structured verifiable comparison summary between Mode A (Zero Memory) and Mode B (Memory Powered)."""
+    retrieved_memories_count: int = Field(..., description="Number of real memories recalled for Mode B")
+    mode_a_citations_count: int = Field(0, description="Citations in Mode A (strictly 0)")
+    mode_b_citations_count: int = Field(..., description="Verified citations in Mode B mapped to Hindsight IDs")
+    avoided_past_mistakes: List[str] = Field(default_factory=list, description="Documented past failures avoided in Mode B")
+    brand_rule_compliance: List[str] = Field(default_factory=list, description="Brand restrictions explicitly observed")
+    strategic_differences: List[str] = Field(default_factory=list, description="Key concrete divergences between strategies")
+    uncertainties: List[str] = Field(default_factory=list, description="Questions left unestablished due to sparse data")
+    dimension_checks: List[ComparisonDimensionCheck] = Field(default_factory=list, description="Itemized comparison checks")
+    fairness_disclosure: str = Field(..., description="Methodological fairness and nondeterminism disclosure")
+
+
+class CampaignComparisonRequest(BaseModel):
+    """Request payload to execute a controlled Memory Evolution A/B comparison."""
+    brand_id: str = Field(..., description="Target brand identifier")
+    name: str = Field(..., min_length=2, max_length=255, description="Campaign title or brief name")
+    objective: str = Field(..., min_length=2, description="Primary campaign objective")
+    platform: str = Field(..., description="Target platform (e.g. Instagram Reels, TikTok)")
+    target_audience: Optional[str] = Field(None, description="Specific target segment")
+    budget: Optional[float] = Field(None, ge=0, description="Campaign budget")
+    offer_or_promotion: Optional[str] = Field(None, description="Incentive or offer mechanic")
+    constraints: Optional[str] = Field(None, description="Explicit creative constraints")
+    primary_kpi: Optional[str] = Field(None, description="Primary success metric")
+    content_language: str = Field("en", description="Campaign language")
+    geographic_market: Optional[str] = Field(None, description="Target market")
+    preferred_provider: Optional[str] = Field("zai", description="LLM provider (strictly identical for both modes)")
+
+
+class CampaignComparisonResponse(BaseModel):
+    """Complete record of a controlled Memory Evolution comparison."""
+    id: str
+    brand_id: str
+    brand_name: str
+    name: str
+    campaign_brief: Dict[str, Any]
+    provider: str
+    model: str
+    generation_parameters: Dict[str, Any]
+    prompt_version: str = "v1.0"
+    baseline_status: str = "COMPLETED"
+    memory_status: str = "COMPLETED"
+    baseline_strategy: CampaignStrategyOutput
+    memory_strategy: CampaignStrategyOutput
+    retrieved_memory_references: List[Dict[str, Any]] = Field(default_factory=list)
+    reflection_metadata: Optional[Dict[str, Any]] = None
+    comparison_summary: ComparisonSummary
+    created_at: datetime
+
+    model_config = ConfigDict(from_attributes=True)
+

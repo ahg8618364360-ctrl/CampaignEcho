@@ -1,94 +1,146 @@
-# CampaignEcho — 60-Second Evaluator Demo Runbook
+# CampaignEcho — Official Evaluator Demonstration Runbook
 
 **System**: CampaignEcho — Memory-Powered AI Marketing Intelligence Platform  
 **Memory Engine**: Vectorize Hindsight Cloud (`api.hindsight.vectorize.io`)  
-**LLM Engine**: Z.ai GLM-4.5-Flash (Production Active Provider; Groq Failover Disabled)  
-**Target Audience**: Judges, Technical Evaluators, and Marketing Executives  
-**Target Duration**: 60–90 Seconds
+**LLM Engine**: Z.ai GLM-4.5-Flash (Active Production Provider)  
+**Target Duration**: 3–5 Minutes (Comprehensive Evaluator Walkthrough)  
+**Standard**: Refero Campaign Desk Design & Zero Fake AI Scores  
 
 ---
 
-## Pre-Flight Checklist (10 Seconds Before Demo)
+## 1. Quick-Start (One-Command Startup)
 
-Ensure the backend and frontend services are running:
-- **FastAPI Backend**: `http://127.0.0.1:8000` (Verify: `GET /api/v1/health/ready` returns `{"status":"ready","database":"connected"}`)
-- **Next.js Frontend**: `http://localhost:3000`
-- **Hindsight Cloud Status**: Verified `OPERATIONS_VERIFIED` in `Settings` or `GET /api/v1/brands/{brand_id}/memory/status`
+> [!NOTE]
+> **Synthetic Data Provenance Note**: *The Taco Syndicate* brand profile and its seeded campaign metrics (e.g. 48,200 impressions, 389 redemptions, $1,150 spend) are synthetic evaluation fixtures (`is_synthetic = True`). All Vectorize Hindsight operations (`aretain`, `arecall`, `areflect`) and Z.ai inferences shown during the demo are real live cloud API operations.
 
-```bash
-# Optional: Run test suite to verify 100% test pass rate
-pytest -v backend/tests
-# Result: 35 passed in ~35s (including all 5 live Hindsight Cloud integration tests and live E2E)
+Open PowerShell in `C:\CampaignEcho`:
+```powershell
+# Pre-flight check & one-command demonstration launch
+.\scripts\start-demo.ps1
+```
+The startup script validates Python/Node dependencies, runs Alembic migrations, checks external cloud connectivity (Vectorize Hindsight Cloud & Z.ai), and launches both services:
+- **Public Editorial Landing**: `http://localhost:3000`
+- **Authenticated Workspace**: `http://localhost:3000/workspace`
+- **Memory Evolution (A/B)**: `http://localhost:3000/memory-evolution`
+- **Campaign Studio**: `http://localhost:3000/campaign-studio`
+- **Memory Explorer**: `http://localhost:3000/memory-explorer`
+- **Backend Readiness**: `http://127.0.0.1:8000/api/v1/health/ready`
+- **Swagger Docs**: `http://127.0.0.1:8000/docs`
+
+To stop services when finished:
+```powershell
+.\scripts\stop-demo.ps1
 ```
 
 ---
 
-## 60-Second Live Demonstration Script
+## 2. Automated Test Verification (Optional Pre-Flight)
 
-### Act 1: The Cold-Start Memory Baseline (0:00 - 0:15)
-1. **Navigate**: Open browser to `http://localhost:3000/campaign-studio`.
-2. **Select Brand**: Choose **The Taco Syndicate** (Late-night urban street food brand).
-3. **Show Grounding Desk**: Point to the right-hand panel (**Memory Grounding Desk**).
-   - *Highlight*: "Notice that CampaignEcho connects directly to Vectorize Hindsight Cloud. It inspects the tenant's dedicated brand memory bank (protected server-side). The engine is actively verified with live operational telemetry."
-4. **Point to Historical Memories**: Note the brand's prior learnings stored in Hindsight:
-   - *Observation*: "11 PM - 1 AM Friday/Saturday drive peak redemptions."
-   - *Observation*: "Audio-first ASMR food prep clips of cheese pull convert 3.2x higher than talking heads."
+To independently verify the complete test suite (61 tests total, including 6 live Vectorize Hindsight Cloud operations):
+```powershell
+.\venv\Scripts\pytest.exe -v --tb=short backend/tests
+```
+**Expected Result**: `61 passed, 0 skipped, 0 failed in ~150s`.
 
-### Act 2: Memory-Grounded Strategy Generation (0:15 - 0:35)
-1. **Input Campaign Brief**:
-   - **Campaign Goal**: "Launch Weekend Midnight Stash Run promo targeting college night owls."
-   - **Target Audience**: "Urban college students & nightlife crowd within 3 miles."
-   - **Budget**: `$1,500.00`
-   - **LLM Engine**: Z.ai GLM-4.5-Flash (Active Production Provider).
-2. **Click "Generate Memory-Grounded Strategy"**:
-   - Watch the generation trigger:
-     1. Hindsight `arecall` retrieves semantically relevant historical campaign memories.
-     2. Hindsight `areflect` synthesizes high-level brand patterns and behavioral heuristics.
-     3. Reasoner LLM (`glm-4.5-flash` via Z.ai) generates structured executive strategy.
-3. **Inspect Output**:
-   - **Epistemic Triad**: Point out that the agent cleanly separates **Observed Facts** (empirical historical metrics) from **Strategic Inferences**, **Actionable Recommendations**, and **Uncertainties**. Zero false causality!
-   - **Short-Form Reel Concepts**: Note the generated creative angles (e.g., *The Midnight Sizzle & Queso Drop*).
-   - **Memory Citation Chips**: Click on the citation chips (e.g., `[Hindsight Cloud · dcc1eac9]`) showing exactly which historical Hindsight memory informed the angle and timing.
+To run only the CI test suite (55 unit, contract, and tenant security tests):
+```powershell
+.\venv\Scripts\pytest.exe -v --tb=short backend/tests -k "not test_critical_ and not test_live_continuous_learning_loop_e2e"
+```
 
-### Act 3: Closing the Learning Loop — Results & Instant Retain (0:35 - 0:50)
-1. **Click "Submit Results & Close Loop"**:
-   - The **Performance Results Drawer** opens.
-2. **Ingest Real Performance Data**:
-   - **Impressions / Reach**: `48,200`
-   - **Total Clicks / Engagements**: `1,820`
-   - **Conversions / Redemptions**: `389`
-   - **Actual Spend**: `$1,150.00`
-   - **What Worked**: "Sizzling carnitas food-prep sound and queso pour clips converted 3.1x higher than talking heads."
-   - **What Failed**: "Static graphics completely underperformed dynamic video."
-   - **Key Strategic Lesson**: "Audio-first ASMR food prep of queso pour drove 389 flash redemptions; keep talking-head hooks under 2 seconds."
-3. **Click "Retain & Verify Closed Loop"**:
-   - The backend:
-     1. Ingests metrics and records them into SQLite `campaign_metrics`.
-     2. Automatically formats an executive postmortem memory document.
-     3. Executes Hindsight `aretain` directly to Vectorize Hindsight Cloud.
-     4. Executes immediate Hindsight `arecall` to actively verify that the newly stored memory is immediately retrievable.
-4. **Show Success State**:
-   - The green confirmation banner displays:
-     - **Retain Op ID**: Real Hindsight operation identifier (e.g., `ret-39c2...`).
-     - **Verified Retrieval**: `PASSED`.
-     - **Bank**: Dedicated Brand Bank (Managed Server-Side).
-
-### Act 4: The Compounding Intelligence Proof (0:50 - 1:00)
-1. **Navigate to Memory Explorer**: Click **Memory Explorer** in the left sidebar (`/memory-explorer`).
-2. **Show Live Recalled Memories**:
-   - The verified status banner confirms Vectorize Hindsight Cloud connection (`OPERATIONS_VERIFIED`).
-   - Switch between **[Live Hindsight Cloud Bank]** (14 real cloud memories with UUIDs) and **[Demonstration Fixtures]**.
-   - Show the newly retained campaign postmortem appearing in the live activity stream.
-3. **Conclusion / Punchline**:
-   - "Every campaign executed on CampaignEcho makes the next campaign smarter. The AI agent never starts from scratch, never repeats past mistakes, and grounds every creative recommendation in empirical memory banks powered by Vectorize Hindsight."
+To run the automated Playwright browser UAT suite (21 responsive route checks + 7 multi-tenant journey steps):
+```powershell
+powershell -ExecutionPolicy Bypass -File scripts\run_integrated_uat.ps1
+```
 
 ---
 
-## Technical Troubleshooting Quick Reference
+## 3. Evaluator Walkthrough Flow (Step-by-Step)
 
-| Issue | Quick Fix |
-| :--- | :--- |
-| **Backend Unreachable** | Run `.\venv\Scripts\uvicorn.exe backend.app.main:app --host 127.0.0.1 --port 8000` |
-| **Frontend Unreachable** | Run `cd frontend && npm start` (or `npm run dev`) |
-| **Hindsight Auth Issue** | Confirm `HINDSIGHT_API_KEY` is present in root `.env` |
-| **LLM Inference** | Primary engine is Z.ai GLM-4.5-Flash (free, fast reasoning model at `open.bigmodel.cn`) |
+### Phase 0: Editorial Public Landing Page (`/`)
+1. Open `http://localhost:3000/`.
+2. Notice the clean, high-conviction product positioning:
+   - Headline: *"Your next campaign should remember the last one."*
+   - Anti-AI-slop typography: Instrument Serif headline paired with clean DM Sans copy.
+   - Primary Call to Action: **Create your workspace**.
+   - Secondary Call to Action: **See how it works** (smooth scroll to the 5-step cognitive loop).
+3. Review the **5-Step Continuous Cognitive Loop**:
+   - `01 Retain` → `02 Recall` → `03 Reflect` → `04 Generate` → `05 Learn`.
+4. Review the **Epistemic Triad Architecture**:
+   - Explicit demarcation of Observed Facts, Strategic Inferences, and Epistemic Uncertainties.
+5. Review the **Evaluator Showcase Guide**:
+   - Direct guide for judges testing authentic brand onboarding, multi-tenant memory bank isolation, and strategy evolution.
+
+### Phase 1: Workspace Authentication & Multi-Brand Profile (`/workspace`)
+1. Click **Sign in** or navigate to `http://localhost:3000/login`.
+2. Enter your credentials or click **Register** to create an evaluator workspace.
+3. Upon login, you are redirected to the authenticated workspace dashboard at `/workspace`:
+   - Live telemetry status shows `ALIVE` and `CONNECTED` database.
+   - If starting fresh, the workspace truthfully reflects the brand's **initial learning stage** with zero synthetic mock cards.
+4. To onboard a new brand with isolated memory banks:
+   - Navigate to `/onboarding`.
+   - Enter your company name (e.g., "Apex Peak Athletics"), industry, primary voice, and core constraints.
+   - The platform idempotently derives a 1:1 brand memory bank (`campaignecho-brand-{id}`).
+
+### Phase 2: Memory-Grounded Campaign Strategy (`/campaign-studio`)
+1. Open `http://localhost:3000/campaign-studio`.
+2. Select your brand from the brand selector.
+3. Enter Brief:
+   - **Campaign Name**: "Late-Night Queso Drop" (or custom campaign brief)
+   - **Primary Objective**: "Drive midnight walk-ins among university students"
+   - **Target Audience**: "College students (ages 18-24)"
+   - **Geographic Market**: "Austin, Texas"
+4. Click **Generate Memory-Grounded Strategy**.
+5. Inspect the generated strategy deck:
+   - **Epistemic Triad**: Clear demarcation of **Observed Facts**, **Strategic Inferences**, **Actionable Recommendations**, and **Uncertainties**.
+   - **Memory Citation Chips**: For established brands, citation chips link directly to past verified performance metrics.
+
+### Phase 3: The Signature Feature — Memory Evolution (`/memory-evolution`)
+1. Open `http://localhost:3000/memory-evolution`.
+2. Select your brand or click **Fill from Brand Profile** to auto-populate the test brief from the brand's stored guidelines.
+3. Click **Compare Strategies**:
+   - The engine generates two strategies under identical conditions (same brief, brand profile, provider, model, temperature 0.7, token budget 8192).
+   - **Mode A (Stateless Baseline)**: Generated with 0 memory access. Contains 0 citations and resorts to generic tropes.
+   - **Mode B (Hindsight Memory-Powered)**: Grounded in Vectorize Hindsight `recall` and `reflect`. Contains verified citations and enforces historical negative constraints.
+4. Scroll to the **Verifiable Differences Ledger**:
+   - Review 6 concrete dimensions (Historical Evidence, Brand Constraints, Past Mistakes Avoided, Strategic Differentiation, Citation Integrity, Epistemic Uncertainties).
+   - **Anti-Slop Guarantee**: Zero fake AI percentage scores (no "95% better"). Only verifiable empirical divergences.
+
+### Phase 4: Closing the Continuous Learning Loop (`/campaign-studio`)
+1. In `/campaign-studio`, open **Submit Results & Close Loop**.
+2. Enter performance observations:
+   - Impressions: `54,200`
+   - Redemptions: `412`
+   - Spend: `$1,250.00`
+   - Lessons Learned: "Flash code CRUNCH22 generated 82% of redemptions between 11:30 PM and 1:00 AM."
+3. Click **Retain & Verify Closed Loop**:
+   - The backend records quantitative metrics to SQLite.
+   - Formulates a structured postmortem and executes Hindsight `aretain`.
+   - Executes immediate Hindsight `arecall` verification.
+   - Displays green confirmation banner with the live Hindsight Retain Operation ID and sub-second verified retrieval status.
+
+### Phase 5: Verification in Memory Explorer & Campaign History
+1. Open `/memory-explorer`:
+   - Inspect the active Vectorize Hindsight memory bank.
+   - For fresh brands, verify that newly ingested memories appear in real-time.
+2. Open `/campaign-history`:
+   - Inspect the historical campaign ledger showing completed campaigns, actual conversion metrics, and live Hindsight retention status.
+3. **Summary**: Every dollar spent makes the next campaign smarter.
+
+### Phase 4: Closing the Continuous Learning Loop (`/campaign-studio`)
+1. Return to `/campaign-studio` and open **Submit Results & Close Loop**.
+2. Enter performance observations:
+   - Impressions: `54,200`
+   - Redemptions: `412`
+   - Spend: `$1,250.00`
+   - Lessons Learned: "Flash code CRUNCH22 generated 82% of redemptions between 11:30 PM and 1:00 AM."
+3. Click **Retain & Verify Closed Loop**:
+   - The backend records quantitative metrics to SQLite.
+   - Formulates a structured postmortem and executes Hindsight `aretain`.
+   - Executes immediate Hindsight `arecall` verification.
+   - Displays green confirmation banner with the live Hindsight Retain Operation ID and sub-second verified retrieval status.
+
+### Phase 5: Fresh-Session Learning Proof
+1. Open a new Incognito / Private window or navigate to `/campaign-history`.
+2. The newly retained experience is indexed in the historical ledger.
+3. Generating a subsequent campaign automatically surfaces the fresh memory in the Memory Grounding Desk.
+4. **Summary**: Every dollar spent makes the next campaign smarter.

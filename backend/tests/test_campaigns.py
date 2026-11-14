@@ -70,6 +70,25 @@ def mock_llm_strategy():
 
 def test_campaign_generation_endpoint(db_session, test_brand, mock_llm_strategy):
     """Test POST /api/v1/campaigns/generate with mocked memory and LLM service."""
+    from backend.app.db.models import User
+    from backend.app.core.security import create_user_session, hash_password
+
+    user = User(
+        email="gen_tester@campaignecho.io",
+        hashed_password=hash_password("ValidPassword123!"),
+        full_name="Gen Tester",
+        is_active=True,
+    )
+    db_session.add(user)
+    db_session.commit()
+    db_session.refresh(user)
+
+    test_brand.user_id = user.id
+    test_brand.is_synthetic = False
+    db_session.commit()
+
+    _, raw_token = create_user_session(db_session, user_id=user.id)
+
     mock_mem = MagicMock(spec=MemoryService)
     mock_mem.get_bank_id_for_brand.return_value = f"campaignecho-brand-{test_brand.id}"
     mock_mem.provision_bank = AsyncMock()
@@ -97,10 +116,14 @@ def test_campaign_generation_endpoint(db_session, test_brand, mock_llm_strategy)
             "offer_or_promotion": "Free Queso with Burrito",
             "budget": 800.0,
             "primary_kpi": "Store Redemptions",
-            "is_synthetic": True,
+            "is_synthetic": False,
         }
 
-        resp = client.post("/api/v1/campaigns/generate", json=payload)
+        resp = client.post(
+            "/api/v1/campaigns/generate",
+            json=payload,
+            headers={"Authorization": f"Bearer {raw_token}"},
+        )
         assert resp.status_code == 201
         data = resp.json()
 
@@ -116,6 +139,25 @@ def test_campaign_generation_endpoint(db_session, test_brand, mock_llm_strategy)
 
 def test_campaign_results_submission_closes_loop(db_session, test_brand):
     """Test POST /api/v1/campaigns/{id}/results records metrics and retains to Hindsight."""
+    from backend.app.db.models import User
+    from backend.app.core.security import create_user_session, hash_password
+
+    user = User(
+        email="results_tester@campaignecho.io",
+        hashed_password=hash_password("ValidPassword123!"),
+        full_name="Results Tester",
+        is_active=True,
+    )
+    db_session.add(user)
+    db_session.commit()
+    db_session.refresh(user)
+
+    test_brand.user_id = user.id
+    test_brand.is_synthetic = False
+    db_session.commit()
+
+    _, raw_token = create_user_session(db_session, user_id=user.id)
+
     campaign = Campaign(
         brand_id=test_brand.id,
         name="Flash Burrito Test Campaign",
@@ -166,7 +208,11 @@ def test_campaign_results_submission_closes_loop(db_session, test_brand):
             "is_synthetic": True,
         }
 
-        resp = client.post(f"/api/v1/campaigns/{campaign.id}/results", json=results_payload)
+        resp = client.post(
+            f"/api/v1/campaigns/{campaign.id}/results",
+            json=results_payload,
+            headers={"Authorization": f"Bearer {raw_token}"},
+        )
         assert resp.status_code == 200
         data = resp.json()
 

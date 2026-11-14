@@ -25,12 +25,51 @@ def get_utc_now() -> datetime:
     return datetime.now(timezone.utc)
 
 
+class User(Base):
+    """User account entity for multi-user authentication."""
+
+    __tablename__ = "users"
+
+    id = Column(String(36), primary_key=True, default=generate_uuid)
+    email = Column(String(255), unique=True, index=True, nullable=False)
+    hashed_password = Column(String(255), nullable=False)
+    full_name = Column(String(255), nullable=False)
+    is_active = Column(Boolean, default=True, nullable=False)
+
+    created_at = Column(DateTime, default=get_utc_now, nullable=False)
+    updated_at = Column(DateTime, default=get_utc_now, onupdate=get_utc_now, nullable=False)
+
+    # Relationships
+    brands = relationship("Brand", back_populates="user", cascade="all, delete-orphan")
+    sessions = relationship("UserSession", back_populates="user", cascade="all, delete-orphan")
+
+
+class UserSession(Base):
+    """Server-side revocable session for multi-user authentication."""
+
+    __tablename__ = "user_sessions"
+
+    id = Column(String(36), primary_key=True, default=generate_uuid)
+    user_id = Column(String(36), ForeignKey("users.id", ondelete="CASCADE"), nullable=False, index=True)
+    token_hash = Column(String(64), unique=True, index=True, nullable=False)
+    ip_address = Column(String(45), nullable=True)
+    user_agent = Column(String(500), nullable=True)
+
+    created_at = Column(DateTime, default=get_utc_now, nullable=False)
+    expires_at = Column(DateTime, nullable=False)
+    revoked_at = Column(DateTime, nullable=True)
+
+    # Relationships
+    user = relationship("User", back_populates="sessions")
+
+
 class Brand(Base):
-    """Brand profile entity."""
+    """Brand profile / business workspace entity."""
 
     __tablename__ = "brands"
 
     id = Column(String(36), primary_key=True, default=generate_uuid)
+    user_id = Column(String(36), ForeignKey("users.id", ondelete="CASCADE"), nullable=True)
     name = Column(String(255), nullable=False)
     industry = Column(String(100), nullable=False)
     description = Column(Text, nullable=False)
@@ -39,6 +78,16 @@ class Brand(Base):
     brand_voice = Column(String(100), nullable=False)
     preferred_language = Column(String(20), default="en", nullable=False)
     restrictions = Column(Text, nullable=True)
+
+    # Extended business profile metadata
+    is_archived = Column(Boolean, default=False, nullable=False)
+    website = Column(String(255), nullable=True)
+    instagram_handle = Column(String(100), nullable=True)
+    products_or_services = Column(Text, nullable=True)
+    unique_selling_points = Column(Text, nullable=True)
+    price_range = Column(String(50), nullable=True)
+    key_offers = Column(Text, nullable=True)
+    competitors = Column(Text, nullable=True)
     
     # Internal backend Hindsight bank identifier (campaignecho-brand-{id})
     # Nullable in M1, populated during M2 bank provisioning
@@ -49,9 +98,11 @@ class Brand(Base):
     updated_at = Column(DateTime, default=get_utc_now, onupdate=get_utc_now, nullable=False)
 
     # Relationships
+    user = relationship("User", back_populates="brands")
     campaigns = relationship("Campaign", back_populates="brand", cascade="all, delete-orphan")
     memory_logs = relationship("MemoryLog", back_populates="brand", cascade="all, delete-orphan")
     verification_runs = relationship("MemoryVerificationRun", back_populates="brand", cascade="all, delete-orphan")
+    comparisons = relationship("CampaignComparison", back_populates="brand", cascade="all, delete-orphan")
 
 
 class Campaign(Base):
@@ -173,4 +224,48 @@ class MemoryVerificationRun(Base):
 
     # Relationships
     brand = relationship("Brand", back_populates="verification_runs")
+
+
+class CampaignComparison(Base):
+    """Controlled A/B comparison between baseline strategy (Mode A) and memory-powered strategy (Mode B).
+    
+    Demonstrates CampaignEcho's signature feature: how Vectorize Hindsight memory changes
+    the generated campaign strategy when brief, model, and parameters are kept strictly identical.
+    """
+
+    __tablename__ = "campaign_comparisons"
+
+    id = Column(String(36), primary_key=True, default=generate_uuid)
+    brand_id = Column(String(36), ForeignKey("brands.id", ondelete="CASCADE"), nullable=False, index=True)
+    name = Column(String(255), nullable=False)
+    
+    # Input brief data
+    campaign_brief = Column(JSON, nullable=False)
+    
+    # Generated outputs
+    baseline_strategy = Column(JSON, nullable=False)  # Mode A: Without Historical Memory
+    memory_strategy = Column(JSON, nullable=False)    # Mode B: With Hindsight Memory
+    
+    # LLM execution provenance (strictly identical across both modes)
+    provider = Column(String(50), nullable=False)
+    model = Column(String(100), nullable=False)
+    generation_parameters = Column(JSON, nullable=False)
+    prompt_version = Column(String(50), default="v1.0", nullable=False)
+    
+    # Statuses
+    baseline_status = Column(String(30), default="COMPLETED", nullable=False)
+    memory_status = Column(String(30), default="COMPLETED", nullable=False)
+    
+    # Memory Context (retrieved Hindsight items & reflections)
+    retrieved_memory_references = Column(JSON, nullable=True)
+    reflection_metadata = Column(JSON, nullable=True)
+    
+    # Verifiable comparison differences (no fake percentage scores)
+    comparison_summary = Column(JSON, nullable=False)
+    
+    created_at = Column(DateTime, default=get_utc_now, nullable=False)
+
+    # Relationships
+    brand = relationship("Brand", back_populates="comparisons")
+
 

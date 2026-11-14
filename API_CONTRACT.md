@@ -325,21 +325,85 @@ Retrieves privacy-safe operational telemetry from the SQLite `memory_logs` table
 
 ---
 
-## 4. Campaign Orchestration & Evolution (Scheduled for M3 - M5)
+## 4. Campaign Orchestration & Evolution
 
-### `POST /campaigns/generate` (Scheduled for M3)
-Generate a structured, memory-backed marketing strategy for a brand brief.
+### `POST /campaigns/generate`
+Generate a structured, memory-backed marketing strategy for a brand brief. Retains memory context and grounds proposals in prior performance.
 
-### `POST /campaigns/{id}/results` (Scheduled for M3)
-Record actual performance data and qualitative review, triggering native Hindsight `aretain`.
+### `POST /campaigns/{id}/results`
+Record actual performance data and qualitative review, triggering native Hindsight `aretain` to close the continuous learning loop.
 
-### `POST /campaigns/compare` (Scheduled for M5)
-Executes parallel generations: Mode A (Zero-Memory) vs. Mode B (Hindsight Memory-Powered).
-Comparison metrics rely strictly on verifiable evidence, brand-rule compliance, and specific past-mistake avoidance—**no fake or AI self-graded percentage scores**.
+### `POST /campaigns/compare`
+Executes controlled parallel strategy generations under identical conditions: Mode A (Zero-Memory Baseline) vs. Mode B (Vectorize Hindsight Memory-Powered). Comparison metrics rely strictly on verifiable evidence, brand-rule compliance, and specific past-mistake avoidance—**no fake or AI self-graded percentage scores**.
+
+#### Request Body
+```json
+{
+  "brand_id": "b0f7a264-8845-4279-9923-28f7311c1092",
+  "brief": {
+    "name": "Late-Night Crunch Run",
+    "target_audience": "University students (18-24)",
+    "primary_offer": "Free loaded queso with 2-taco box after 10 PM",
+    "budget": "$1,200",
+    "flight_dates": "Nov 15 - Nov 30"
+  }
+}
+```
+
+#### Response (`201 Created`)
+```json
+{
+  "id": "48894c9a-79f8-4e0a-8984-70ee703e66eb",
+  "brand_id": "b0f7a264-8845-4279-9923-28f7311c1092",
+  "brief": { ... },
+  "mode_a_strategy": { ... },
+  "mode_b_strategy": { ... },
+  "comparison_summary": {
+    "retrieved_memories_count": 14,
+    "mode_a_citations_count": 0,
+    "mode_b_citations_count": 3,
+    "avoided_past_mistakes": [
+      "Steered away from generic non-incentivized announcements based on prior brand baseline."
+    ],
+    "brand_rule_adherence": [
+      "Targeted college student night hours (10 PM - 2 AM)",
+      "Strictly adhered to alcohol discount restrictions"
+    ],
+    "key_strategy_divergences": [
+      "Mode B grounded offer timing specifically between 11 PM and 1 AM based on historical flash-code data",
+      "Mode A relied on generic all-day student messaging"
+    ],
+    "dimension_checks": [
+      {
+        "dimension": "Memory Citations",
+        "mode_a": "0 citations (stateless)",
+        "mode_b": "3 verified Hindsight citations",
+        "verdict": "Mode B is empirically grounded in historical campaign data"
+      }
+    ],
+    "unresolved_uncertainties": [
+      "Optimal weekday vs weekend spend allocation requires ongoing split testing"
+    ]
+  },
+  "generation_parameters": {
+    "provider": "zai",
+    "model": "glm-4.5-flash",
+    "temperature": 0.7,
+    "max_tokens": 8192
+  },
+  "created_at": "2026-11-08T00:00:00Z"
+}
+```
+
+### `GET /campaigns/compare`
+List all historical strategy comparisons for a brand.
+
+### `GET /campaigns/compare/{comparison_id}`
+Retrieve full details of a specific strategy comparison by ID.
 
 ---
 
-## 4. Privacy-Safe Memory Telemetry
+## 5. Privacy-Safe Memory Telemetry
 
-### `GET /memory/timeline?brand_id={id}` (Scheduled for M4)
+### `GET /memory/timeline?brand_id={id}`
 Returns operational telemetry (`operation_type`, `context_tag`, `items_count`, `latency_ms`, `created_at`) without exposing raw, confidential conversational contents.

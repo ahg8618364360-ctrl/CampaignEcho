@@ -1,0 +1,279 @@
+{
+  "started_at": "2026-11-14T07:33:31.953Z",
+  "routes": [
+    {
+      "route": "overview",
+      "path": "/",
+      "viewport": "desktop",
+      "status": 200,
+      "expected_text": "CampaignEcho",
+      "text_found": true,
+      "overflow": false,
+      "screenshot": "overview-desktop.png",
+      "passed": true
+    },
+    {
+      "route": "brands",
+      "path": "/brands",
+      "viewport": "desktop",
+      "status": 200,
+      "expected_text": "Brand",
+      "text_found": true,
+      "overflow": false,
+      "screenshot": "brands-desktop.png",
+      "passed": true
+    },
+    {
+      "route": "campaign-studio",
+      "path": "/campaign-studio",
+      "viewport": "desktop",
+      "status": 200,
+      "expected_text": "Campaign",
+      "text_found": true,
+      "overflow": false,
+      "screenshot": "campaign-studio-desktop.png",
+      "passed": true
+    },
+    {
+      "route": "campaign-history",
+      "path": "/campaign-history",
+      "viewport": "desktop",
+      "status": 200,
+      "expected_text": "History",
+      "text_found": true,
+      "overflow": false,
+      "screenshot": "campaign-history-desktop.png",
+      "passed": true
+    },
+    {
+      "route": "memory-evolution",
+      "path": "/memory-evolution",
+      "viewport": "desktop",
+      "status": 200,
+      "expected_text": "Evolution",
+      "text_found": true,
+      "overflow": false,
+      "screenshot": "memory-evolution-desktop.png",
+      "passed": true
+    },
+    {
+      "route": "memory-explorer",
+      "path": "/memory-explorer",
+      "viewport": "desktop",
+      "status": 200,
+      "expected_text": "Memory",
+      "text_found": true,
+      "overflow": false,
+      "screenshot": "memory-explorer-desktop.png",
+      "passed": true
+    },
+    {
+      "route": "settings",
+      "path": "/settings",
+      "viewport": "desktop",
+      "status": 200,
+      "expected_text": "Settings",
+      "text_found": true,
+      "overflow": false,
+      "screenshot": "settings-desktop.png",
+      "passed": true
+    },
+    {
+      "route": "overview",
+      "path": "/",
+      "viewport": "tablet",
+      "status": 200,
+      "expected_text": "CampaignEcho",
+      "text_found": true,
+      "overflow": false,
+      "screenshot": "overview-tablet.png",
+      "passed": true
+    },
+    {
+      "route": "brands",
+      "path": "/brands",
+      "viewport": "tablet",
+      "status": 200,
+      "expected_text": "Brand",
+      "text_found": true,
+      "overflow": false,
+      "screenshot": "brands-tablet.png",
+      "passed": true
+    },
+    {
+      "route": "campaign-studio",
+      "path": "/campaign-studio",
+      "viewport": "tablet",
+      "status": 200,
+      "expected_text": "Campaign",
+      "text_found": true,
+      "overflow": false,
+      "screenshot": "campaign-studio-tablet.png",
+      "passed": true
+    },
+    {
+      "route": "campaign-history",
+      "path": "/campaign-history",
+      "viewport": "tablet",
+      "status": 200,
+      "expected_text": "History",
+      "text_found": true,
+      "overflow": false,
+      "screenshot": "campaign-history-tablet.png",
+      "passed": true
+    },
+    {
+      "route": "memory-evolution",
+      "path": "/memory-evolution",
+      "viewport": "tablet",
+      "status": 200,
+      "expected_text": "Evolution",
+      "text_found": true,
+      "overflow": false,
+      "screenshot": "memory-evolution-tablet.png",
+      "passed": true
+    },
+    {
+      "route": "memory-explorer",
+      "path": "/memory-explorer",
+      "viewport": "tablet",
+      "status": 200,
+      "expected_text": "Memory",
+      "text_found": true,
+      "overflow": false,
+      "screenshot": "memory-explorer-tablet.png",
+      "passed": true
+    },
+    {
+      "route": "settings",
+      "path": "/settings",
+      "viewport": "tablet",
+      "status": 200,
+      "expected_text": "Settings",
+      "text_found": true,
+      "overflow": false,
+      "screenshot": "settings-tablet.png",
+      "passed": true
+    },
+    {
+      "route": "overview",
+      "path": "/",
+      "viewport": "mobile",
+      "status": 200,
+      "expected_text": "CampaignEcho",
+      "text_found": true,
+      "overflow": false,
+      "screenshot": "overview-mobile.png",
+      "passed": true
+    },
+    {
+      "route": "brands",
+      "path": "/brands",
+      "viewport": "mobile",
+      "status": 200,
+      "expected_text": "Brand",
+      "text_found": true,
+      "overflow": false,
+      "screenshot": "brands-mobile.png",
+      "passed": true
+    },
+    {
+      "route": "campaign-studio",
+      "path": "/campaign-studio",
+      "viewport": "mobile",
+      "status": 200,
+      "expected_text": "Campaign",
+      "text_found": true,
+      "overflow": false,
+      "screenshot": "campaign-studio-mobile.png",
+      "passed": true
+    },
+    {
+      "route": "campaign-history",
+      "path": "/campaign-history",
+      "viewport": "mobile",
+      "status": 200,
+      "expected_text": "History",
+      "text_found": true,
+      "overflow": false,
+      "screenshot": "campaign-history-mobile.png",
+      "passed": true
+    },
+    {
+      "route": "memory-evolution",
+      "path": "/memory-evolution",
+      "viewport": "mobile",
+      "status": 200,
+      "expected_text": "Evolution",
+      "text_found": true,
+      "overflow": false,
+      "screenshot": "memory-evolution-mobile.png",
+      "passed": true
+    },
+    {
+      "route": "memory-explorer",
+      "path": "/memory-explorer",
+      "viewport": "mobile",
+      "status": 200,
+      "expected_text": "Memory",
+      "text_found": true,
+      "overflow": false,
+      "screenshot": "memory-explorer-mobile.png",
+      "passed": true
+    },
+    {
+      "route": "settings",
+      "path": "/settings",
+      "viewport": "mobile",
+      "status": 200,
+      "expected_text": "Settings",
+      "text_found": true,
+      "overflow": false,
+      "screenshot": "settings-mobile.png",
+      "passed": true
+    }
+  ],
+  "journey_steps": [
+    {
+      "step": "User A UI Registration, Redirect & HttpOnly Cookie",
+      "passed": true,
+      "details": "Redirected to /onboarding: true, HttpOnly cookie: true, Zero localStorage token: true"
+    },
+    {
+      "step": "User A UI Onboarding & Brand Workspace Isolation / ID Privacy",
+      "passed": true,
+      "details": "Created Business Alpha ID=2cadf102-932e-426a-a9d8-2f30391a49cd, is_synthetic=false, IDs leaked=false"
+    },
+    {
+      "step": "Campaign Studio UI Generation, Results Ingestion & Cookie Persistence",
+      "passed": true,
+      "details": "Generated campaign via UI, retained clearly labelled UAT outcomes to Hindsight via modal, verified cookie persistence across reload"
+    },
+    {
+      "step": "Campaign History UI & Memory Evolution UI Verification",
+      "passed": true,
+      "details": "History visible: true, Campaign ID: ff671067-b1ba-415b-aada-1e9c6ef40e8d, Comparison ID: e01e3e42-5b1c-434f-9bab-87137e0d51e7, Zero bank_id UI leak: true"
+    },
+    {
+      "step": "User B Separate Context & Multi-Tenant UI Isolation",
+      "passed": true,
+      "details": "User B sees Zenith Hydro Systems: true, Alpha Brand leaked: false, Alpha Campaign leaked: false"
+    },
+    {
+      "step": "Cross-Tenant 404, Synthetic Immutability 403 & CSRF 403",
+      "passed": true,
+      "details": "Cross-tenant 404: true, Synthetic 403: true, CSRF 403: true"
+    },
+    {
+      "step": "UI Logout & Server-Side Session Revocation",
+      "passed": true,
+      "details": "UI signed out state: true, Replaying revoked cookie returned HTTP 401"
+    }
+  ],
+  "console_errors": [],
+  "page_errors": [],
+  "failed_requests": [],
+  "overflow_violations": [],
+  "cleanup": null,
+  "all_passed": true
+}

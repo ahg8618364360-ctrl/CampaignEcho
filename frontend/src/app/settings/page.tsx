@@ -1,10 +1,11 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { checkReadiness, fetchMemoryStatus, type HealthReadyResponse, type MemoryStatusResponse } from "@/lib/api";
+import { checkReadiness, fetchMemoryStatus, API_BASE_URL, type HealthReadyResponse, type MemoryStatusResponse } from "@/lib/api";
 import { PageContainer } from "@/components/PageContainer";
 import { PageHeader } from "@/components/PageHeader";
 import { Button } from "@/components/Button";
+import { useAuth } from "@/lib/auth-context";
 import {
   Server,
   Database,
@@ -18,15 +19,19 @@ import {
 } from "lucide-react";
 
 export default function SettingsPage() {
+  const { activeBrandId, activeBrand } = useAuth();
   const [health, setHealth] = useState<HealthReadyResponse | null>(null);
   const [memoryStatus, setMemoryStatus] = useState<MemoryStatusResponse | null>(null);
   const [loading, setLoading] = useState(true);
 
   const refreshAll = async () => {
     setLoading(true);
+    const memPromise = activeBrandId
+      ? fetchMemoryStatus(activeBrandId)
+      : Promise.resolve(null);
     const [hData, mData] = await Promise.all([
       checkReadiness(),
-      fetchMemoryStatus("9d215d96-2695-41ee-8625-64be3e547504"),
+      memPromise,
     ]);
     setHealth(hData);
     setMemoryStatus(mData);
@@ -35,7 +40,8 @@ export default function SettingsPage() {
 
   useEffect(() => {
     refreshAll();
-  }, []);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [activeBrandId]);
 
   const isBackendAlive = health?.status === "ready" || health?.status === "unready";
   const isDbConnected = health?.database === "connected";
@@ -84,7 +90,7 @@ export default function SettingsPage() {
               <div>
                 <p className="text-xs sm:text-sm font-medium text-ink font-sans">FastAPI Backend Service</p>
                 <p className="text-[11px] text-ink-secondary font-sans">
-                  Endpoint: <code className="font-mono text-ink">http://127.0.0.1:8000/api/v1</code>
+                  Endpoint: <code className="font-mono text-ink">{API_BASE_URL}</code>
                 </p>
               </div>
             </div>

@@ -8,6 +8,7 @@ __pycache__/
 # Next.js build artifacts
 frontend/.next/
 frontend/out/
+*.tsbuildinfo
 
 # Database files
 *.db
@@ -33,3 +34,8 @@ scratch/
 .DS_Store
 Thumbs.db
 
+
+# Process tracking
+*.pid
+scripts/demo-ownership.json
+*.egg-info/

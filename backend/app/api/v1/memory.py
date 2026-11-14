@@ -1,8 +1,13 @@
+"""CampaignEcho — Hindsight Memory Engine Endpoints."""
+
 from typing import Optional
-from fastapi import APIRouter, Depends, Query, status
+from fastapi import APIRouter, Depends, HTTPException, Query, status
 from sqlalchemy.orm import Session
 
 from backend.app.db.session import get_db
+from backend.app.db.models import Brand, User
+from backend.app.core.exceptions import ResourceNotFoundException
+from backend.app.core.security import get_current_user, get_current_user_optional
 from backend.app.schemas.memory import (
     BankProvisionRequest,
     BankProvisionResponse,
@@ -27,6 +32,33 @@ def get_memory_service() -> MemoryService:
     return _default_memory_service
 
 
+def _verify_brand_access(db: Session, brand_id: str, current_user: Optional[User]) -> Brand:
+    brand = db.query(Brand).filter(Brand.id == brand_id).first()
+    if not brand:
+        raise ResourceNotFoundException("Brand", brand_id)
+    if current_user:
+        if brand.user_id != current_user.id and not brand.is_synthetic:
+            raise ResourceNotFoundException("Brand", brand_id)
+    else:
+        if not brand.is_synthetic:
+            raise ResourceNotFoundException("Brand", brand_id)
+    return brand
+
+
+def _verify_owned_writable_brand(db: Session, brand_id: str, current_user: User) -> Brand:
+    brand = db.query(Brand).filter(Brand.id == brand_id).first()
+    if not brand:
+        raise ResourceNotFoundException("Brand", brand_id)
+    if brand.is_synthetic:
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="Benchmark demo brand memory bank is immutable. Write operations are prohibited.",
+        )
+    if brand.user_id != current_user.id:
+        raise ResourceNotFoundException("Brand", brand_id)
+    return brand
+
+
 @router.post(
     "/provision",
     response_model=BankProvisionResponse,
@@ -37,9 +69,11 @@ async def provision_bank(
     brand_id: str,
     payload: Optional[BankProvisionRequest] = None,
     db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user),
     service: MemoryService = Depends(get_memory_service),
 ):
     """Idempotently provisions a dedicated Vectorize Hindsight memory bank for the brand."""
+    _verify_owned_writable_brand(db, brand_id, current_user)
     p = payload or BankProvisionRequest()
     return await service.provision_bank(
         db=db,
@@ -61,9 +95,11 @@ async def retain_memory(
     brand_id: str,
     payload: MemoryRetainRequest,
     db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user),
     service: MemoryService = Depends(get_memory_service),
 ):
     """Asynchronously stores a campaign observation, post-mortem feedback, or brand rule into memory."""
+    _verify_owned_writable_brand(db, brand_id, current_user)
     return await service.retain(
         db=db,
         brand_id=brand_id,
@@ -73,7 +109,7 @@ async def retain_memory(
         metadata=payload.metadata,
         tags=payload.tags,
         entities=payload.entities,
-        is_synthetic=payload.is_synthetic,
+        is_synthetic=False,
         source_type=payload.source_type,
         campaign_id=payload.campaign_id,
         verification_run_id=payload.verification_run_id,
@@ -90,9 +126,11 @@ async def recall_memories(
     brand_id: str,
     payload: MemoryRecallRequest,
     db: Session = Depends(get_db),
+    current_user: Optional[User] = Depends(get_current_user_optional),
     service: MemoryService = Depends(get_memory_service),
 ):
     """Contextually retrieves relevant historical memories from the brand's dedicated bank."""
+    _verify_brand_access(db, brand_id, current_user)
     return await service.recall(
         db=db,
         brand_id=brand_id,
@@ -116,9 +154,11 @@ async def reflect_memory(
     brand_id: str,
     payload: MemoryReflectRequest,
     db: Session = Depends(get_db),
+    current_user: Optional[User] = Depends(get_current_user_optional),
     service: MemoryService = Depends(get_memory_service),
 ):
     """Synthesizes high-level marketing guidelines and recurring patterns across historical experiences."""
+    _verify_brand_access(db, brand_id, current_user)
     return await service.reflect(
         db=db,
         brand_id=brand_id,
@@ -139,9 +179,11 @@ async def verify_brand_memory_operations(
     brand_id: str,
     verification_run_id: Optional[str] = Query(None, description="Optional custom verification run ID"),
     db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user),
     service: MemoryService = Depends(get_memory_service),
 ):
     """Executes a correlated verification suite (RETAIN, RECALL, REFLECT) ensuring all 3 succeed."""
+    _verify_owned_writable_brand(db, brand_id, current_user)
     return await service.run_verification_suite(
         db=db,
         brand_id=brand_id,
@@ -158,9 +200,11 @@ async def verify_brand_memory_operations(
 async def get_memory_status(
     brand_id: str,
     db: Session = Depends(get_db),
+    current_user: Optional[User] = Depends(get_current_user_optional),
     service: MemoryService = Depends(get_memory_service),
 ):
     """Inspects live readiness, bank provisioning status, and Hindsight connectivity."""
+    _verify_brand_access(db, brand_id, current_user)
     return await service.get_status(db=db, brand_id=brand_id)
 
 
@@ -174,9 +218,11 @@ def get_memory_activity(
     brand_id: str,
     limit: int = Query(50, ge=1, le=200),
     db: Session = Depends(get_db),
+    current_user: Optional[User] = Depends(get_current_user_optional),
     service: MemoryService = Depends(get_memory_service),
 ):
     """Retrieves privacy-preserving operational audit telemetry for the brand's memory operations."""
+    _verify_brand_access(db, brand_id, current_user)
     return service.get_activity_logs(db=db, brand_id=brand_id, limit=limit)
 
 
@@ -189,9 +235,11 @@ async def explore_brand_memories(
     brand_id: str,
     query: str = Query("campaign marketing audience performance", description="Search query for memory recall"),
     db: Session = Depends(get_db),
+    current_user: Optional[User] = Depends(get_current_user_optional),
     service: MemoryService = Depends(get_memory_service),
 ):
     """Retrieve live memories, engine status, and operational activity for Memory Explorer."""
+    _verify_brand_access(db, brand_id, current_user)
     status_resp = await service.get_status(db=db, brand_id=brand_id)
     activity_resp = service.get_activity_logs(db=db, brand_id=brand_id, limit=20)
 
@@ -229,5 +277,3 @@ async def explore_brand_memories(
         "live_records": live_records,
         "activities": [a.model_dump() for a in activity_resp.activities],
     }
-
-

@@ -1,36 +1,39 @@
 # CampaignEcho — Release Checklist & Evaluation Runbook
 
-**Version**: 1.0.0-rc2 (Milestone 3.2 UI Consistency & Release Patch)  
-**Status**: Ready for Final Demonstration & Submission  
-**Target Date**: November 7, 2026
+**Version**: 1.0.0 (Milestone 6 Production Verification & Engineering Audit)  
+**Status**: Ready for Final Demonstration & Evaluator Walkthrough  
+**Target Date**: November 8, 2026
 
 ---
 
 ## 1. Local Runtime Verification
 
-Before recording demonstration videos or conducting evaluator walkthroughs, ensure both application daemons and databases are online:
+Before recording demonstration videos or conducting evaluator walkthroughs, ensure both application daemons and databases are online using the automated runner:
 
-### Step 1: Start Backend Daemon
+### Step 1: Run Pre-Flight Diagnostics
 ```powershell
-# In c:\CampaignEcho
-.\venv\Scripts\uvicorn.exe backend.app.main:app --host 127.0.0.1 --port 8000
+# In C:\CampaignEcho
+powershell -ExecutionPolicy Bypass -File scripts\check-demo.ps1
 ```
-- Verify: `curl http://127.0.0.1:8000/api/v1/health/ready` returns `{"status":"ready","database":"connected"}`.
+- Verify: Python, Node, database schema, live Vectorize Hindsight Cloud, and live Z.ai API are confirmed.
 
-### Step 2: Start Frontend Next.js Server
+### Step 2: One-Command Demonstration Startup
 ```powershell
-# In c:\CampaignEcho\frontend
-npm.cmd start
-# (Or npm.cmd run dev for development mode)
+powershell -ExecutionPolicy Bypass -File scripts\start-demo.ps1
 ```
-- Verify: Access `http://localhost:3000` in Chrome/Edge.
+- Automatically applies migrations, checks backend `/api/v1/health/ready`, checks Next.js `http://localhost:3000`, and records process ownership safely.
 
 ### Step 3: Run Full Automated Verification Suite
 ```powershell
-# In c:\CampaignEcho
 .\venv\Scripts\pytest.exe -v --tb=short backend/tests
 ```
-- Expected: **35 passed, 0 skipped, 0 failed** (including all 5 live Hindsight Cloud integration tests and live continuous learning loop).
+- Expected: **42 passed, 0 skipped, 0 failed, 0 warnings** (including all 5 live Hindsight Cloud integration tests, live continuous learning loop, and 3 seeder safety tests).
+
+### Step 4: Safe Demonstration Shutdown
+```powershell
+powershell -ExecutionPolicy Bypass -File scripts\stop-demo.ps1
+```
+- Verifies process ownership and terminates only CampaignEcho processes.
 
 ---
 
@@ -58,6 +61,11 @@ Follow [docs/VIDEO_SCRIPT.md](file:///c:/CampaignEcho/docs/VIDEO_SCRIPT.md) for 
    - Enter synthetic performance observations (e.g. 48,200 impressions, 389 redemptions, peak conversion between 11 PM and 1 AM).
    - Submit. Watch the status transition to `COMPLETED`.
    - Point out that Hindsight retained the postmortem (`aretain`) and created episodic cognitive memory facts in the brand bank.
+5. **Memory Evolution Controlled A/B Audit (`/memory-evolution`)**:
+   - Signature capability: Click "Load Demo Brief" or select a brand.
+   - Click "Compare Strategies".
+   - View the side-by-side deck: Mode A (Stateless Baseline with 0 citations) vs Mode B (Vectorize Hindsight Powered with verified citations).
+   - Walk through the Verifiable Differences Ledger: 6 concrete dimensions, zero fake percentage scores, grounded citations, and avoided past historical mistakes.
 5. **Memory Explorer Verification (`/memory-explorer`)**:
    - Open Memory Explorer.
    - Switch between **[Live Hindsight Cloud Bank]** (14 real recalled records with cloud UUIDs) and **[Demonstration Fixtures]** (baseline fixtures).

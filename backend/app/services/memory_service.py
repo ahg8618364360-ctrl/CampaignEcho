@@ -193,14 +193,14 @@ class MemoryService:
 
         t0 = time.perf_counter()
         status_code = "PROVISIONED"
-        message = f"Bank {bank_id} successfully provisioned."
+        message = "Dedicated brand memory bank successfully provisioned."
 
         try:
             # Check if bank already exists in Hindsight
             try:
                 await self._client.aget_bank_config(bank_id=bank_id)
                 status_code = "ALREADY_EXISTS"
-                message = f"Memory bank {bank_id} already exists and is ready for operations."
+                message = "Dedicated brand memory bank already exists and is ready for operations."
             except Exception:
                 # Bank does not exist yet; create it
                 await self._client.acreate_bank(
@@ -225,7 +225,7 @@ class MemoryService:
                 status="SUCCESS",
                 latency_ms=latency_ms,
                 items_count=1,
-                context_tag=bank_id,
+                context_tag="BANK_PROVISION",
             )
 
             return BankProvisionResponse(
@@ -244,13 +244,13 @@ class MemoryService:
                 status="FAILED",
                 latency_ms=latency_ms,
                 items_count=0,
-                context_tag=bank_id,
+                context_tag="BANK_PROVISION",
             )
             logger.error("Bank provisioning failed for brand %s: %s", brand_id, exc)
             raise CampaignEchoException(
                 message=f"Memory bank provisioning failed: {str(exc)}",
                 status_code=502,
-                details={"brand_id": brand_id, "bank_id": bank_id},
+                details={"brand_id": brand_id},
             )
 
     async def retain(
@@ -360,7 +360,7 @@ class MemoryService:
             raise CampaignEchoException(
                 message=f"Memory retention failed: {str(exc)}",
                 status_code=502,
-                details={"brand_id": brand_id, "bank_id": bank_id},
+                details={"brand_id": brand_id},
             )
 
     async def recall(
@@ -472,7 +472,7 @@ class MemoryService:
             raise CampaignEchoException(
                 message=f"Memory recall failed: {str(exc)}",
                 status_code=502,
-                details={"brand_id": brand_id, "bank_id": bank_id},
+                details={"brand_id": brand_id},
             )
 
     async def reflect(
@@ -554,7 +554,7 @@ class MemoryService:
             raise CampaignEchoException(
                 message=f"Memory reflection failed: {str(exc)}",
                 status_code=502,
-                details={"brand_id": brand_id, "bank_id": bank_id},
+                details={"brand_id": brand_id},
             )
 
     async def get_status(self, db: Session, brand_id: str) -> MemoryStatusResponse:
@@ -775,7 +775,11 @@ class MemoryService:
                 id=log.id,
                 brand_id=log.brand_id,
                 operation_type=log.operation_type,
-                context_tag=log.context_tag,
+                context_tag=(
+                    "BANK_PROVISION"
+                    if (log.context_tag and "campaignecho-brand-" in log.context_tag)
+                    else log.context_tag
+                ),
                 items_count=log.items_count,
                 status=log.status,
                 latency_ms=log.latency_ms,

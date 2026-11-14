@@ -1,129 +1,151 @@
-# CampaignEcho — 3-Minute Video Demonstration Script
+# CampaignEcho — 4-Minute Official Video Demonstration Script
 
 **Title**: Continuous Campaign Intelligence Powered by Vectorize Hindsight  
-**Target Duration**: 3 Minutes 15 Seconds (195 Seconds)  
-**Format**: High-definition screencast with picture-in-picture presenter audio  
-**Voice / Tone**: Professional, technical, authoritative, crisp  
+**Presenter / Host**: Adarsh (Team Lead & Systems Architect)  
+**Target Duration**: 4 Minutes 00 Seconds (240 Seconds)  
+**Format**: 1080p60 Screencast with Host Webcam Picture-in-Picture  
+**Brand**: The Taco Syndicate (Austin, TX) — Synthetic Evaluation Fixture  
+**Synthetic Provenance Note**: *The Taco Syndicate* and its metrics are synthetic demonstration fixtures; Hindsight Cloud API operations and Z.ai inferences are real live cloud operations.  
 **Prohibited Content**: Zero occurrences of informal slang or banned competition terminology  
 
 ---
 
 ## Storyboard & Timing Overview
 
-| Scene | Time | Section | Primary Visual | Key Audio Takeaway |
+| Scene | Time | Section | Screen / Route | Core Message |
 | :--- | :--- | :--- | :--- | :--- |
-| **Scene 1** | 0:00 - 0:30 | The Problem | Visual of disconnected spreadsheets and generic AI prompt boxes | Traditional marketing AI suffers from catastrophic amnesia; every campaign starts from scratch. |
-| **Scene 2** | 0:30 - 1:10 | Hindsight Core | Architecture diagram + Settings page showing live Vectorize Cloud connection | Vectorize Hindsight provides persistent, brand-isolated memory with native Retain, Recall, and Reflect operations. |
-| **Scene 3** | 1:10 - 2:00 | Strategy Generation | Campaign Studio: Brief entry, live generation, Epistemic Triad cards | CampaignEcho retrieves past campaign memories and synthesizes brand heuristics before generating creative angles. |
-| **Scene 4** | 2:00 - 2:45 | Closing the Loop | Performance Results Drawer: Entering conversion data, clicking Retain | Postmortem lessons are retained directly to Hindsight Cloud and immediately verified with live recall. |
-| **Scene 5** | 2:45 - 3:15 | Compounding Value | Campaign History ledger + Memory Explorer timeline | Every campaign compounds brand intelligence, systematically eliminating repeat creative failures. |
+| **Scene 1** | 0:00 - 0:30 | **Introduction** | Camera + Overview (`/`) | Adarsh introduces himself and explains CampaignEcho's mission. |
+| **Scene 2** | 0:30 - 1:00 | **The Problem** | Overview / Visual Slides | Conventional stateless AI suffers from amnesia and repeats costly marketing errors. |
+| **Scene 3** | 1:00 - 1:45 | **Hindsight Core** | Memory Explorer & Settings | Vectorize Hindsight provides persistent, 1:1 brand-isolated memory banks. |
+| **Scene 4** | 1:45 - 2:45 | **Campaign Studio** | `/campaign-studio` | Memory Recall & Reflect ground creative concepts with real citation chips. |
+| **Scene 5** | 2:45 - 3:25 | **Memory Evolution** | `/memory-evolution` | Controlled side-by-side audit: Mode A (Stateless) vs Mode B (Hindsight) with 0 fake scores. |
+| **Scene 6** | 3:25 - 3:50 | **Closing the Loop** | Studio Results Drawer | Performance ingestion, live Hindsight `aretain`, and instant fresh-session indexing. |
+| **Scene 7** | 3:50 - 4:10 | **Fresh Session & Outro** | `/campaign-history` + Camera | Fresh-session recall proves continuous compound intelligence. |
 
 ---
 
 ## Detailed Scene-by-Scene Script
 
-### Scene 1: The Problem of Marketing Amnesia (0:00 - 0:30)
+### Scene 1: Introduction & Welcome (0:00 - 0:30)
 
 **[Visual]**:
-Split screen showing a chaotic folder of marketing postmortem spreadsheets on the left, and a standard AI chatbot prompt box on the right typing: *"Write a social media campaign for my food brand."*
+Adarsh on camera (or split screen with CampaignEcho Executive Overview at `http://localhost:3000`). Clean, professional desk background.
 
-**[Voiceover]**:
-> "Every modern marketing team faces a silent productivity drain: organizational amnesia.
-> 
-> When agencies run ad campaigns, postmortems are filed away in forgotten spreadsheets. When they turn to generative AI for the next launch, the model starts from complete zero. It has no memory of what converted last month, which hooks tanked, or which audiences fatigued.
-> 
-> Today, we're introducing **CampaignEcho**—the first memory-powered marketing intelligence platform that continuously learns from past campaign performance using **Vectorize Hindsight**."
+**[Adarsh Voiceover]**:
+> "Hi everyone, I'm Adarsh, and welcome to **CampaignEcho**—the memory-powered marketing intelligence platform built for modern growth teams.
+>
+> When marketing teams deploy generative AI today, they face a silent productivity tax: every new prompt begins from tabula rasa. High-performing hooks discovered three months ago are completely forgotten, and disastrous mistakes are repeated over and over.
+>
+> CampaignEcho changes that: it doesn't just generate the next campaign—it remembers what happened in the previous one and uses that experience to shape what comes next."
 
 ---
 
-### Scene 2: The Memory Architecture & Hindsight Integration (0:30 - 1:10)
+### Scene 2: The Stateless AI Trap (0:30 - 1:00)
 
 **[Visual]**:
-Switch to browser at `http://localhost:3000/settings`. Highlight the Memory Engine panel showing status: `OPERATIONS_VERIFIED`, Cloud endpoint `https://api.hindsight.vectorize.io`, and tenant memory bank `campaignecho-brand-9d215d96...`.
+Switch to browser at `http://localhost:3000/`. Highlight the active readiness telemetry: SQLite database connected, Vectorize Hindsight Cloud authenticated, and Z.ai GLM-4.5-Flash online.
 
-**[Voiceover]**:
-> "At the architectural core of CampaignEcho is Vectorize Hindsight, an enterprise-grade episodic and semantic memory engine.
-> 
-> Unlike naive vector databases that merely perform basic keyword embeddings, Hindsight provides a complete cognitive memory loop through three core primitives:
-> 
-> First: **Recall**, which semantically queries historical campaign outcomes relevant to a new brief.  
-> Second: **Reflect**, which synthesizes cross-campaign behavioral heuristics and audience sensitivities.  
-> And third: **Retain**, which encodes postmortem performance data into permanent brand-isolated memory banks.
-> 
-> Each brand maintains a deterministic, strictly isolated memory bank. Brand data is never intermingled, guaranteeing enterprise multi-tenant privacy."
+**[Adarsh Voiceover]**:
+> "In traditional agency workflows, postmortem spreadsheets gather dust in shared folders while generative prompts produce bland, generic copy.
+>
+> Why? Because standard LLMs cannot distinguish between speculative hypotheses, historical patterns, and empirically observed conversions.
+>
+> CampaignEcho replaces stateless prompts with a continuous cognitive loop powered by **Vectorize Hindsight Cloud**. Every brief semantically recalls prior learnings; every live campaign outcome retains new institutional truth."
 
 ---
 
-### Scene 3: Memory-Grounded Strategy in Action (1:10 - 2:00)
+### Scene 3: Dedicated Brand Memory Banks & Hindsight Engine (1:00 - 1:45)
 
 **[Visual]**:
-Navigate to `http://localhost:3000/campaign-studio`. Select brand **The Taco Syndicate**.
-Enter Campaign Brief:
-- Goal: "Launch Weekend Midnight Stash Run promo targeting college night owls."
-- Audience: "Urban college students & nightlife crowd within 3 miles."
-- Budget: "$1,500.00"
+Navigate to `http://localhost:3000/memory-explorer`. Select brand **The Taco Syndicate**.
+Show the dual view: Live Hindsight Cloud Bank with 14 active recalled memories and 3 baseline demonstration fixtures. Click into `/settings` to show the `OPERATIONS_VERIFIED` state and deterministic 1:1 brand bank ID mapping (`campaignecho-brand-...`).
+
+**[Adarsh Voiceover]**:
+> "Let's inspect the engine under the hood. Here in the Memory Explorer, we see our live Vectorize Hindsight Cloud memory bank for our demonstration brand, The Taco Syndicate.
+>
+> Unlike simple vector search, Hindsight provides three cognitive primitives:
+>
+> 1. **Recall**: Semantic retrieval of past campaign performance data.
+> 2. **Reflect**: High-level synthesis of behavioral heuristics and audience sensitivities.
+> 3. **Retain**: Automated encoding of real postmortem metrics into long-term memory.
+>
+> Crucially, every brand has strict 1:1 tenant isolation server-side. Brand A's memories can never leak into or contaminate Brand B."
+
+---
+
+### Scene 4: Memory-Grounded Strategy & Epistemic Triad (1:45 - 2:45)
+
+**[Visual]**:
+Navigate to `http://localhost:3000/campaign-studio`.
+Select **The Taco Syndicate**. Fill out brief:
+- Campaign Name: "Late-Night Queso Drop"
+- Objective: "Drive midnight walk-ins among West Campus college students"
+- Platform: "Instagram Reels"
+- Offer: "Free loaded queso with 2-taco box after 10 PM"
 Click **Generate Memory-Grounded Strategy**.
-Show generation animation and the strategy workspace rendering the Epistemic Triad and Short-Form Reel Concepts with clickable Memory Citation Chips.
+Show generation state, then review the resulting strategy deck:
+- Click a **Memory Citation Chip** (e.g. `MEM-d944`) to show the provenance modal referencing prior 48,200 impressions and $1,150 spend.
+- Point out the **Epistemic Triad**: Observed Facts vs Inferences vs Actionable Recommendations vs Declared Uncertainties.
 
-**[Voiceover]**:
-> "Let's see this in action inside the Campaign Studio.
-> 
-> We select our urban street food brand, The Taco Syndicate. Notice on the right, the Memory Grounding Desk actively inspects our live Hindsight Cloud bank. It identifies previous learnings: late-night drops drove 3.2x higher redemptions, while 50% discount codes damaged long-term customer value.
-> 
-> When we click 'Generate Strategy', CampaignEcho executes native async Recall and Reflect calls to Hindsight Cloud. The dual-engine intelligence system—powered by Z.ai GLM-4.5-Flash with automatic Groq failover—generates an executive strategy document.
-> 
-> Crucially, look at the Epistemic Triad: we explicitly distinguish between **Observed Facts** from past data, **Strategic Inferences**, **Recommendations**, and **Aforementioned Uncertainties**. Every creative recommendation features a **Memory Citation Chip**, linking directly to the originating historical insight."
+**[Adarsh Voiceover]**:
+> "Now let's launch a campaign in Campaign Studio.
+>
+> When we submit our brief, CampaignEcho executes native async Recall and Reflect calls against Hindsight Cloud. The engine synthesizes past takeaways: extreme close-up cheese pulls convert at 3.2x higher rates, and midnight flash codes between 11 PM and 1 AM peak in redemptions.
+>
+> Our production LLM—Z.ai GLM-4.5-Flash—generates an executive strategy. Notice the **Epistemic Triad**: we separate verified historical facts from strategic recommendations. And every creative angle includes a clickable **Memory Citation Chip**, grounding the recommendation directly in real historical data."
 
 ---
 
-### Scene 4: Closing the Learning Loop — Results Ingestion & Instant Retain (2:00 - 2:45)
+### Scene 5: Memory Evolution — The Signature Controlled A/B Audit (2:45 - 3:25)
 
 **[Visual]**:
-Click **Submit Results & Close Loop**. The Performance Results Drawer slides open.
-Enter metrics:
-- Impressions: `48,200`
-- Engagements: `3,840`
-- Redemptions: `389`
-- Spend: `$1,420.00`
-- Qualitative What Worked: "Flash drop format at 11:30 PM generated 78% of all redemptions."
-- Qualitative What Failed: "Static banners underperformed dynamic countdown timers."
+Navigate to `http://localhost:3000/memory-evolution`.
+Click **Load Demo Brief**, then click **Compare Strategies**.
+Show the two columns side-by-side:
+- Left: **Mode A (Stateless Baseline)** with 0 citations.
+- Right: **Mode B (Vectorize Hindsight Powered)** with 3 verified citations.
+Scroll down to the **Verifiable Differences Ledger**:
+- Point out 6 qualitative dimensions (Evidence Grounding, Brand Constraints, Past Mistakes Avoided, Strategic Differentiation, Citation Integrity, Explicit Uncertainties).
+- Highlight that there are **zero fake AI percentage scores**.
+
+**[Adarsh Voiceover]**:
+> "This brings us to CampaignEcho's signature differentiator: **Memory Evolution**.
+>
+> Rather than claiming vague improvements, Memory Evolution conducts a scientifically controlled, side-by-side audit. Both Mode A and Mode B receive the exact same brief, brand data, model, temperature, and token budget.
+>
+> Mode A is generated completely stateless with zero memory access. Mode B is grounded in Vectorize Hindsight.
+>
+> Look at the **Verifiable Differences Ledger**: Mode A generates 0 citations and falls into generic student tropes. Mode B references 14 historical memories, cites 3 verified records, avoids documented mistakes like fine-dining truffle positioning, and declares explicit empirical uncertainties. Zero fake percentage scores—just verifiable evidence."
+
+---
+
+### Scene 6: Closing the Continuous Learning Loop (3:25 - 3:50)
+
+**[Visual]**:
+Return to `/campaign-studio` and click **Submit Performance Results**.
+Input synthetic postmortem metrics:
+- Impressions: `54,200` | Redemptions: `412` | Spend: `$1,250`
+- Lessons Learned: "Flash code CRUNCH22 drove 82% of redemptions between 11:30 PM and 1:00 AM."
 Click **Retain & Verify Closed Loop**.
-Show the green verification alert rendering the Hindsight Retain Operation ID and `Verified Retrieval: PASSED (752ms)`.
+Show the green success banner rendering the live Hindsight Retain Operation ID and immediate verified recall confirmation.
 
-**[Voiceover]**:
-> "Now comes the signature breakthrough: closing the continuous learning loop.
-> 
-> Once the campaign concludes, the marketing director submits the real performance metrics. We enter the reach, redemptions, spend, and qualitative findings.
-> 
-> When we click 'Retain & Verify Closed Loop', CampaignEcho formulates a structured postmortem document and dispatches it directly to Vectorize Hindsight Cloud via `aretain`.
-> 
-> Immediately following retention, CampaignEcho runs an active `arecall` verification against Hindsight to confirm that the new learning is indexed and retrievable. In under 800 milliseconds, the verification confirms: PASSED. The loop is officially closed."
+**[Adarsh Voiceover]**:
+> "Once a campaign runs, the loop must be closed.
+>
+> We enter our postmortem performance metrics and qualitative takeaways into the Results Drawer. When we click 'Retain', CampaignEcho dispatches the postmortem directly to Vectorize Hindsight Cloud via `aretain`.
+>
+> Immediately after, CampaignEcho executes an active verification query to prove the memory is indexed and retrievable. In under a second, the verification passes. The experience is now permanently part of the brand's institutional memory."
 
 ---
 
-### Scene 5: Compounding Intelligence & Conclusion (2:45 - 3:15)
+### Scene 7: Fresh-Session Recall & Outro (3:50 - 4:10)
 
 **[Visual]**:
-Navigate to `http://localhost:3000/campaign-history`. Show the updated campaign ledger with live ROAS (4.12x), CPA ($3.65), and the badge `Retained to Hindsight`.
-Briefly click to `http://localhost:3000/memory-explorer` to show the chronological timeline of evolving brand memories.
+Switch back to Adarsh on camera with CampaignEcho logo and GitHub URL on screen (`https://github.com/ahg8618364360-ctrl/CampaignEcho`).
 
-**[Voiceover]**:
-> "Navigating to Campaign History, our completed launch is recorded in the permanent audit ledger.
-> 
-> The next time this brand generates a campaign—whether tomorrow or six months from now—Hindsight will automatically recall that dynamic countdown timers and late-night windows drive superior ROAS for this audience.
-> 
-> The system has learned. It will never repeat the static banner mistake.
-> 
-> CampaignEcho transforms marketing from a cycle of guesswork into a compounding intelligence asset, backed by the verified power of Vectorize Hindsight."
-
----
-
-## Production Video Checklist
-
-- [x] Resolution: 1920x1080 (1080p, 60fps)
-- [x] Clear audio narration with background music ducked by -20dB during voiceover
-- [x] Display real browser interactions at `http://localhost:3000`
-- [x] Show real Hindsight Cloud API responses and verification badge
-- [x] Verify zero occurrences of prohibited competition jargon
-- [x] Include clickable links in video description to code repository and technical documentation
-
+**[Adarsh Voiceover]**:
+> "In the very next session, when a new marketer logs in to plan the next campaign, those fresh learnings are already waiting to shape the creative brief.
+>
+> That is CampaignEcho: enterprise marketing intelligence that gets smarter with every dollar spent.
+>
+> The entire codebase, test suite, and runbook are open source on GitHub. Thank you for watching!"

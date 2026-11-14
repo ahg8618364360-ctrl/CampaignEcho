@@ -27,6 +27,9 @@ class Settings(BaseSettings):
     # Application Version
     VERSION: str = "0.1.0"
 
+    # Authentication & Session Security (OWASP minimum 32 chars, strictly non-placeholder)
+    CAMPAIGNECHO_AUTH_SECRET: Optional[str] = None
+
     # Vectorize Hindsight Configuration
     # Official Cloud: https://api.hindsight.vectorize.io
     # Local Server: http://localhost:8888
@@ -48,7 +51,7 @@ class Settings(BaseSettings):
     ZAI_BASE_URL: str = "https://open.bigmodel.cn/api/paas/v4"
     ZAI_MODEL: str = "glm-4.5-flash"
     ZAI_TEMPERATURE: float = 0.7
-    ZAI_MAX_TOKENS: int = 4096
+    ZAI_MAX_TOKENS: int = 8192
 
     # Active LLM Provider: "zai" (verified working production provider)
     # Groq fallback is disabled until valid active credentials and model (openai/gpt-oss-120b) are verified.
@@ -73,3 +76,43 @@ class Settings(BaseSettings):
 
 
 settings = Settings()
+
+
+def validate_auth_secret(secret: Optional[str] = None) -> str:
+    """Validate that CAMPAIGNECHO_AUTH_SECRET is configured, strong, and non-placeholder.
+    
+    Enforces fail-closed security at application boot:
+    - Must be set (non-empty)
+    - Must not match common placeholders or default secrets
+    - Must be at least 32 characters in length
+    """
+    import os
+    if secret is not None:
+        raw = secret
+    else:
+        raw = os.environ.get("CAMPAIGNECHO_AUTH_SECRET") or settings.CAMPAIGNECHO_AUTH_SECRET
+
+    if not raw or not raw.strip():
+        raise RuntimeError("FATAL: CAMPAIGNECHO_AUTH_SECRET is missing. Server refusing to start with undefined signing key.")
+    
+    val = raw.strip()
+    if len(val) < 32:
+        raise RuntimeError(f"FATAL: CAMPAIGNECHO_AUTH_SECRET is too short ({len(val)} chars). Minimum 32 characters required.")
+        
+    lower = val.lower()
+    placeholders = [
+        "your_auth_secret",
+        "placeholder",
+        "changeme",
+        "secret_key",
+        "default_secret",
+        "campaignecho-secure-secret-key",
+        "todo",
+        "xxxx",
+    ]
+    for ph in placeholders:
+        if ph in lower:
+            raise RuntimeError(f"FATAL: CAMPAIGNECHO_AUTH_SECRET contains forbidden placeholder '{ph}'.")
+            
+    return val
+
